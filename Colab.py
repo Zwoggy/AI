@@ -1160,18 +1160,23 @@ def split_string(input_string: str):
 
 ##########################################################################################
 def use_model_and_predict():
+    """Enter a sequence to use for prediction and generate the heatmap output.
+    All path need to be changed to wherever the files are stored on your computer."""
     sequence = "tpenitdlcaeyhntqihtlnnkifsyteslagkremaiitfkdgatfevevpgsehidsekkaiermkdtlriaylteakveklcvwnnktphaiaaisman"  # Hier die Sequenz eingeben#
     tf.keras.backend.clear_session()
+    """change the following path to the final_AI folder path"""
     model = load_model('G:/Users/tinys/PycharmProjects/teststuff/AI/final_AI',
                        custom_objects = {'TransformerBlock': TransformerBlock,
                                          'TokenAndPositionEmbedding': TokenAndPositionEmbedding,
                                          'TransformerDecoder': TransformerDecoder, "weighted_loss": get_weighted_loss},
                        compile = True
                        )
+    """change the following path to path/final_AI_weights """
     model.load_weights('G:/Users/tinys/PycharmProjects/teststuff/AI/final_AI_weights')
 
     sequence_list = split_string(sequence)
 
+    """change the following path accordingly"""
     with open('G:/Users/tinys/PycharmProjects/teststuff/AI/tokenizer.pickle', 'rb') as handle:
         encoder = pickle.load(handle)
 
@@ -1194,6 +1199,8 @@ def use_model_and_predict():
 
 
 def create_heatmap(data, sequence):
+    """Input: predictions from the model
+    Output: Heatmaps according to the predictions for the whole sequence entered"""
     data = np.array(data[:len(sequence)], dtype = np.float32)
     # data = np.reshape(data, (data.shape[1], data.shape[0]))
 
@@ -1210,6 +1217,7 @@ def create_heatmap(data, sequence):
 
 
 def create_blocks(list1, list2):
+    """creates blocks of max size 20 so that every heatmap has a max length of 20"""
     block_size = 20
     num_blocks1 = len(list1) // block_size
     num_blocks2 = len(list2) // block_size
