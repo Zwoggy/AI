@@ -1208,6 +1208,7 @@ def create_heatmap(data, sequence):
     print(data_list, sequence_list)
 
     for i, (pred, seq) in enumerate(zip(data_list, sequence_list)):
+        """change the path to a folder to save the pictuers in"""
         filename = "G:/Users/tinys/PycharmProjects/teststuff/AI/pictures/" + str(i) + ".png"
         pred = np.reshape(pred, (pred.shape[1], pred.shape[0]))
         plt.figure(dpi = 2500)
@@ -1405,6 +1406,11 @@ except ValueError:
 tf.config.experimental_connect_to_cluster(tpu)
 tf.tpu.experimental.initialize_tpu_system(tpu)
 tpu_strategy = tf.distribute.TPUStrategy(tpu)
+"""
+
+"""these are the functions that are being executed when running the python script.
+Use create_ai() to train a new model.
+Use use_model_and_predict() to use the model for prediction.
 """
 #create_ai('/content/drive/MyDrive/ifp/Dataset-without-1550.xlsx')
 use_model_and_predict()
