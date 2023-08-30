@@ -1174,6 +1174,9 @@ def use_model_and_predict():
     """change the following path to path/final_AI_weights """
     model.load_weights('G:/Users/tinys/PycharmProjects/teststuff/AI/final_AI_weights')
 
+    tf.keras.utils.plot_model(model, expand_nested = True, show_shapes = True,
+                              to_file = 'G:/Users/tinys/PycharmProjects/teststuff/testpicture.png', show_layer_activations = True)
+    print(model.summary(expand_nested = True))
     sequence_list = split_string(sequence)
 
     """change the following path accordingly"""
@@ -1187,16 +1190,42 @@ def use_model_and_predict():
                                                                value = 0)
 
     predictions = model.predict(embedded_docs)
+
+
     x = 1
     pred_list = []
+    sequence_list_for_further_stuff = []
     for i, (pred, seq) in enumerate(zip(predictions, sequence)):
         for (j, seq2) in zip(pred, sequence):
             pred_list.append(j)
+            sequence_list_for_further_stuff.append(seq2 + " " + str(x))
             print(str(x) + ": " + str(j) + " - " + str(sequence[x - 1]))
             x += 1
 
-    create_heatmap(pred_list, sequence)
+    create_better_heatmap(pred_list, sequence, sequence_list_for_further_stuff)
 
+
+def create_better_heatmap(data, sequence, sequence_list):
+    """Input: predictions from the model
+    Output: Heatmaps according to the predictions for the whole sequence entered"""
+
+    data = np.array(data[:len(sequence)], dtype = np.float32)
+    sequence_list = np.array(sequence_list[:len(sequence)], dtype = np.str)
+
+    data_list, sequence_list = create_blocks(data, sequence_list)
+    print(data_list, sequence_list)
+    data_list = np.reshape(data_list, (data_list.shape[1], data_list.shape[0]))
+    sequence_list = np.reshape(sequence_list, (sequence_list.shape[1], sequence_list.shape[0]))
+    print("------------------------------------------------")
+    print(data_list.shape)
+
+    """change the path to a folder to save the pictuers in"""
+    filename = "G:/Users/tinys/PycharmProjects/teststuff/AI/pictures/" + str(8) + ".png"
+
+    plt.figure(dpi = 1000)
+    sb.heatmap(data_list, vmin = 0.2, vmax = 0.8, cmap = "rocket_r", annot=sequence_list, fmt="")
+    plt.savefig(filename, dpi = 1000, bbox_inches = "tight")
+    plt.show()
 
 def create_heatmap(data, sequence):
     """Input: predictions from the model
@@ -1228,24 +1257,12 @@ def create_blocks(list1, list2):
     for i in range(num_blocks1):
         start = i * block_size
         end = start + block_size
-        blocks1.append(list1[start:end])
+        block1 = np.array(list1[start:end])
+        block2 = np.array(list2[start:end])
+        blocks1.append(block1)
+        blocks2.append(block2)
 
-    if len(list1) % block_size > 0:
-        start = num_blocks1 * block_size
-        end = len(list1)
-        blocks1.append(list1[start:end])
-
-    for i in range(num_blocks2):
-        start = i * block_size
-        end = start + block_size
-        blocks2.append(list2[start:end])
-
-    if len(list2) % block_size > 0:
-        start = num_blocks2 * block_size
-        end = len(list2)
-        blocks2.append(list2[start:end])
-
-    return blocks1, blocks2
+    return np.array(blocks1), np.array(blocks2)
 
 ###################################################################################
 def transformer_prediction_loop(testx, test_decoder_x, testy):
