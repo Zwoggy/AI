@@ -1198,7 +1198,7 @@ def use_model_and_predict():
     for i, (pred, seq) in enumerate(zip(predictions, sequence)):
         for (j, seq2) in zip(pred, sequence):
             pred_list.append(j)
-            sequence_list_for_further_stuff.append(seq2 + " " + str(x))
+            sequence_list_for_further_stuff.append(seq2)
             print(str(x) + ": " + str(j) + " - " + str(sequence[x - 1]))
             x += 1
 
@@ -1210,7 +1210,7 @@ def create_better_heatmap(data, sequence, sequence_list):
     Output: Heatmaps according to the predictions for the whole sequence entered"""
 
     data = np.array(data[:len(sequence)], dtype = np.float32)
-    sequence_list = np.array(sequence_list[:len(sequence)], dtype = np.str)
+    sequence_list = np.array(sequence_list[:len(sequence)], dtype = str) ## used to be np.str
 
     data_list, sequence_list = create_blocks(data, sequence_list)
     print(data_list, sequence_list)
@@ -1220,10 +1220,10 @@ def create_better_heatmap(data, sequence, sequence_list):
     print(data_list.shape)
 
     """change the path to a folder to save the pictuers in"""
-    filename = "G:/Users/tinys/PycharmProjects/teststuff/AI/pictures/" + str(8) + ".png"
+    filename = "G:/Users/tinys/PycharmProjects/teststuff/AI/pictures/" + str(11) + ".png"
 
     plt.figure(dpi = 1000)
-    sb.heatmap(data_list, vmin = 0.2, vmax = 0.8, cmap = "rocket_r", annot=sequence_list, fmt="")
+    sb.heatmap(data_list, xticklabels = False, yticklabels = False, vmin = 0.2, vmax = 0.8, cmap = "rocket_r", annot=sequence_list, fmt="")
     plt.savefig(filename, dpi = 1000, bbox_inches = "tight")
     plt.show()
 
