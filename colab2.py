@@ -10,31 +10,41 @@ import math
 
 
 import tensorflow as tf
+from tf_keras.src.utils import pad_sequences
 
 print("Tensorflow version " + tf.__version__)
-from tensorflow import keras
-import pickle
+#from tensorflow.python import keras
+import tf_keras
+
 
 print('Start 1')
 
-
-
+import sys
+from sklearn.metrics import roc_auc_score, recall_score, precision_score, f1_score
+import pickle
 from keras import regularizers
 import pandas as pd
 import numpy as np
 import seaborn as sb
 from matplotlib import pyplot as plt
-from keras import layers
-from keras.models import load_model
-import keras.optimizers as opt
-from keras import backend as K
+from tf_keras import layers
+from tensorflow.keras.layers import TFSMLayer
+from tf_keras.models import load_model ### Using Keras 2
+import tf_keras ### Keras 2
+import tf_keras.optimizers as opt
+from tf_keras import backend as K
 import datetime
 import random
 from scipy.stats import gmean
-import keras_nlp
+#import keras_nlp
 #from keras_nlp.layers import TokenAndPositionEmbedding as TAPE
 #from keras_nlp.layers import TransformerEncoder as TE
-
+os.environ["TF_USE_LEGACY_KERAS"] = "1"
+import keras_preprocessing as kp
+sys.modules['keras.preprocessing'] = kp
+#from keras_preprocessing import text
+from tf_keras.preprocessing.text import Tokenizer
+from keras_preprocessing.sequence import pad_sequences
 # set seed to counter rng during training
 random.seed(10)
 tf.random.set_seed(10)
@@ -94,7 +104,7 @@ def embedding(filepath):
 
     length_of_longest_sequence = int(len(max(sequence_list, key = len)) / 2)
 
-    encoder = keras.preprocessing.text.Tokenizer(num_words = 35, char_level = True)
+    encoder = kp.text.Tokenizer(num_words = 35, char_level = True)
 
     # loading
 
@@ -111,10 +121,10 @@ def embedding(filepath):
     with open('/content/drive/MyDrive/ifp/tokenizer.pickle', 'wb') as handle:
       pickle.dump(encoder, handle, protocol=pickle.HIGHEST_PROTOCOL)
     print(encoder.word_index)"""
-    embedded_docs = keras.preprocessing.sequence.pad_sequences(pre_embedded_docs, maxlen = length_of_longest_sequence,
+    embedded_docs = tf_keras.preprocessing.sequence.pad_sequences(pre_embedded_docs, maxlen = length_of_longest_sequence,
                                                                padding = 'post', value = 0)
 
-    epitope_embed_list = keras.preprocessing.sequence.pad_sequences(epitope_embed_list,
+    epitope_embed_list = tf_keras.preprocessing.sequence.pad_sequences(epitope_embed_list,
                                                                     maxlen = length_of_longest_sequence,
                                                                     padding = 'post', value = 0)
     # embedded_docs = np.array(embedded_docs)
@@ -149,7 +159,7 @@ def plot_sth(history):
 
 
 # class TransformerBlock(tf.keras.Model):
-class TransformerBlock(tf.keras.layers.Layer):
+class TransformerBlock(tf_keras.layers.Layer):
 
     def __init__(self, embed_dim = 256, num_heads = 4, ff_dim = 32, rate = 0.3, **kwargs):
         super(TransformerBlock, self).__init__(**kwargs)
@@ -176,7 +186,7 @@ class TransformerBlock(tf.keras.layers.Layer):
 
     def build(self, input_shape):
         self.att = layers.MultiHeadAttention(num_heads = self.num_heads, key_dim = self.embed_dim, dropout = 0.3)
-        self.ffn = keras.Sequential(
+        self.ffn = tf_keras.Sequential(
             [layers.TimeDistributed(layers.Dense(self.ff_dim, activation = "relu")),
              layers.TimeDistributed(layers.Dropout(rate = self.rate)),
              layers.TimeDistributed(layers.Dense(self.embed_dim)), ]
@@ -204,7 +214,7 @@ class TransformerBlock(tf.keras.layers.Layer):
 
 
 # class TokenAndPositionEmbedding(tf.keras.Model):
-class TokenAndPositionEmbedding(tf.keras.layers.Layer):
+class TokenAndPositionEmbedding(tf_keras.layers.Layer):
 
     def __init__(self, maxlen, vocab_size, embed_dim, **kwargs):
         super(TokenAndPositionEmbedding, self).__init__(**kwargs)
@@ -247,7 +257,7 @@ class TokenAndPositionEmbedding(tf.keras.layers.Layer):
 
 
 # class TokenAndPositionEmbedding2(tf.keras.Model):
-class TokenAndPositionEmbedding2(tf.keras.layers.Layer):
+class TokenAndPositionEmbedding2(tf_keras.layers.Layer):
 
     def __init__(self, maxlen = 1000, vocab_size = 100, embed_dim = 40, **kwargs):
         super(TokenAndPositionEmbedding2, self).__init__(**kwargs)
@@ -289,7 +299,7 @@ class TokenAndPositionEmbedding2(tf.keras.layers.Layer):
 
 
 # class TransformerDecoder(tf.keras.Model):
-class TransformerDecoder(tf.keras.layers.Layer):
+class TransformerDecoder(tf_keras.layers.Layer):
     def __init__(self, embed_dim, latent_dim, num_heads, rate = 0.3, **kwargs):
         super(TransformerDecoder, self).__init__(**kwargs)
         self.embed_dim = embed_dim
@@ -359,7 +369,7 @@ class TransformerDecoder(tf.keras.layers.Layer):
         self.attention_2 = layers.MultiHeadAttention(
             num_heads = self.num_heads, key_dim = self.embed_dim, dropout = 0.3, name = "att2",
         )
-        self.dense_proj = keras.Sequential(
+        self.dense_proj = tf_keras.Sequential(
             [layers.TimeDistributed(layers.Dense(self.latent_dim, activation = "relu")),
              layers.TimeDistributed(layers.Dropout(rate = self.rate)),
              layers.TimeDistributed(layers.Dense(self.embed_dim)), ]
@@ -386,7 +396,7 @@ class TransformerDecoder(tf.keras.layers.Layer):
         return cls(**config)
 
 
-class TransformerDecoderTwo(tf.keras.layers.Layer):
+class TransformerDecoderTwo(tf_keras.layers.Layer):
     def __init__(self, embed_dim, latent_dim, num_heads, rate = 0.3, **kwargs):
         super(TransformerDecoderTwo, self).__init__(**kwargs)
         self.embed_dim = embed_dim
@@ -441,7 +451,7 @@ class TransformerDecoderTwo(tf.keras.layers.Layer):
         self.attention_2 = layers.MultiHeadAttention(
             num_heads = self.num_heads, key_dim = self.embed_dim, dropout = 0.3, name = "att2",
         )
-        self.dense_proj = keras.Sequential(
+        self.dense_proj = tf_keras.Sequential(
             [layers.TimeDistributed(layers.Dense(self.latent_dim, activation = "relu")),
              layers.TimeDistributed(layers.Dropout(rate = self.rate)),
              layers.TimeDistributed(layers.Dense(self.embed_dim)), ]
@@ -467,7 +477,7 @@ class TransformerDecoderTwo(tf.keras.layers.Layer):
     def from_config(cls, config):
         return cls(**config)
 
-
+"""
 class My_Custom_Generator(keras.utils.Sequence):
 
     def __init__(self, x, y, labels, batch_size):
@@ -489,7 +499,7 @@ class My_Custom_Generator(keras.utils.Sequence):
 
         return [batch_x, batch_decoder_y], [batch_y]
 
-
+"""
 def generator_function(x, y, labels, batch_size):
     for i in range(x.shape[0]):
         batch_x = x[i * batch_size: (i + 1) * batch_size]
@@ -532,7 +542,7 @@ def create_new_dataset(epitope_list, antigen_list, maxlen):
                 new_decoder_x.append(epitope[:run])
                 new_y.append(aminoacid)
 
-    new_decoder_x = keras.preprocessing.sequence.pad_sequences(new_decoder_x, maxlen = maxlen, padding = 'post',
+    new_decoder_x = tf_keras.preprocessing.sequence.pad_sequences(new_decoder_x, maxlen = maxlen, padding = 'post',
                                                                value = 0)
 
     return new_encoder_x, new_decoder_x, new_y
@@ -601,9 +611,9 @@ def modify_with_context(epitope_list, antigen_list, length_of_longest_sequence):
     length_of_longest_context = int(len(max(new_antigen_list, key = len)))
     # print(short_epitope)
     length_of_longest_context = 235
-    new_epitope_list = keras.preprocessing.sequence.pad_sequences(new_epitope_list, maxlen = length_of_longest_context,
+    new_epitope_list = tf_keras.preprocessing.sequence.pad_sequences(new_epitope_list, maxlen = length_of_longest_context,
                                                                   padding = 'post', value = 0)
-    new_antigen_list = keras.preprocessing.sequence.pad_sequences(new_antigen_list, maxlen = length_of_longest_context,
+    new_antigen_list = tf_keras.preprocessing.sequence.pad_sequences(new_antigen_list, maxlen = length_of_longest_context,
                                                                   padding = 'post', value = 0)
 
     return new_epitope_list, new_antigen_list, length_of_longest_context
@@ -626,11 +636,14 @@ def calculating_class_weights(y_true):
 
 def get_weighted_loss(weights):
     def weighted_loss(y_true, y_pred):
-        return K.mean(
+        return tf_keras.K.mean(
             (weights[:, 0] ** (1 - y_true)) * (weights[:, 1] ** (y_true)) * K.binary_crossentropy(y_true, y_pred),
             axis = -1)
 
     return weighted_loss
+
+
+
 
 
 def create_ai(filepath):
@@ -849,7 +862,7 @@ def create_ai(filepath):
     if do_something:
 
         # with tpu_strategy.scope(): # creating the model in the TPUStrategy scope means we will train the model on the TPU
-        callback = keras.callbacks.EarlyStopping(
+        callback = tf_keras.callbacks.EarlyStopping(
             monitor = 'val_loss',
             min_delta = 0,
             patience = 10,
@@ -884,14 +897,16 @@ def create_ai(filepath):
         decoder_outputs_final = layers.TimeDistributed(layers.Dense(1, activation = "sigmoid", name = 'Final_Sigmoid'))(
             decoder_outputs)
 
-        model = keras.Model(inputs = encoder_inputs, outputs = decoder_outputs_final)
+        model = tf_keras.Model(inputs = encoder_inputs, outputs = decoder_outputs_final)
 
         model.compile(optimizer, loss = get_weighted_loss(new_weights),
-                      weighted_metrics = ['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(),
-                                          keras.metrics.Recall()])
+                      weighted_metrics = ['accuracy', tf_keras.metrics.AUC(), tf_keras.metrics.Precision(),
+                                          tf_keras.metrics.Recall()])
+        # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
 
         history = model.fit(x = antigen_list, y = epitope_list, batch_size = 50, epochs = 100,
                             validation_data = (testx_list, testy_list), callbacks = [callback])
+        # history = model.fit(x=antigen_list, y=epitope_list, batch_size=50, epochs=100, validation_data=(testx_list, testy_list, testy_for_weights), callbacks=[callback], sample_weight = epitope_list_for_weights)
 
         # plot_results(history)
 
@@ -976,7 +991,7 @@ def create_ai(filepath):
                                   )
         """
 
-        tf.keras.utils.plot_model(model, expand_nested = True, show_shapes = True,
+        tf_keras.utils.plot_model(model, expand_nested = True, show_shapes = True,
                                   to_file = '/content/multi_model' + str(i) + '.png')
 
         # load_model_and_do_stuff(testx_list, testy_list, model)
@@ -1120,7 +1135,7 @@ def split_sequences(x, y, length_of_longest_context):
 
 def transformer_evaluation_loop(testx, test_decoderx, testy):
     for i in range(5):
-        tf.keras.backend.clear_session()
+        tf_keras.backend.clear_session()
         model = load_model('/content/drive/MyDrive/ifp/ki_für_tests_without_decoder_MODEL',
                            custom_objects = {'TransformerBlock': TransformerBlock,
                                              'TokenAndPositionEmbedding': TokenAndPositionEmbedding,
@@ -1132,7 +1147,7 @@ def transformer_evaluation_loop(testx, test_decoderx, testy):
         score = model.evaluate(x = [testx, test_decoderx], y = testy, batch_size = 50)
         print("FINAL SCORE")
         print(score)
-        tf.keras.utils.plot_model(model, expand_nested = True, show_shapes = True,
+        tf_keras.utils.plot_model(model, expand_nested = True, show_shapes = True,
                                   to_file = '/content/multi_model' + str(i) + '.png')
 
     print(model.summary(expand_nested = True))
@@ -1161,30 +1176,30 @@ def use_model_and_predict():
     """Enter a sequence to use for prediction and generate the heatmap output.
     All path need to be changed to wherever the files are stored on your computer."""
     sequence = "tpenitdlcaeyhntqihtlnnkifsyteslagkremaiitfkdgatfevevpgsehidsekkaiermkdtlriaylteakveklcvwnnktphaiaaisman"  # Hier die Sequenz eingeben#
-    tf.keras.backend.clear_session()
+    tf_keras.backend.clear_session()
     """change the following path to the final_AI folder path"""
-    model = load_model('G:/Users/tinys/PycharmProjects/teststuff/AI/final_AI',
+    model = load_model('C:/Users/fkori/PycharmProjects/AI/AI/final_AI',
                        custom_objects = {'TransformerBlock': TransformerBlock,
                                          'TokenAndPositionEmbedding': TokenAndPositionEmbedding,
                                          'TransformerDecoder': TransformerDecoder, "weighted_loss": get_weighted_loss},
-                       compile = True
+                       compile = False
                        )
     """change the following path to path/final_AI_weights """
-    model.load_weights('G:/Users/tinys/PycharmProjects/teststuff/AI/final_AI_weights')
-
-    tf.keras.utils.plot_model(model, expand_nested = True, show_shapes = True,
+    model.load_weights('C:/Users/fkori/PycharmProjects/AI/AI/final_AI_weights')
+    model.compile()
+    tf_keras.utils.plot_model(model, expand_nested = True, show_shapes = True,
                               to_file = 'G:/Users/tinys/PycharmProjects/teststuff/testpicture.png', show_layer_activations = True)
     print(model.summary(expand_nested = True))
     sequence_list = split_string(sequence)
 
     """change the following path accordingly"""
-    with open('G:/Users/tinys/PycharmProjects/teststuff/AI/tokenizer.pickle', 'rb') as handle:
+    with open('C:/Users/fkori/PycharmProjects/AI/AI/tokenizer.pickle', 'rb') as handle:
         encoder = pickle.load(handle)
 
     print(encoder.word_index)
 
     pre_embedded_docs = encoder.texts_to_sequences(sequence_list)
-    embedded_docs = keras.preprocessing.sequence.pad_sequences(pre_embedded_docs, maxlen = 235, padding = 'post',
+    embedded_docs = pad_sequences(pre_embedded_docs, maxlen = 235, padding = 'post',
                                                                value = 0)
 
     predictions = model.predict(embedded_docs)
@@ -1264,15 +1279,16 @@ def create_blocks(list1, list2):
 
 ###################################################################################
 def transformer_prediction_loop(testx, test_decoder_x, testy):
-    tf.keras.backend.clear_session()
+    tf_keras.backend.clear_session()
     model = load_model('/content/drive/MyDrive/ifp/ki_für_tests_without_decoder_MODEL',
                        custom_objects = {'TransformerBlock': TransformerBlock,
                                          'TokenAndPositionEmbedding': TokenAndPositionEmbedding,
                                          'TokenAndPositionEmbedding2': TokenAndPositionEmbedding2,
                                          'TransformerDecoder': TransformerDecoder},
-                       compile = True
+                       compile = False
                        )
     model.load_weights('/content/drive/MyDrive/ifp/ki_für_tests_without_decoder_MODEL_weights')
+    model.compile()
     print('DECODER_START')
     print(test_decoder_x[0])
     test_x_input = testx[:1]
@@ -1429,3 +1445,96 @@ Use use_model_and_predict() to use the model for prediction.
 """
 #create_ai('/content/drive/MyDrive/ifp/Dataset-without-1550.xlsx')
 use_model_and_predict()
+
+
+
+
+
+### TEST 45 BLIND
+
+
+
+
+def use_model_and_predict_45_blind(sequence, model, encoder):
+    """Verwendet ein Modell zur Vorhersage einer Sequenz und gibt die Wahrscheinlichkeiten zurück."""
+    # Sequence in eine Liste aufsplitten
+    sequence_list = split_string(sequence)
+
+    # Encode die Sequenz mit dem gespeicherten Tokenizer
+    pre_embedded_docs = encoder.texts_to_sequences(sequence_list)
+    embedded_docs = tf_keras.preprocessing.sequence.pad_sequences(pre_embedded_docs, maxlen=235, padding='post',
+                                                                  value=0)
+
+    # Vorhersagen
+    predictions = model.predict(embedded_docs)
+
+    # Reduziere die Vorhersagen auf 1D
+    return predictions.flatten()[:235]
+
+
+def load_model_and_tokenizer():
+    """Lädt das Modell und den Tokenizer."""
+    # Lade das Modell
+    model = load_model('G:/Users/tinys/PycharmProjects/teststuff/AI/final_AI',
+                       custom_objects={'TransformerBlock': TransformerBlock,
+                                       'TokenAndPositionEmbedding': TokenAndPositionEmbedding,
+                                       'TransformerDecoder': TransformerDecoder,
+                                       "weighted_loss": get_weighted_loss},
+                       compile=False)
+    # Lade die Gewichte
+    model.load_weights('G:/Users/tinys/PycharmProjects/teststuff/AI/final_AI_weights')
+    model.compile()
+    # Lade den Tokenizer
+    with open('G:/Users/tinys/PycharmProjects/teststuff/AI/tokenizer.pickle', 'rb') as handle:
+        encoder = pickle.load(handle)
+
+    return model, encoder
+
+
+def evaluate_model(model, encoder, sequence, true_binary_epitope):
+    """Vergleicht die Vorhersagen des Modells mit dem tatsächlichen Epitop-Binärstring."""
+    predictions = use_model_and_predict_45_blind(sequence, model, encoder)
+
+    # Da das Modell Wahrscheinlichkeiten ausgibt, runde auf 0 oder 1
+    predicted_binary = np.where(predictions >= 0.5, 1, 0)
+
+    # Berechne die Metriken
+    auc = roc_auc_score(true_binary_epitope, predictions)
+    recall = recall_score(true_binary_epitope, predicted_binary)
+    precision = precision_score(true_binary_epitope, predicted_binary)
+    f1 = f1_score(true_binary_epitope, predicted_binary)
+
+    return auc, recall, precision, f1
+
+
+# Lade das Modell und den Tokenizer
+model, encoder = load_model_and_tokenizer()
+
+# Lese das DataFrame mit den Sequenzen und den Binary Epitope (möglicherweise aus einer CSV)
+df = pd.read_csv('epitope_mapped_sequences.csv')
+
+# Für jede Sequenz und den entsprechenden Binary Epitope berechnen wir die Metriken
+results = []
+for idx, row in df.iterrows():
+    sequence = row['Subsequence']
+    true_binary_epitope = np.array([int(x) for x in row['Binary Epitope']])
+
+    # Berechne AUC, Recall, Precision und F1
+    auc, recall, precision, f1 = evaluate_model(model, encoder, sequence, true_binary_epitope)
+
+    # Speichere die Ergebnisse
+    results.append({
+        'PDB ID': row['PDB ID'],
+        'AUC': auc,
+        'Recall': recall,
+        'Precision': precision,
+        'F1-Score': f1
+    })
+
+# Speichere die Ergebnisse als DataFrame
+results_df = pd.DataFrame(results)
+
+# Optional: Speichere die Ergebnisse in einer CSV
+results_df.to_csv('evaluation_results.csv', index=False)
+
+print("Auswertung abgeschlossen und in 'evaluation_results.csv' gespeichert.")
