@@ -5,35 +5,31 @@
 # from tensorflow.python.eager.context import ContextSwitch
 ###########################START##############################
 import os
-import statistics
 import math
 
 
 import tensorflow as tf
 from tf_keras.src.utils import pad_sequences
 
+
 print("Tensorflow version " + tf.__version__)
 #from tensorflow.python import keras
-import tf_keras
 
 
 print('Start 1')
 
 import sys
-from sklearn.metrics import roc_auc_score, recall_score, precision_score, f1_score
+from sklearn.metrics import recall_score, precision_score, f1_score
 import pickle
-from keras import regularizers
 import pandas as pd
 import numpy as np
 import seaborn as sb
 from matplotlib import pyplot as plt
 from tf_keras import layers
-from tensorflow.keras.layers import TFSMLayer
+
 from tf_keras.models import load_model ### Using Keras 2
 import tf_keras ### Keras 2
-import tf_keras.optimizers as opt
 from tf_keras import backend as K
-import datetime
 import random
 from scipy.stats import gmean
 #import keras_nlp
@@ -42,8 +38,7 @@ from scipy.stats import gmean
 os.environ["TF_USE_LEGACY_KERAS"] = "1"
 import keras_preprocessing as kp
 sys.modules['keras.preprocessing'] = kp
-#from keras_preprocessing import text
-from tf_keras.preprocessing.text import Tokenizer
+from keras_preprocessing import text
 from keras_preprocessing.sequence import pad_sequences
 # set seed to counter rng during training
 random.seed(10)
@@ -104,27 +99,28 @@ def embedding(filepath):
 
     length_of_longest_sequence = int(len(max(sequence_list, key = len)) / 2)
 
-    encoder = kp.text.Tokenizer(num_words = 35, char_level = True)
+    encoder = text.Tokenizer(num_words = 35, char_level = True)
 
     # loading
 
-    with open('/content/drive/MyDrive/ifp/tokenizer.pickle', 'rb') as handle:
+    with open('C:/Users/fkori/PycharmProjects/AI/AI/tokenizer.pickle', 'rb') as handle:
         encoder = pickle.load(handle)
 
     encoder.fit_on_texts(sequence_list)
     print(encoder.word_index)
 
     pre_embedded_docs = encoder.texts_to_sequences(sequence_list)
-    """
+
     # saving
 
-    with open('/content/drive/MyDrive/ifp/tokenizer.pickle', 'wb') as handle:
-      pickle.dump(encoder, handle, protocol=pickle.HIGHEST_PROTOCOL)
-    print(encoder.word_index)"""
-    embedded_docs = tf_keras.preprocessing.sequence.pad_sequences(pre_embedded_docs, maxlen = length_of_longest_sequence,
-                                                               padding = 'post', value = 0)
+    #with open('/content/drive/MyDrive/ifp/tokenizer.pickle', 'wb') as handle:
+    #  pickle.dump(encoder, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    #print(encoder.word_index)
 
-    epitope_embed_list = tf_keras.preprocessing.sequence.pad_sequences(epitope_embed_list,
+    embedded_docs = pad_sequences(pre_embedded_docs, maxlen = length_of_longest_sequence,
+                                                            padding = 'post', value = 0)
+
+    epitope_embed_list = pad_sequences(epitope_embed_list,
                                                                     maxlen = length_of_longest_sequence,
                                                                     padding = 'post', value = 0)
     # embedded_docs = np.array(embedded_docs)
@@ -573,7 +569,7 @@ def modify_with_context(epitope_list, antigen_list, length_of_longest_sequence):
 
                 if start is True:
 
-                    number = random.randint(0, context / 2)
+                    number = random.randint(0, int(context / 2))
 
                     while number > 0:
                         # short_epitope.append(-1)
@@ -643,398 +639,9 @@ def get_weighted_loss(weights):
     return weighted_loss
 
 
-
-
-
-def create_ai(filepath):
-    embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder = embedding(filepath)
-    print("Neue Anzahl an Sequenzen" + str(len(embedded_docs)))
-
-    optimizer = opt.adam_v2.Adam(learning_rate = 0.001)
-    # optimizersgd = opt.sgd_experimental.SGD(learning_rate=0.001, clipnorm=5)
-
-    antigen_list = embedded_docs[:-300]
-    epitope_list = epitope_embed_list[:-300]
-
-    testx_list = embedded_docs[-300:]
-    testy_list = epitope_embed_list[-300:]
-
-    antigen_list_full_sequence = antigen_list
-    epitope_list_full_sequence = epitope_list
-
-    print(antigen_list[0])
-
-    epitope_list, antigen_list, length_of_longest_context = modify_with_context(epitope_list, antigen_list,
-                                                                                length_of_longest_sequence)
-    print(antigen_list)
-    testy_list, testx_list, length_of_longest_context_2 = modify_with_context(testy_list, testx_list,
-                                                                              length_of_longest_sequence)
-
-    epitope_list_for_weights = epitope_list
-    epitope_list_for_weights = np.array(epitope_list_for_weights, dtype = np.float32)
-
-    epitope_list = np.array(epitope_list, dtype = np.float32)
-    antigen_list = np.array(antigen_list, dtype = np.float32)
-
-    epitope_list_for_weights = np.reshape(epitope_list_for_weights,
-                                          (epitope_list_for_weights.shape[0], epitope_list_for_weights.shape[1]))
-    epitope_list = np.reshape(epitope_list, (epitope_list.shape[0], epitope_list.shape[1], 1))
-    antigen_list = np.reshape(antigen_list, (antigen_list.shape[0], antigen_list.shape[1], 1))
-
-    testy_list_for_weights = np.array(testy_list, dtype = np.float32)
-    testy_list = np.array(testy_list, dtype = np.float32)
-    testx_list = np.array(testx_list, dtype = np.float32)
-
-    testy_for_weights = np.reshape(testy_list_for_weights,
-                                   (testy_list_for_weights.shape[0], testy_list_for_weights.shape[1]))
-    testy_list = np.reshape(testy_list, (testy_list.shape[0], testy_list.shape[1], 1))
-    testx_list = np.reshape(testx_list, (testx_list.shape[0], testx_list.shape[1], 1))
-
-    print("EPITOPE", epitope_list.shape, "ANTIGEN", antigen_list.shape)
-
-    for i, epitope in enumerate(testy_for_weights):
-        for y, char in enumerate(epitope):
-            if char == 0.:
-                testy_for_weights[i][y] = 0.1
-            if char == 1.:
-                testy_for_weights[i][y] = 0.5
-
-    for i, epitope in enumerate(epitope_list_for_weights):
-        for y, char in enumerate(epitope):
-            if char == 0.:
-                epitope_list_for_weights[i][y] = 0.1
-            if char == 1.:
-                epitope_list_for_weights[i][y] = 0.5
-
-    """
-    antigen_list, epitope_list, epitope_list_train = prepare_training_data(antigen_list, epitope_list)
-
-    test_antigen_list, test_epitope_list, test_epitope_train_list = prepare_training_data(testx_list, testy_list)
-
-    test_epitope_array = np.array(test_epitope_list, dtype=np.float32)
-    test_epitope_array_train = np.array(test_epitope_train_list, dtype=np.float32)
-    test_antigen_array = np.array(test_antigen_list, dtype=np.float32)
-
-    test_trainx2 = np.reshape(test_antigen_array, ((test_antigen_array.shape[0]* test_antigen_array.shape[2]), test_antigen_array.shape[3]))
-    test_trainy2 = np.reshape(test_epitope_array, ((test_epitope_array.shape[0]* test_epitope_array.shape[2]), test_epitope_array.shape[3]))
-    test_trainy = np.reshape(test_epitope_array_train, ((test_epitope_array_train.shape[0]* test_epitope_array_train.shape[2]), 1))
-
-    np.save("/content/drive/MyDrive/ifp/test_epitope_array.npy", test_trainy2)
-    np.save("/content/drive/MyDrive/ifp/test_epitope_array_train.npy", test_trainy)
-    np.save("/content/drive/MyDrive/ifp/test_antigen_array.npy", test_trainx2)
-
-
-
-
-
-    epitope_array = np.array(epitope_list, dtype=np.float32)
-    epitope_array_train = np.array(epitope_list_train, dtype=np.float32)
-    antigen_array = np.array(antigen_list, dtype=np.float32)
-
-    np.save("/content/drive/MyDrive/ifp/epitope_array_half_len1.npy", epitope_array)
-    np.save("/content/drive/MyDrive/ifp/epitope_array_train_half_len1.npy", epitope_array_train)
-    np.save("/content/drive/MyDrive/ifp/antigen_arrayhalf_len1.npy", antigen_array)
-
-
-
-    epitope_array_path = "/content/drive/MyDrive/ifp/epitope_array2.npy"
-    epitope_array_train_path = "/content/drive/MyDrive/ifp/epitope_array_train2.npy"
-    antigen_array_path = "/content/drive/MyDrive/ifp/antigen_array2.npy"
-
-    """
-    epitope_array = np.load("/content/drive/MyDrive/ifp/epitope_array_half_len1.npy")
-    epitope_array_train = np.load("/content/drive/MyDrive/ifp/epitope_array_train_half_len1.npy")
-    antigen_array = np.load("/content/drive/MyDrive/ifp/antigen_arrayhalf_len1.npy")
-    """
-    np.save("/epitope_array2.npy", epitope_array)
-    np.save("/epitope_array_train2.npy", epitope_array_train)
-    np.save("/antigen_array2.npy", antigen_array)
-    """
-    test_trainx2 = np.load("/content/drive/MyDrive/ifp/test_antigen_array.npy")
-    test_trainy2 = np.load("/content/drive/MyDrive/ifp/test_epitope_array.npy")
-    test_trainy = np.load("/content/drive/MyDrive/ifp/test_epitope_array_train.npy")
-
-    epitope_array = np.load("/epitope_array2.npy")
-    epitope_array_train = np.load("/epitope_array_train2.npy")
-    antigen_array = np.load("/antigen_array2.npy")
-
-    print("trainy")
-    print(epitope_array_train.shape)
-    print(antigen_array[0][0])
-    trainx2 = np.reshape(antigen_array, ((antigen_array.shape[0] * antigen_array.shape[2]), antigen_array.shape[3]))
-    trainy2 = np.reshape(epitope_array, ((epitope_array.shape[0] * epitope_array.shape[2]), epitope_array.shape[3]))
-    trainy = np.reshape(epitope_array_train, ((epitope_array_train.shape[0] * epitope_array_train.shape[2]), 1))
-
-    repeat_counter = []
-    delete_counter = []
-    for i in range(trainy.shape[0]):
-        if trainy[i] == 2:
-            delete_counter.append(i)
-
-    trainx2 = np.delete(trainx2, delete_counter, axis = 0)
-    trainy2 = np.delete(trainy2, delete_counter, axis = 0)
-    trainy = np.delete(trainy, delete_counter, axis = 0)
-
-    for i in range(trainy.shape[0]):
-        if trainy[i] == 1:
-            repeat_counter.append(4)
-            ###war eben 5
-        else:
-            repeat_counter.append(1)
-
-    trainx2 = np.repeat(trainx2, repeats = repeat_counter, axis = 0)
-    trainy2 = np.repeat(trainy2, repeats = repeat_counter, axis = 0)
-    trainy = np.repeat(trainy, repeats = repeat_counter, axis = 0)
-
-    repeat_counter_for_validation_data = []
-    delete_counter_for_validation_data = []
-    for i in range(test_trainy.shape[0]):
-
-        if test_trainy[i] == 2:
-            delete_counter_for_validation_data.append(i)
-
-    test_trainx2 = np.delete(test_trainx2, delete_counter_for_validation_data, axis = 0)
-    test_trainy2 = np.delete(test_trainy2, delete_counter_for_validation_data, axis = 0)
-    test_trainy = np.delete(test_trainy, delete_counter_for_validation_data, axis = 0)
-
-    for i in range(test_trainy.shape[0]):
-        if test_trainy[i] == 1:
-            repeat_counter_for_validation_data.append(4)
-        else:
-            repeat_counter_for_validation_data.append(1)
-
-    test_trainx2 = np.repeat(test_trainx2, repeats = repeat_counter_for_validation_data, axis = 0)
-    test_trainy2 = np.repeat(test_trainy2, repeats = repeat_counter_for_validation_data, axis = 0)
-    test_trainy = np.repeat(test_trainy, repeats = repeat_counter_for_validation_data, axis = 0)
-
-    ###Classweights
-    new_weights = calculating_class_weights(epitope_list)
-
-    print("trainy2, trainx2, trainy")
-    print(trainy2.shape)
-    print(trainx2.shape)
-    print(trainy.shape)
-
-    print("test_trainy")
-    print(test_trainy.shape)
-    print(test_trainx2.shape)
-
-    print("trainy2, trainx2, trainy")
-    print(test_trainy2.shape)
-    print(test_trainx2.shape)
-    print(test_trainy.shape)
-
-    print(trainx2)
-
-    unique, counts = np.unique(trainy, return_counts = True)
-    print(unique, counts)
-    print(np.asarray((unique, counts)).T)
-    unique, counts = np.unique(test_trainy, return_counts = True)
-    print(unique, counts)
-    print(np.asarray((unique, counts)).T)
-
-    single_sequence_for_testing = antigen_list[:1]
-    single_epitope_to_seqeuence_for_testing = epitope_list[:1]
-
-    # weights = class_weight.compute_sample_weight(class_weight='balanced', y=epitope_array)
-    # print(pd.Series(test_sample_weights).unique())
-    print("hi: " + str(len(encoder.index_word)))
-    embedding_dim = 4
-    # model = load_model('/my_test_model_02(1).h5', compile=False)
-
-    np.seterr(all = None, divide = None, over = 'warn', under = None, invalid = None)
-
-    num_transformer_blocks = 2
-    num_decoder_blocks = 0
-    embed_dim = 24  # Embedding size for each token
-    num_heads = 40  # Number of attention heads
-    ff_dim = 32  # Hidden layer size in feed forward network inside transformer
-    maxlen = length_of_longest_context
-    rate = 0.1
-    print(maxlen)
-    training = True
-
-
-    some_class_weight = {0: 1.,
-                         1: 3.}
-
-    do_something = False
-    if do_something:
-
-        # with tpu_strategy.scope(): # creating the model in the TPUStrategy scope means we will train the model on the TPU
-        callback = tf_keras.callbacks.EarlyStopping(
-            monitor = 'val_loss',
-            min_delta = 0,
-            patience = 10,
-            verbose = 0,
-            mode = 'auto',
-            baseline = None,
-            restore_best_weights = True)
-
-        encoder_inputs = layers.Input(shape = (length_of_longest_context,), name = 'encoder_inputs')
-
-        embedding_layer = TokenAndPositionEmbedding(maxlen, voc_size, embed_dim)
-        encoder_embed_out = embedding_layer(encoder_inputs)
-
-        x = encoder_embed_out
-        for i in range(num_transformer_blocks):
-            transformer_block = TransformerBlock(embed_dim, num_heads, ff_dim, rate)
-            x = transformer_block(x, training = training)
-
-        x = layers.Dropout(rate = rate)(x)
-        encoder_outputs = layers.Dense(embed_dim, activation = "sigmoid")(x)
-
-        decoder_outputs = TransformerDecoderTwo(embed_dim, ff_dim, num_heads)(encoder_outputs = encoder_outputs,
-                                                                              training = training)
-
-        for i in range(num_decoder_blocks):
-            transformer_decoder = TransformerDecoderTwo(embed_dim, ff_dim, num_heads)
-            decoder_outputs = transformer_decoder(decoder_outputs, training = training)
-
-        # decoder_outputs = layers.GlobalAveragePooling1D()(decoder_outputs)
-        decoder_outputs = layers.Dropout(rate = rate)(decoder_outputs)
-        decoder_outputs = layers.Dense(12, activation = "sigmoid", name = 'Not_the_last_Sigmoid')(decoder_outputs)
-        decoder_outputs_final = layers.TimeDistributed(layers.Dense(1, activation = "sigmoid", name = 'Final_Sigmoid'))(
-            decoder_outputs)
-
-        model = tf_keras.Model(inputs = encoder_inputs, outputs = decoder_outputs_final)
-
-        model.compile(optimizer, loss = get_weighted_loss(new_weights),
-                      weighted_metrics = ['accuracy', tf_keras.metrics.AUC(), tf_keras.metrics.Precision(),
-                                          tf_keras.metrics.Recall()])
-        # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
-
-        history = model.fit(x = antigen_list, y = epitope_list, batch_size = 50, epochs = 100,
-                            validation_data = (testx_list, testy_list), callbacks = [callback])
-        # history = model.fit(x=antigen_list, y=epitope_list, batch_size=50, epochs=100, validation_data=(testx_list, testy_list, testy_for_weights), callbacks=[callback], sample_weight = epitope_list_for_weights)
-
-        # plot_results(history)
-
-        """
-        encoder_inputs = layers.Input(shape=(length_of_longest_context,), name='encoder_inputs')
-
-        embedding_layer = TokenAndPositionEmbedding(maxlen, voc_size, embed_dim)
-        encoder_embed_out = embedding_layer(encoder_inputs)
-
-        #x = layers.TimeDistributed(layers.Dense(256, activation="relu"))(encoder_inputs)
-        x = encoder_embed_out
-        for i in range(num_transformer_blocks):
-          transformer_block = TransformerBlock(embed_dim, num_heads, ff_dim, rate)
-          x = transformer_block(x, training=training)
-
-        x = layers.Dropout(rate=rate)(x)
-        encoder_outputs_final = layers.Dense(embed_dim, activation="sigmoid")(x)
-
-
-        #encoder_model = load_model('/model_new_test.h5', custom_objects={'TransformerBlock': TransformerBlock, 'TokenAndPositionEmbedding': TokenAndPositionEmbedding}, compile=True)
-        encoder_model = keras.Model(inputs = encoder_inputs, outputs = encoder_outputs_final)
-        ######encoder_outputs = encoder_model(encoder_inputs)
-        #encoder_outputs = layers.Dense(embed_dim, activation="sigmoid")(encoder_outputs)
-
-        decoder_inputs = layers.Input(shape=(None,), name='decoder_inputs')         
-        encoded_seq_inputs = keras.Input(shape=(None, embed_dim,), name="decoder_state_inputs")
-
-
-        decoder_embed_layer = TokenAndPositionEmbedding2(maxlen, voc_size, embed_dim)
-        decoder_embed = decoder_embed_layer(decoder_inputs)
-        decoder_embed_out = layers.Dense(embed_dim, activation="sigmoid", name='Decoder_Embed_Sigmoid')(decoder_embed)
-
-        decoder_outputs = TransformerDecoder(embed_dim, ff_dim, num_heads)(decoder_embed_out, encoder_outputs_final, training=training)
-
-        #decoder_outputs = TransformerDecoder(embed_dim, ff_dim, num_heads)(decoder_embed_out, encoded_seq_inputs, training=training)
-
-        for i in range(num_decoder_blocks):
-          transformer_decoder = TransformerDecoder(embed_dim, ff_dim, num_heads)
-          decoder_outputs = transformer_decoder(decoder_outputs, encoder_outputs_final, training=training)
-
-        #decoder_outputs = layers.Dense(1, activation="sigmoid", name='Sigmoid')(decoder_outputs)
-        decoder_outputs = layers.GlobalAveragePooling1D()(decoder_outputs)
-        decoder_outputs = layers.Dropout(rate=rate)(decoder_outputs)
-        decoder_outputs_final = layers.Dense(1, activation="sigmoid", name='Final_Sigmoid')(decoder_outputs)
-
-        #decoder_model = keras.Model(inputs=[decoder_inputs, encoded_seq_inputs], outputs=decoder_outputs_final)
-        #decoder_outputs_from_model = decoder_model([decoder_inputs, encoder_outputs_final])
-
-        transformer = keras.Model([encoder_inputs, decoder_inputs], decoder_outputs_final)
-        #decoder_output = decoderModel([trainy, trainx])
-
-
-        #model = load_model('/content/drive/MyDrive/ifp/model_context_20_01(2).h5', custom_objects={'TransformerBlock': TransformerBlock, 'TokenAndPositionEmbedding': TokenAndPositionEmbedding}, compile=True)
-
-
-        print("4")
-        transformer.compile(optimizer, 
-                      #loss=get_weighted_loss(new_weights),
-                      loss='binary_crossentropy',
-                      #metrics=['accuracy', keras.metrics.Precision(), keras.metrics.Recall()],
-                      metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()]
-                      #sample_weight_mode='temporal'
-                      )
-
-
-        """
-        """
-        dataset = tf.data.Dataset.from_generator(generator, output_types=({"encoder_inputs": tf.int16, "decoder_inputs": tf.int16}, tf.int16),
-                                                 output_shapes=({'encoder_inputs': tf.TensorShape([None, None,]),
-                                                                'decoder_inputs': tf.TensorShape([None, None])
-                                                                },
-                                                                tf.TensorShape([None, None]))
-                                                 )
-        """
-        """
-        transformer.fit([trainx2, trainy2], trainy, 
-                                  #steps_per_epoch=19923,
-                                  batch_size=200,
-                                  epochs=1000,
-                                  verbose=1,
-                                  validation_data=([test_trainx2, test_trainy2], test_trainy)
-                                  )
-        """
-
-        tf_keras.utils.plot_model(model, expand_nested = True, show_shapes = True,
-                                  to_file = '/content/multi_model' + str(i) + '.png')
-
-        # load_model_and_do_stuff(testx_list, testy_list, model)
-        # load_model_and_do_stuff(antigen_list, epitope_list, model)
-
-        """
-        model.save_weights('/content/drive/MyDrive/ifp/final_AI_weights')
-        model.save_weights('/content/final_AI_weights')
-        model.save('/content/final_AI')
-        model.save('/content/drive/MyDrive/ifp/final_AI')
-        use_model_and_predict()
-        """
-
-        # transformer_evaluation_loop(test_trainx2, test_trainy2, test_trainy)
-        # transformer_prediction_loop(trainx2, trainy2, trainy)
-        # tf.saved_model.save(transformer, '/content/drive/MyDrive/ifp/model_test_saves.h5')
-
-        # loss, accuracy, precision, recall = model.evaluate(testx, testy, verbose=1)
-
-        # prediction = model.predict(x=trainx)
-
-        # print(transformer.summary(expand_nested=True))
-
-        # new_function([testx], testy, length_of_longest_context, length_of_longest_sequence, transformer)
-
-        # print(len(antigen_list[0]))
-        # print("Prediction for x: " + str(prediction))
-        # print(len(prediction))
-        # print(trainx[0])
-        # print("trainy: " + str(trainy_2[1]))
-
-        # plot_sth(history)
-
-        # print(model.predict(test_x))
-        # print(test_y)
-        # print('Accuracy: %f' % (accuracy * 100))
-        # print('Loss: %f' % (loss * 100))
-        # print('Precision: %f' % (precision * 100))
-        # print('Recall: %f' % (recall * 100))
-
-        # print('testx_shape: ' + str(testx.shape))
-
-        # load_model_and_do_stuff([trainx2[0], trainy2[0]], trainy, maxlen, voc_size, embed_dim, transformer, length_of_longest_context)
+def save_ai(model, path="AI/final_AI"):
+    model.save_weights(path + '_weights')
+    model.save(path + '_model')
 
 
 def plot_results(history):
@@ -1443,14 +1050,14 @@ tpu_strategy = tf.distribute.TPUStrategy(tpu)
 Use create_ai() to train a new model.
 Use use_model_and_predict() to use the model for prediction.
 """
-#create_ai('/content/drive/MyDrive/ifp/Dataset-without-1550.xlsx')
-use_model_and_predict()
+#path = 'C:/Users/fkori/PycharmProjects/AI/Dataset-without-1550.xlsx'
 
 
 
 
 
-### TEST 45 BLIND
+
+
 
 
 
@@ -1462,7 +1069,7 @@ def use_model_and_predict_45_blind(sequence, model, encoder):
 
     # Encode die Sequenz mit dem gespeicherten Tokenizer
     pre_embedded_docs = encoder.texts_to_sequences(sequence_list)
-    embedded_docs = tf_keras.preprocessing.sequence.pad_sequences(pre_embedded_docs, maxlen=235, padding='post',
+    embedded_docs = pad_sequences(pre_embedded_docs, maxlen=235, padding='post',
                                                                   value=0)
 
     # Vorhersagen
@@ -1499,42 +1106,15 @@ def evaluate_model(model, encoder, sequence, true_binary_epitope):
     predicted_binary = np.where(predictions >= 0.5, 1, 0)
 
     # Berechne die Metriken
-    auc = roc_auc_score(true_binary_epitope, predictions)
+    #auc = roc_auc_score(true_binary_epitope, predictions)
     recall = recall_score(true_binary_epitope, predicted_binary)
     precision = precision_score(true_binary_epitope, predicted_binary)
     f1 = f1_score(true_binary_epitope, predicted_binary)
 
-    return auc, recall, precision, f1
+    return recall, precision, f1 #,auc
 
 
-# Lade das Modell und den Tokenizer
-model, encoder = load_model_and_tokenizer()
 
-# Lese das DataFrame mit den Sequenzen und den Binary Epitope (möglicherweise aus einer CSV)
-df = pd.read_csv('epitope_mapped_sequences.csv')
 
-# Für jede Sequenz und den entsprechenden Binary Epitope berechnen wir die Metriken
-results = []
-for idx, row in df.iterrows():
-    sequence = row['Subsequence']
-    true_binary_epitope = np.array([int(x) for x in row['Binary Epitope']])
 
-    # Berechne AUC, Recall, Precision und F1
-    auc, recall, precision, f1 = evaluate_model(model, encoder, sequence, true_binary_epitope)
 
-    # Speichere die Ergebnisse
-    results.append({
-        'PDB ID': row['PDB ID'],
-        'AUC': auc,
-        'Recall': recall,
-        'Precision': precision,
-        'F1-Score': f1
-    })
-
-# Speichere die Ergebnisse als DataFrame
-results_df = pd.DataFrame(results)
-
-# Optional: Speichere die Ergebnisse in einer CSV
-results_df.to_csv('evaluation_results.csv', index=False)
-
-print("Auswertung abgeschlossen und in 'evaluation_results.csv' gespeichert.")

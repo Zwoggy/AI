@@ -1,89 +1,81 @@
 import pandas as pd
-import requests
-
-# CSV-Datei einlesen
-file_path = 'epitope3d_dataset_45_Blind_Test.csv'
-df = pd.read_csv(file_path)
 
 
-# Funktion zum Abrufen der Sequenz von der PDB ID
-def fetch_sequence_from_pdb(pdb_id):
-    url = f"https://www.rcsb.org/fasta/entry/{pdb_id}"
-    response = requests.get(url)
-    if response.status_code == 200:
-        fasta_data = response.text
-        sequence = ''.join(fasta_data.split('\n')[1:])
-        return sequence
-    else:
-        print(f"Fehler beim Abrufen der Sequenz für {pdb_id}")
-        return None
 
 
-# Funktion zur Umwandlung der Epitope-Liste in eine Binärsequenz
-def map_epitopes_to_binary(sequence_length, epitope_positions, start):
-    binary_list = ['0'] * sequence_length
-    for pos in epitope_positions:
-        if start <= pos < start + sequence_length:
-            binary_list[pos - start] = '1'
-    return ''.join(binary_list)
+
+#aminoacid_code = {"ALA": "A", "ARG": "R", "ASN": "N", "ASP": "D", "CYS": "C", "GLU": "E", "GLN": "Q", "GLY": "G", "HIS": "H", "ILE": "I", "LEU": "L", "LYS": "K", "MET": "M",
+                  #"PHE": "F", "PRO": "P", "SER": "S", "THR": "T", "TRP": "W", "TYR": "Y", "VAL": "V", "SEM": "X"}
 
 
-# Parameter
-subseq_length = 235
 
-# Für jede Zeile im Datensatz
-results = []
 
-for idx, row in df.iterrows():
-    pdb_id = row['PDB ID']
-    epitope_list = row['Epitope List (residueid_residuename_chain)'].split(', ')
+import pandas as pd
 
-    # Hole die Sequenz von der PDB-Datenbank
-    full_sequence = fetch_sequence_from_pdb(pdb_id)
+aminoacid_code = {
+    "ALA": "A", "ARG": "R", "ASN": "N", "ASP": "D", "CYS": "C", "GLU": "E", "GLN": "Q",
+    "GLY": "G", "HIS": "H", "ILE": "I", "LEU": "L", "LYS": "K", "MET": "M", "PHE": "F",
+    "PRO": "P", "SER": "S", "THR": "T", "TRP": "W", "TYR": "Y", "VAL": "V", "SEM": "X"
+}
 
-    if full_sequence:
-        # Extrahiere die Epitope-Positionen
-        epitope_positions = [int(e.split('_')[0]) for e in epitope_list if e.split('_')[0].isdigit()]
+# Die Daten in der CSV-Datei einlesen
+data = pd.read_csv("data/epitope3d_dataset_45_Blind_Test_manual.csv")
 
-        if epitope_positions:
-            first_epitope = min(epitope_positions)
-            start = max(0, first_epitope - 5)
-            end = min(len(full_sequence), start + subseq_length)
-            subsequence = full_sequence[start:end]
 
-            # Auffüllen der Subsequenz auf die genaue Länge von 235
-            if len(subsequence) < subseq_length:
-                subsequence = subsequence + fetch_sequence_from_pdb(pdb_id)[:subseq_length - len(subsequence)]
+def convert_epitope_list(epitope_list):
+    """
+    Wandelt die Epitop-Liste in eine Liste von Tupeln (position, aminosäure)
+    """
+    converted_list = []
+    for epitope in epitope_list.split(", "):
+        pos, aa, _ = epitope.split("_")
+        if aa in aminoacid_code:
+            converted_list.append((int(pos), aminoacid_code[aa]))
+    return converted_list
 
-            binary_epitope_string = map_epitopes_to_binary(subseq_length, epitope_positions, start)
 
-        else:
-            # Keine Epitope vorhanden, nehme die ersten subseq_length Stellen
-            subsequence = full_sequence[:subseq_length]
+def create_epitope_sequence(epitope_list, sequence):
+    """
+    Erstellt eine Epitop-Sequenz aus 0en und markiert die Positionen der Epitope mit 1en
+    """
+    epitope_sequence = [0] * len(sequence)
+    start_indices = [i for i in range(len(sequence)) if sequence[i] == epitope_list[0][1]]
 
-            # Auffüllen der Subsequenz auf die genaue Länge von 235
-            if len(subsequence) < subseq_length:
-                subsequence = full_sequence + full_sequence[:subseq_length - len(full_sequence)]
+    for start_index in start_indices:
+        current_index = start_index
+        is_correct = True
+        positions = [start_index]
 
-            binary_epitope_string = '0' * subseq_length
+        for i in range(1, len(epitope_list)):
+            expected_index = current_index + (epitope_list[i][0] - epitope_list[i - 1][0])
+            if expected_index >= len(sequence) or sequence[expected_index] != epitope_list[i][1]:
+                is_correct = False
+                break
+            positions.append(expected_index)
+            current_index = expected_index
 
-        results.append({
-            'PDB ID': pdb_id,
-            'Subsequence': subsequence,
-            'Binary Epitope': binary_epitope_string
-        })
-    else:
-        # Fehlerfall behandeln, wenn die Sequenz nicht abgerufen werden konnte
-        results.append({
-            'PDB ID': pdb_id,
-            'Subsequence': '',
-            'Binary Epitope': ''
-        })
+        if is_correct:
+            for pos in positions:
+                epitope_sequence[pos] = 1
+            break
 
-# Ausgabe der Ergebnisse als DataFrame
-results_df = pd.DataFrame(results)
+    return epitope_sequence
 
-# Speichere das DataFrame als CSV-Datei
-results_df.to_csv('epitope_mapped_sequences.csv', index=False)
 
-print("Die Datei wurde erfolgreich als 'epitope_mapped_sequences.csv' gespeichert.")
+# Neue Spalte für die Epitop-Sequenzen hinzufügen
+data["Epitope Sequence"] = ""
+
+for index, row in data.iterrows():
+    pdb_id = row["PDB ID"]
+    epitope_list = row["Epitope List (residueid_residuename_chain)"]
+    sequence = row["Sequence"].replace("(", "").replace(")","")
+
+    converted_epitope_list = convert_epitope_list(epitope_list)
+    epitope_seq = create_epitope_sequence(converted_epitope_list, sequence)
+
+    # Epitop-Sequenz in die neue Spalte einfügen
+    data.at[index, "Epitope Sequence"] = ''.join(map(str, epitope_seq))
+    data.at[index, "Sequence"] = sequence
+
+# Neue Datei speichern
+data.to_csv("epitope3d_dataset_45_Blind_Test_manual_with_epitopes2.csv", index=False)
