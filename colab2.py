@@ -620,7 +620,7 @@ def calculating_class_weights(y_true):
     number_dim = np.shape(y_true)[1]
     weights = np.empty([number_dim, 2])
     for i in range(number_dim):
-        weights[i] = compute_class_weight('balanced', classes = [0, 1], y = np.ravel(y_true, order = 'C'))
+        weights[i] = compute_class_weight('balanced', classes = np.unique([0, 1]), y = np.ravel(y_true, order = 'C'))
     print("WEIGHTS")
     print(weights)
     for i in range(len(weights)):

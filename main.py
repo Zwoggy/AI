@@ -1,11 +1,22 @@
 from Ai_exec import create_ai
 from colab2 import use_model_and_predict
+import argparse
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Run AI creation script with specific parameters.")
+    parser.add_argument('--filepath', type=str, required=True, help='Der Pfad zur Datendatei.')
+    parser.add_argument('--save_file', type=str, required=False, default="",
+                        help='Der Speicherort für die Ausgabe-Datei.')
+    parser.add_argument('--train', action='store_true', help='Aktiviert das Training.')
+    parser.add_argument('--safe', action='store_true', help='Aktiviert das sichere Speichern.')
+    parser.add_argument('--validate', action='store_true', help='Aktiviert die Validierung.')
+    parser.add_argument('--predict', action='store_true', help='Aktiviert die Vorhersage.')
 
-    create_ai(filepath='C:/Users/fkori/PycharmProjects/AI/data/Dataset-without-1550.xlsx',
-              save_file="",
-              train=False,
-              safe=False,
-              validate=False,
-              predict=False)
+    args = parser.parse_args()
+
+    create_ai(filepath=args.filepath,
+              save_file=args.save_file,
+              train=args.train,
+              safe=args.safe,
+              validate=args.validate,
+              predict=args.predict)

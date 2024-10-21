@@ -7,7 +7,7 @@ from colab2 import embedding, modify_with_context, calculating_class_weights, To
 from validate_45_blind import validate_on_45_blind
 
 
-def create_ai(filepath, save_file, train=False, safe=False,  validate=False, predict=False):
+def create_ai(filepath, save_file, output_file, train=False, safe=False,  validate=False, predict=False):
     embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder = embedding(filepath)
     print("Neue Anzahl an Sequenzen" + str(len(embedded_docs)))
 
@@ -69,10 +69,14 @@ def create_ai(filepath, save_file, train=False, safe=False,  validate=False, pre
 
 
 
+    """
+    test_trainx2 = np.load("C:/Users/fkori/PycharmProjects/AI/data/test_data/test_antigen_array.npy")
+    test_trainy2 = np.load("C:/Users/fkori/PycharmProjects/AI/data/test_data/test_epitope_array.npy")
+    test_trainy = np.load("C:/Users/fkori/PycharmProjects/AI/data/test_data/test_epitope_array_train.npy")
 
-    test_trainx2 = np.load("/content/drive/MyDrive/ifp/test_antigen_array.npy")
-    test_trainy2 = np.load("/content/drive/MyDrive/ifp/test_epitope_array.npy")
-    test_trainy = np.load("/content/drive/MyDrive/ifp/test_epitope_array_train.npy")
+    np.save("/epitope_array2.npy", epitope_array)
+    np.save("/epitope_array_train2.npy", epitope_array_train)
+    np.save("/antigen_array2.npy", antigen_array)
 
     epitope_array = np.load("/epitope_array2.npy")
     epitope_array_train = np.load("/epitope_array_train2.npy")
@@ -81,6 +85,8 @@ def create_ai(filepath, save_file, train=False, safe=False,  validate=False, pre
     print("trainy")
     print(epitope_array_train.shape)
     print(antigen_array[0][0])
+
+    #enable for evaluation
     trainx2 = np.reshape(antigen_array, ((antigen_array.shape[0] * antigen_array.shape[2]), antigen_array.shape[3]))
     trainy2 = np.reshape(epitope_array, ((epitope_array.shape[0] * epitope_array.shape[2]), epitope_array.shape[3]))
     trainy = np.reshape(epitope_array_train, ((epitope_array_train.shape[0] * epitope_array_train.shape[2]), 1))
@@ -90,6 +96,7 @@ def create_ai(filepath, save_file, train=False, safe=False,  validate=False, pre
     for i in range(trainy.shape[0]):
         if trainy[i] == 2:
             delete_counter.append(i)
+
 
     trainx2 = np.delete(trainx2, delete_counter, axis = 0)
     trainy2 = np.delete(trainy2, delete_counter, axis = 0)
@@ -105,7 +112,7 @@ def create_ai(filepath, save_file, train=False, safe=False,  validate=False, pre
     trainx2 = np.repeat(trainx2, repeats = repeat_counter, axis = 0)
     trainy2 = np.repeat(trainy2, repeats = repeat_counter, axis = 0)
     trainy = np.repeat(trainy, repeats = repeat_counter, axis = 0)
-
+    
     repeat_counter_for_validation_data = []
     delete_counter_for_validation_data = []
     for i in range(test_trainy.shape[0]):
@@ -126,25 +133,7 @@ def create_ai(filepath, save_file, train=False, safe=False,  validate=False, pre
     test_trainx2 = np.repeat(test_trainx2, repeats = repeat_counter_for_validation_data, axis = 0)
     test_trainy2 = np.repeat(test_trainy2, repeats = repeat_counter_for_validation_data, axis = 0)
     test_trainy = np.repeat(test_trainy, repeats = repeat_counter_for_validation_data, axis = 0)
-
-    ###Classweights
-    new_weights = calculating_class_weights(epitope_list)
-
-    print("trainy2, trainx2, trainy")
-    print(trainy2.shape)
-    print(trainx2.shape)
-    print(trainy.shape)
-
-    print("test_trainy")
-    print(test_trainy.shape)
-    print(test_trainx2.shape)
-
-    print("trainy2, trainx2, trainy")
-    print(test_trainy2.shape)
-    print(test_trainx2.shape)
-    print(test_trainy.shape)
-
-    print(trainx2)
+    
 
     unique, counts = np.unique(trainy, return_counts = True)
     print(unique, counts)
@@ -152,7 +141,9 @@ def create_ai(filepath, save_file, train=False, safe=False,  validate=False, pre
     unique, counts = np.unique(test_trainy, return_counts = True)
     print(unique, counts)
     print(np.asarray((unique, counts)).T)
-
+    """
+    ###Classweights
+    new_weights = calculating_class_weights(epitope_list)
     single_sequence_for_testing = antigen_list[:1]
     single_epitope_to_seqeuence_for_testing = epitope_list[:1]
 
@@ -223,7 +214,7 @@ def create_ai(filepath, save_file, train=False, safe=False,  validate=False, pre
         # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
 
         history = model.fit(x = antigen_list, y = epitope_list, batch_size = 50, epochs = 100,
-                            validation_data = (testx_list, testy_list), callbacks = [callback])
+                            validation_data = (testx_list, testy_list), callbacks = [callback], verbose=1)
         # history = model.fit(x=antigen_list, y=epitope_list, batch_size=50, epochs=100, validation_data=(testx_list, testy_list, testy_for_weights), callbacks=[callback], sample_weight = epitope_list_for_weights)
 
         # plot_results(history)
