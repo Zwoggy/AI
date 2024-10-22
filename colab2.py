@@ -1050,7 +1050,7 @@ tpu_strategy = tf.distribute.TPUStrategy(tpu)
 Use create_ai() to train a new model.
 Use use_model_and_predict() to use the model for prediction.
 """
-#path = 'C:/Users/fkori/PycharmProjects/AI/Dataset-without-1550.xlsx'
+#path = 'C:/Users/fkori/PycharmProjects/AI/Dataset.xlsx'
 
 
 
