@@ -6,7 +6,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Run AI creation script with specific parameters.")
     parser.add_argument('--filepath', type=str, required=False, default='/data/Dataset.xlsx',
                         help='Der Pfad zur Datendatei.')
-    parser.add_argument('--save_file', type=str, required=False, default="",
+    parser.add_argument('--output_path', type=str, required=False, default='/output',
+                        help='Der Pfad zur Datendatei.')
+    parser.add_argument('--save_file', type=str, required=False, default="/data/save_file",
                         help='Der Speicherort für die Ausgabe-Datei.')
     parser.add_argument('--train', action='store_true', help='Aktiviert das Training.')
     parser.add_argument('--safe', action='store_true', help='Aktiviert das sichere Speichern.')
@@ -17,6 +19,7 @@ if __name__ == '__main__':
 
     # Verwende den Standardpfad, wenn --filepath nicht angegeben ist
     create_ai(filepath=args.filepath,
+              output_file=args.output_path,
               save_file=args.save_file,
               train=args.train,
               safe=args.safe,
