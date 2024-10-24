@@ -29,7 +29,8 @@ from tf_keras import layers
 
 from tf_keras.models import load_model ### Using Keras 2
 import tf_keras ### Keras 2
-from tf_keras import backend as K
+from tensorflow.keras import backend as K
+#from tf_keras import backend as K
 import random
 from scipy.stats import gmean
 #import keras_nlp
@@ -632,7 +633,7 @@ def calculating_class_weights(y_true):
 
 def get_weighted_loss(weights):
     def weighted_loss(y_true, y_pred):
-        return tf_keras.K.mean(
+        return K.mean(
             (weights[:, 0] ** (1 - y_true)) * (weights[:, 1] ** (y_true)) * K.binary_crossentropy(y_true, y_pred),
             axis = -1)
 
