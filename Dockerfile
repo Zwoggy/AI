@@ -12,10 +12,14 @@ WORKDIR /app
 
 # Kopiere die Anforderungen (requirements) Datei und den Quellcode in das Arbeitsverzeichnis
 COPY requirements.txt requirements.txt
-COPY . .
+#COPY . .
 
 # Installiere die Abhängigkeiten
 RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+# main.py executable
+RUN chmod +x /app/main.py
 
 # Standardbefehl zum Starten der Applikation (kann zur Laufzeit überschrieben werden)
 CMD ["python", "main.py", "--help"]

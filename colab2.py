@@ -103,7 +103,7 @@ def embedding(filepath):
 
     # loading
 
-    with open('C:/Users/fkori/PycharmProjects/AI/AI/tokenizer.pickle', 'rb') as handle:
+    with open('./AI/tokenizer.pickle', 'rb') as handle:
         encoder = pickle.load(handle)
 
     encoder.fit_on_texts(sequence_list)
