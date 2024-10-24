@@ -800,7 +800,7 @@ def use_model_and_predict():
     sequence_list = split_string(sequence)
 
     """change the following path accordingly"""
-    with open('C:/Users/fkori/PycharmProjects/AI/AI/tokenizer.pickle', 'rb') as handle:
+    with open('./AI/tokenizer.pickle', 'rb') as handle:
         encoder = pickle.load(handle)
 
     print(encoder.word_index)
