@@ -165,21 +165,39 @@ def embedding(filepath, old=False):
 
         return embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder
 
+
     else:
+
         """usage for new AI"""
+
         # load ESM tokenizer
+
         tokenizer = EsmTokenizer.from_pretrained('facebook/esm2_t6_8M_UR50D')
-        # Tokenize input sequences
+
         tokenizer.pad_token_id = 0
+
         embedded_docs = []
+
         for doc in sequence_list:
-            embedded_docs.append(tokenizer.encode(
+            # Tokenize and encode the document, ensuring that the padding and truncation are handled correctly
+
+            encoded_doc = tokenizer.encode(
+
                 doc,
+
                 return_tensors='tf',
-                padding='max_length',  # Füllt alle Sequenzen bis zur max_length auf
-                truncation=True,  # Trunkiert Sequenzen, die länger als max_length sind
-                max_length=length_of_longest_sequence  # Setzt die maximale Länge auf length_of_longest_sequence
-            ))
+
+                padding='max_length',
+
+                truncation=True,
+
+                max_length=length_of_longest_sequence
+
+            )
+
+            embedded_docs.append(encoded_doc.numpy())  # Convert the tensor to a NumPy array
+
+        embedded_docs = np.array(embedded_docs)  # Convert the list of arrays to a single NumPy array
 
         return embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder
 
