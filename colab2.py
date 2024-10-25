@@ -178,6 +178,8 @@ def embedding(filepath, old=False):
             truncation=True,  # Trunkiert Sequenzen, die länger als max_length sind
             max_length=235,  # Setzt die maximale Länge auf 235
         )
+        print("embedded_docs")
+        print(embedded_docs)
         return embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder
 
 
