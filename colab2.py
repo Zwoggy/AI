@@ -42,6 +42,9 @@ sys.modules['keras.preprocessing'] = kp
 from keras_preprocessing import text
 from keras_preprocessing.sequence import pad_sequences
 # set seed to counter rng during training
+### New imports for ESM-2
+from transformers import EsmTokenizer
+
 random.seed(10)
 tf.random.set_seed(10)
 
@@ -93,44 +96,85 @@ def read_data(filepath):
     return sequence_as_aminoacids_list, epitope_embed_list
 
 
-def embedding(filepath):
+def embedding(filepath, old=False):
+    """
+    Embeds sequences and epitope data from a given filepath.
+
+    Depending on the `old` flag, it either uses an older embedding mechanism involving a tokenizer or returns None.
+
+    Parameters:
+    ----------
+    filepath : str
+        Path to the file containing the sequence and epitope data.
+    old : bool, optional
+        Flag to determine the usage of the old embedding method (default is False).
+
+    Returns:
+    ----------
+    tuple or None
+        If `old` is True, returns a tuple of:
+        - embedded_docs: numpy.ndarray
+            Embedded sequences of the same length.
+        - epitope_embed_list: numpy.ndarray
+            Padded sequences of epitope embeddings.
+        - voc_size: int
+            The vocabulary size used for embedding.
+        - length_of_longest_sequence: int
+            The length of the longest sequence used in padding.
+        - encoder: keras.preprocessing.text.Tokenizer
+            The tokenizer used for embedding the sequences.
+        If `old` is False, returns None.
+    """
+
     sequence_list, epitope_embed_list = read_data(filepath)
 
     voc_size = 100
 
     length_of_longest_sequence = int(len(max(sequence_list, key = len)) / 2)
 
-    encoder = text.Tokenizer(num_words = 35, char_level = True)
+    epitope_embed_list = pad_sequences(epitope_embed_list, maxlen=length_of_longest_sequence,
+                                       padding='post', value=0)
 
-    # loading
+    if old:
+        """Usage for the old AI"""
+        # loading
+        encoder = text.Tokenizer(num_words = 35, char_level = True)
+        with open('./AI/tokenizer.pickle', 'rb') as handle:
+            encoder = pickle.load(handle)
 
-    with open('./AI/tokenizer.pickle', 'rb') as handle:
-        encoder = pickle.load(handle)
+        encoder.fit_on_texts(sequence_list)
+        print(encoder.word_index)
 
-    encoder.fit_on_texts(sequence_list)
-    print(encoder.word_index)
+        pre_embedded_docs = encoder.texts_to_sequences(sequence_list)
 
-    pre_embedded_docs = encoder.texts_to_sequences(sequence_list)
+        # saving
 
-    # saving
+        #with open('/content/drive/MyDrive/ifp/tokenizer.pickle', 'wb') as handle:
+        #  pickle.dump(encoder, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        #print(encoder.word_index)
 
-    #with open('/content/drive/MyDrive/ifp/tokenizer.pickle', 'wb') as handle:
-    #  pickle.dump(encoder, handle, protocol=pickle.HIGHEST_PROTOCOL)
-    #print(encoder.word_index)
+        embedded_docs = pad_sequences(pre_embedded_docs, maxlen = length_of_longest_sequence,
+                                                                padding = 'post', value = 0)
 
-    embedded_docs = pad_sequences(pre_embedded_docs, maxlen = length_of_longest_sequence,
-                                                            padding = 'post', value = 0)
 
-    epitope_embed_list = pad_sequences(epitope_embed_list,
-                                                                    maxlen = length_of_longest_sequence,
-                                                                    padding = 'post', value = 0)
-    # embedded_docs = np.array(embedded_docs)
+        # embedded_docs = np.array(embedded_docs)
 
-    max_len_antigen: int = len(max(epitope_embed_list, key = len))
+        max_len_antigen: int = len(max(epitope_embed_list, key = len))
 
-    # embedded_docs = np.array(embedded_docs)
+        # embedded_docs = np.array(embedded_docs)
 
-    return embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder
+        return embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder
+
+    else:
+        """usage for new AI"""
+        # load ESM tokenizer
+        tokenizer = EsmTokenizer.from_pretrained('facebook/esm2_t6_8M_UR50S')
+        # Tokenize input sequences
+        embedded_docs = tokenizer(sequence_list, return_tensors='tf', padding=True, truncation=True)
+        embedded_docs = pad_sequences(embedded_docs, maxlen=length_of_longest_sequence,
+                                      padding='post', value=0)
+        return embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence
+
 
 
 def plot_sth(history):

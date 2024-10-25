@@ -1,14 +1,15 @@
 import numpy as np
 import tf_keras
 from tf_keras import optimizers as opt, layers
+from transformers import EsmModel
 
 from colab2 import embedding, modify_with_context, calculating_class_weights, TokenAndPositionEmbedding, \
     TransformerBlock, TransformerDecoderTwo, get_weighted_loss, save_ai, use_model_and_predict
 from validate_45_blind import validate_on_45_blind
 
 
-def create_ai(filepath, save_file, output_file, train=False, safe=False,  validate=False, predict=False):
-    embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder = embedding(filepath)
+def create_ai(filepath, save_file, output_file, train=False, safe=False,  validate=False, predict=False, old=False):
+    embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder = embedding(filepath, old=old)
     print("Neue Anzahl an Sequenzen" + str(len(embedded_docs)))
 
     optimizer = tf_keras.optimizers.Adam(learning_rate = 0.001)
@@ -183,9 +184,13 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
         encoder_inputs = layers.Input(shape = (length_of_longest_context,), name = 'encoder_inputs')
 
         embedding_layer = TokenAndPositionEmbedding(maxlen, voc_size, embed_dim)
-        encoder_embed_out = embedding_layer(encoder_inputs)
+        if old:
+            encoder_embed_out = embedding_layer(encoder_inputs)
+            x = encoder_embed_out
+        else:
+            esm_outputs = esm_model(encoder_inputs)['last_hidden_state']
+            x = esm_outputs
 
-        x = encoder_embed_out
         for i in range(num_transformer_blocks):
             transformer_block = TransformerBlock(embed_dim, num_heads, ff_dim, rate)
             x = transformer_block(x, training = training)
