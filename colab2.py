@@ -627,6 +627,7 @@ def modify_with_context(epitope_list, antigen_list, length_of_longest_sequence):
                     while number > 0:
                         # short_epitope.append(-1)
                         short_epitope.append(0.)
+                        print("run: ", run, "number: ", number)
                         short_antigen.append(antigen[run - number])
                         number -= 1
 
