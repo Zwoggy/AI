@@ -178,7 +178,7 @@ def embedding(filepath, old=False):
                 return_tensors='tf',
                 padding='max_length',  # Füllt alle Sequenzen bis zur max_length auf
                 truncation=True,  # Trunkiert Sequenzen, die länger als max_length sind
-                max_length=235,  # Setzt die maximale Länge auf 235
+                max_length=length_of_longest_sequence  # Setzt die maximale Länge auf 235
             ))
         print("embedded_docs")
         print(embedded_docs)
