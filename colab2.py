@@ -203,7 +203,7 @@ def new_embedding(antigen_list, encoder):
         )
         new_embedded_docs.append(encoded_doc.numpy())
 
-    new_embedded_docs = np.array(new_embedded_docs)
+    #new_embedded_docs = np.array(new_embedded_docs)
 
     return new_embedded_docs
 
@@ -652,7 +652,6 @@ def modify_with_context(epitope_list, antigen_list, length_of_longest_sequence):
                     while number > 0:
                         # short_epitope.append(-1)
                         short_epitope.append(0.)
-                        print("run: ", run, "number: ", number)
                         short_antigen.append(antigen[run - number])
                         number -= 1
 

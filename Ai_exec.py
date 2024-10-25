@@ -32,7 +32,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
     testy_list, testx_list, length_of_longest_context_2 = modify_with_context(testy_list, testx_list,
                                                                               length_of_longest_sequence)
     if old==False:
-        antigen_list= new_embedding(antigen_list, encoder)
+        antigen_list = new_embedding(antigen_list, encoder)
         testx_list = new_embedding(testx_list, encoder)
 
     epitope_list_for_weights = epitope_list
