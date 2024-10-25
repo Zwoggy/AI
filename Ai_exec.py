@@ -188,6 +188,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
             encoder_embed_out = embedding_layer(encoder_inputs)
             x = encoder_embed_out
         else:
+            esm_model = EsmModel.from_pretrained('facebook/esm2_t6_8M_UR50D')
             esm_outputs = esm_model(encoder_inputs)['last_hidden_state']
             x = esm_outputs
 

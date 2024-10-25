@@ -168,11 +168,9 @@ def embedding(filepath, old=False):
     else:
         """usage for new AI"""
         # load ESM tokenizer
-        tokenizer = EsmTokenizer.from_pretrained('facebook/esm2_t6_8M_UR50S')
+        tokenizer = EsmTokenizer.from_pretrained('facebook/esm2_t6_8M_UR50D')
         # Tokenize input sequences
-        embedded_docs = tokenizer(sequence_list, return_tensors='tf', padding=True, truncation=True)
-        embedded_docs = pad_sequences(embedded_docs, maxlen=length_of_longest_sequence,
-                                      padding='post', value=0)
+        embedded_docs = tokenizer(sequence_list, return_tensors='tf', padding=True, truncation=True,model_max_length=length_of_longest_sequence, padding_side='right', pad_token='0') 
         return embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence
 
 
