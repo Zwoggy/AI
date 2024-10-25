@@ -164,7 +164,7 @@ def embedding(filepath, old=False):
 
 
 
-def new_embedding(antigen_list, epitope_list, encoder, length_of_longest_sequence):
+def new_embedding(antigen_list, encoder):
     """
     Reverse the previous embedding and perform new embeddings using ESM-2.
 
@@ -186,7 +186,6 @@ def new_embedding(antigen_list, epitope_list, encoder, length_of_longest_sequenc
     """
     # Rekonstruktion der originalen Sequenzen mit dem Encoder
     decoded_antigens = encoder.sequences_to_texts(antigen_list.tolist())
-    decoded_epitopes = encoder.sequences_to_texts(epitope_list.tolist())
 
     # Lade ESM-Tokenizer
     tokenizer = EsmTokenizer.from_pretrained('facebook/esm2_t6_8M_UR50D')
@@ -200,7 +199,7 @@ def new_embedding(antigen_list, epitope_list, encoder, length_of_longest_sequenc
             return_tensors='tf',
             padding='max_length',
             truncation=True,
-            max_length=length_of_longest_sequence
+            max_length=235
         )
         new_embedded_docs.append(encoded_doc.numpy())
 
