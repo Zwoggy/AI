@@ -197,10 +197,11 @@ def new_embedding(antigen_list, encoder):
     # Neue Embeddings für Antigen
     new_embedded_docs = []
     for doc in decoded_antigens:
+        print(doc)
         encoded_doc = tokenizer.encode(
             doc,
             return_tensors='tf',
-            #padding='max_length',
+            padding='max_length',
             truncation=True,
             max_length=235
         )
