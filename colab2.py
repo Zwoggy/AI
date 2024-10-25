@@ -173,7 +173,7 @@ def embedding(filepath, old=False):
         sequence_list = pad_sequences(sequence_list, maxlen=length_of_longest_sequence,
                                       padding='post', value=0)
         embedded_docs = tokenizer(sequence_list, return_tensors='tf', pad_token='0')
-
+        #test
         return embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder
 
 
