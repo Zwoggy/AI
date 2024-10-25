@@ -170,8 +170,7 @@ def embedding(filepath, old=False):
         # load ESM tokenizer
         tokenizer = EsmTokenizer.from_pretrained('facebook/esm2_t6_8M_UR50D')
         # Tokenize input sequences
-        sequence_list = pad_sequences(sequence_list, maxlen=length_of_longest_sequence,
-                                      padding='post', value=0)
+
         embedded_docs = tokenizer(sequence_list, return_tensors='tf', pad_token='0')
         #test-commit
         return embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder
