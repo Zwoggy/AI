@@ -201,7 +201,7 @@ def new_embedding(antigen_list, encoder):
         encoded_doc = tokenizer.encode(
             doc,
             return_tensors='tf',
-            padding='max_length',
+            padding=True,
             truncation=True,
             max_length=235,
             add_special_tokens=True
