@@ -14,6 +14,7 @@ if __name__ == '__main__':
     parser.add_argument('--safe', action='store_true', help='Aktiviert das sichere Speichern.')
     parser.add_argument('--validate', action='store_true', help='Aktiviert die Validierung.')
     parser.add_argument('--predict', action='store_true', help='Aktiviert die Vorhersage.')
+    parser.add_argument('--old', action='store_true', help='Verwende das alte Model.')
 
     args = parser.parse_args()
 
@@ -24,5 +25,6 @@ if __name__ == '__main__':
               train=args.train,
               safe=args.safe,
               validate=args.validate,
-              predict=args.predict)
+              predict=args.predict,
+              old=args.old)
 
