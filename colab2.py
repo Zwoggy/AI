@@ -186,6 +186,7 @@ def new_embedding(antigen_list, encoder):
     """
     # Rekonstruktion der originalen Sequenzen mit dem Encoder
     decoded_antigens = encoder.sequences_to_texts(antigen_list.tolist())
+    print("decoded_antigens: ", decoded_antigens[0], "decoded_antigens2: ", decoded_antigens[1])
 
     # Lade ESM-Tokenizer
     tokenizer = EsmTokenizer.from_pretrained('facebook/esm2_t6_8M_UR50D')
