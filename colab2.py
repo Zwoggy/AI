@@ -171,13 +171,15 @@ def embedding(filepath, old=False):
         tokenizer = EsmTokenizer.from_pretrained('facebook/esm2_t6_8M_UR50D')
         # Tokenize input sequences
         tokenizer.pad_token_id = 0
-        embedded_docs = tokenizer.encode(
-            sequence_list,
-            return_tensors='tf',
-            padding='max_length',  # Füllt alle Sequenzen bis zur max_length auf
-            truncation=True,  # Trunkiert Sequenzen, die länger als max_length sind
-            max_length=235,  # Setzt die maximale Länge auf 235
-        )
+        embedded_docs = []
+        for doc in sequence_list:
+            embedded_docs.append(tokenizer.encode(
+                doc,
+                return_tensors='tf',
+                padding='max_length',  # Füllt alle Sequenzen bis zur max_length auf
+                truncation=True,  # Trunkiert Sequenzen, die länger als max_length sind
+                max_length=235,  # Setzt die maximale Länge auf 235
+            ))
         print("embedded_docs")
         print(embedded_docs)
         return embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder
