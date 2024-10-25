@@ -134,13 +134,13 @@ def embedding(filepath, old=False):
 
     epitope_embed_list = pad_sequences(epitope_embed_list, maxlen=length_of_longest_sequence,
                                        padding='post', value=0)
-
+    encoder = text.Tokenizer(num_words = 35, char_level = True)
+    with open('./AI/tokenizer.pickle', 'rb') as handle:
+        encoder = pickle.load(handle)
     if old:
         """Usage for the old AI"""
         # loading
-        encoder = text.Tokenizer(num_words = 35, char_level = True)
-        with open('./AI/tokenizer.pickle', 'rb') as handle:
-            encoder = pickle.load(handle)
+
 
         encoder.fit_on_texts(sequence_list)
         print(encoder.word_index)
@@ -170,10 +170,11 @@ def embedding(filepath, old=False):
         # load ESM tokenizer
         tokenizer = EsmTokenizer.from_pretrained('facebook/esm2_t6_8M_UR50D')
         # Tokenize input sequences
-        embedded_docs = tokenizer(sequence_list, return_tensors='tf', padding=True, truncation=True,
-                                  model_max_length=length_of_longest_sequence, padding_side='right', pad_token='0')
+        sequence_list = pad_sequences(sequence_list, maxlen=length_of_longest_sequence,
+                                      padding='post', value=0)
+        embedded_docs = tokenizer(sequence_list, return_tensors='tf', pad_token='0')
 
-        return embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence
+        return embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder
 
 
 
