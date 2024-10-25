@@ -202,12 +202,11 @@ def new_embedding(antigen_list, encoder):
             truncation=True,
             max_length=235
         )
-        print("encoded_doc: ", encoded_doc)
         new_embedded_docs.append(encoded_doc.numpy())
-        print("new_embedded_docs: ", new_embedded_docs)
 
     #new_embedded_docs = np.array(new_embedded_docs)
-
+    print("encoded_doc: ", encoded_doc[0])
+    print("new_embedded_docs: ", new_embedded_docs[0])
     return new_embedded_docs
 
 
