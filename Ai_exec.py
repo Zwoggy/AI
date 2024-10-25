@@ -4,7 +4,7 @@ from tf_keras import optimizers as opt, layers
 from transformers import EsmModel
 
 from colab2 import embedding, modify_with_context, calculating_class_weights, TokenAndPositionEmbedding, \
-    TransformerBlock, TransformerDecoderTwo, get_weighted_loss, save_ai, use_model_and_predict
+    TransformerBlock, TransformerDecoderTwo, get_weighted_loss, save_ai, use_model_and_predict, new_embedding
 from validate_45_blind import validate_on_45_blind
 
 
@@ -31,6 +31,9 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
     print(antigen_list)
     testy_list, testx_list, length_of_longest_context_2 = modify_with_context(testy_list, testx_list,
                                                                               length_of_longest_sequence)
+    if old==False:
+        antigen_list= new_embedding(antigen_list)
+        testx_list = new_embedding(testx_list)
 
     epitope_list_for_weights = epitope_list
     epitope_list_for_weights = np.array(epitope_list_for_weights, dtype = np.float32)
