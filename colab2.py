@@ -185,7 +185,7 @@ def new_embedding(antigen_list, encoder):
         New embedded sequences and epitopes.
     """
     # Rekonstruktion der originalen Sequenzen mit dem Encoder
-    decoded_antigens = encoder.sequences_to_texts(antigen_list.tolist())
+    decoded_antigens = encoder.sequences_to_texts(antigen_list.tolist()).replace(" ", "")
     print("decoded_antigens: ", decoded_antigens[0], "decoded_antigens2: ", decoded_antigens[1])
 
     # Lade ESM-Tokenizer
