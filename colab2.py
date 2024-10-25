@@ -146,7 +146,7 @@ def embedding(filepath, old=False):
         print(encoder.word_index)
 
         pre_embedded_docs = encoder.texts_to_sequences(sequence_list)
-
+        print("sequence_list: ", sequence_list[0])
         # saving
 
         #with open('/content/drive/MyDrive/ifp/tokenizer.pickle', 'wb') as handle:
@@ -171,7 +171,7 @@ def embedding(filepath, old=False):
         tokenizer = EsmTokenizer.from_pretrained('facebook/esm2_t6_8M_UR50D')
         # Tokenize input sequences
 
-        embedded_docs = tokenizer(sequence_list, return_tensors='tf', pad_token='0')
+        embedded_docs = tokenizer(sequence_list, return_tensors='tf', pad_token='0', padding=True, truncation=True)
         #test-commit
         return embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder
 
