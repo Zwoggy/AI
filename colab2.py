@@ -205,10 +205,10 @@ def new_embedding(antigen_list, encoder):
             max_length=235,
             add_special_tokens=True
         )
-        new_embedded_docs.append(list(encoded_doc))
+        new_embedded_docs.append(encoded_doc)
 
     #new_embedded_docs = np.array(new_embedded_docs)
-    # print("encoded_doc: ", encoded_doc[0])
+    print("encoded_doc: ", new_embedded_docs)
     #print("new_embedded_docs: ", new_embedded_docs[0])
     return new_embedded_docs
 
