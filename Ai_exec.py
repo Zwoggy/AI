@@ -1,7 +1,7 @@
 import numpy as np
 import tf_keras
 from tf_keras import optimizers as opt, layers
-from transformers import EsmModel
+from transformers import TFEsmModel
 
 from colab2 import embedding, modify_with_context, calculating_class_weights, TokenAndPositionEmbedding, \
     TransformerBlock, TransformerDecoderTwo, get_weighted_loss, save_ai, use_model_and_predict, new_embedding
@@ -191,7 +191,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
             encoder_embed_out = embedding_layer(encoder_inputs)
             x = encoder_embed_out
         else:
-            esm_model = EsmModel.from_pretrained('facebook/esm2_t6_8M_UR50D')
+            esm_model = TFEsmModel.from_pretrained('facebook/esm2_t6_8M_UR50D')
             esm_outputs = esm_model(encoder_inputs)['last_hidden_state']
             x = esm_outputs
 
