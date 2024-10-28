@@ -160,13 +160,13 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
 
     num_transformer_blocks = 2
     num_decoder_blocks = 1
-    embed_dim = 320  # Embedding size for each token used to be 24
+    embed_dim = 24  # Embedding size for each token used to be 24
     num_heads = 40  # Number of attention heads
     ff_dim = 32  # Hidden layer size in feed forward network inside transformer
     maxlen = length_of_longest_context
     rate = 0.1
     training = True
-
+    output_dimension = embedding_dim
 
     some_class_weight = {0: 1.,
                          1: 3.}
@@ -197,7 +197,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
             print("Shape of esm_outputs:", esm_outputs.shape)
             output_dimension = esm_outputs.shape[2]
         for i in range(num_transformer_blocks):
-            transformer_block = TransformerBlock(embed_dim, num_heads, ff_dim, rate)
+            transformer_block = TransformerBlock(output_dimension, num_heads, ff_dim, rate)
             x = transformer_block(x, training = training)
 
         x = layers.Dropout(rate = rate)(x)
@@ -223,7 +223,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                                           tf_keras.metrics.Recall()])
         # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
 
-        history = model.fit(x = antigen_list, y = epitope_list, batch_size = 16, epochs = 100,
+        history = model.fit(x = antigen_list, y = epitope_list, batch_size = 50, epochs = 100,
                             validation_data = (testx_list, testy_list), callbacks = [callback], verbose=1)
         # history = model.fit(x=antigen_list, y=epitope_list, batch_size=50, epochs=100, validation_data=(testx_list, testy_list, testy_for_weights), callbacks=[callback], sample_weight = epitope_list_for_weights)
 
