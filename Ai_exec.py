@@ -194,6 +194,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
             esm_model = TFEsmModel.from_pretrained('facebook/esm2_t6_8M_UR50D')
             esm_outputs = esm_model(encoder_inputs)['last_hidden_state']
             x = esm_outputs
+            print("Shape of esm_outputs:", esm_outputs.shape)
 
         for i in range(num_transformer_blocks):
             transformer_block = TransformerBlock(embed_dim, num_heads, ff_dim, rate)
