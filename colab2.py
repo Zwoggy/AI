@@ -199,17 +199,16 @@ def new_embedding(antigen_list, encoder):
     for doc in decoded_antigens:
         encoded_doc = tokenizer.encode_plus(
             doc,
-            return_tensors='tf',
-            padding=True,
+            return_tensors='tf',  # Ändere zu 'pt' für PyTorch (oder 'tf' für TensorFlow)
+            padding='max_length',
             truncation=True,
             max_length=235,
             add_special_tokens=True
         )
-        new_embedded_docs.append(encoded_doc)
+        new_embedded_docs.append(encoded_doc['input_ids'].squeeze().numpy())  # Nur die 'input_ids' extrahieren
 
-    #new_embedded_docs = np.array(new_embedded_docs)
-    print("encoded_doc: ", new_embedded_docs)
-    #print("new_embedded_docs: ", new_embedded_docs[0])
+    new_embedded_docs = np.array(new_embedded_docs)  # Optional in NumPy konvertieren
+    print("new_embedded_docs shape:", new_embedded_docs.shape)
     return new_embedded_docs
 
 
