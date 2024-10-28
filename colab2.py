@@ -201,9 +201,11 @@ def new_embedding(antigen_list, encoder):
             doc,
             return_tensors='tf',  # TensorFlow verwenden
             padding='max_length',
-            truncation=True,
+            truncation=False,
             max_length=235,
-            add_special_tokens=True
+            add_special_tokens=False,
+            padding_side='right',
+            return_attention_mask=True
         )
         # Entfernt Dimensionen mit Länge 1
         squeezed_input_ids = tf.squeeze(encoded_doc['input_ids']).numpy()  # tf.squeeze verwenden
