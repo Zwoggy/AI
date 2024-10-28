@@ -210,6 +210,7 @@ def new_embedding(antigen_list, encoder):
         # Entfernt Dimensionen mit Länge 1
         squeezed_input_ids = tf.squeeze(encoded_doc['input_ids']).numpy()  # tf.squeeze verwenden
         new_embedded_docs.append(squeezed_input_ids)
+        print("input-shape", squeezed_input_ids.shape)
 
     new_embedded_docs = np.array(new_embedded_docs)
     print("new_embedded_docs shape:", new_embedded_docs.shape)
