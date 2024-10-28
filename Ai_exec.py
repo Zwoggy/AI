@@ -160,7 +160,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
 
     num_transformer_blocks = 2
     num_decoder_blocks = 1
-    embed_dim = 24  # Embedding size for each token
+    embed_dim = 320  # Embedding size for each token used to be 24
     num_heads = 40  # Number of attention heads
     ff_dim = 32  # Hidden layer size in feed forward network inside transformer
     maxlen = length_of_longest_context
@@ -195,7 +195,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
             esm_outputs = esm_model(encoder_inputs)['last_hidden_state']
             x = esm_outputs
             print("Shape of esm_outputs:", esm_outputs.shape)
-
+            output_dimension = esm_outputs.shape[2]
         for i in range(num_transformer_blocks):
             transformer_block = TransformerBlock(embed_dim, num_heads, ff_dim, rate)
             x = transformer_block(x, training = training)
