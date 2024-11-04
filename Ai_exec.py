@@ -40,23 +40,28 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
     epitope_list_for_weights = np.array(epitope_list_for_weights, dtype = np.float32)
 
     epitope_list = np.array(epitope_list, dtype = np.float32)
-    antigen_list = np.array(antigen_list, dtype = np.float32)
+    if old==False:
+        antigen_list = np.array(antigen_list, dtype = np.float32)
+        antigen_list = np.reshape(antigen_list, (antigen_list.shape[0], antigen_list.shape[1], 1))
+        testx_list = np.array(testx_list, dtype = np.float32)
+        testx_list = np.reshape(testx_list, (testx_list.shape[0], testx_list.shape[1], 1))
+
+
 
     epitope_list_for_weights = np.reshape(epitope_list_for_weights,
                                           (epitope_list_for_weights.shape[0], epitope_list_for_weights.shape[1]))
     epitope_list = np.reshape(epitope_list, (epitope_list.shape[0], epitope_list.shape[1], 1))
-    antigen_list = np.reshape(antigen_list, (antigen_list.shape[0], antigen_list.shape[1], 1))
+
+
 
     testy_list_for_weights = np.array(testy_list, dtype = np.float32)
     testy_list = np.array(testy_list, dtype = np.float32)
-    testx_list = np.array(testx_list, dtype = np.float32)
 
     testy_for_weights = np.reshape(testy_list_for_weights,
                                    (testy_list_for_weights.shape[0], testy_list_for_weights.shape[1]))
     testy_list = np.reshape(testy_list, (testy_list.shape[0], testy_list.shape[1], 1))
-    testx_list = np.reshape(testx_list, (testx_list.shape[0], testx_list.shape[1], 1))
 
-    print("EPITOPE", epitope_list.shape, "ANTIGEN", antigen_list.shape)
+
 
     for i, epitope in enumerate(testy_for_weights):
         for y, char in enumerate(epitope):
@@ -149,8 +154,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
     """
     ###Classweights
     new_weights = calculating_class_weights(epitope_list)
-    single_sequence_for_testing = antigen_list[:1]
-    single_epitope_to_seqeuence_for_testing = epitope_list[:1]
+
 
     # weights = class_weight.compute_sample_weight(class_weight='balanced', y=epitope_array)
     # print(pd.Series(test_sample_weights).unique())
