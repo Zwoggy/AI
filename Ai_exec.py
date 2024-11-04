@@ -196,7 +196,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
             #x = encoder_embed_out
             esm_model = TFEsmForTokenClassification.from_pretrained('facebook/esm2_t6_8M_UR50D')
             esm_model.trainable = True  # Stelle sicher, dass das Modell trainierbar ist
-            esm_outputs = esm_model(encoder_inputs, training=True, return_dict=False ) #['last_hidden_state'] # removed
+            esm_outputs = esm_model(encoder_inputs, training=True)['hidden_states ']
             x = esm_outputs
             print("Shape of esm_outputs:", esm_outputs.shape)
             output_dimension = esm_outputs.shape[2]
