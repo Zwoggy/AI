@@ -131,7 +131,7 @@ def embedding(filepath, old=False):
 
     epitope_embed_list = pad_sequences(epitope_embed_list, maxlen=length_of_longest_sequence,
                                        padding='post', value=0)
-    encoder = text.Tokenizer(num_words = 35, char_level = True)
+    encoder = text.Tokenizer(num_words = 1000, char_level = True,  oov_token="X")
     """
     with open('./AI/tokenizer.pickle', 'rb') as handle:
         encoder = pickle.load(handle)
