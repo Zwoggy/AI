@@ -198,6 +198,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
             encoder_embed_out = embedding_layer(encoder_inputs)
             x = encoder_embed_out
         else:
+
             tokenizer = AutoTokenizer.from_pretrained("facebook/esm2_t6_8M_UR50D")
             esm_model = TFEsmForTokenClassification.from_pretrained("facebook/esm2_t6_8M_UR50D")
 

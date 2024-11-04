@@ -188,7 +188,7 @@ def new_embedding(antigen_list, encoder):
     #decoded_antigens = encoder.sequences_to_texts(antigen_list.tolist()) # alte Version / vielleicht ist die Liste notwendig
     decoded_antigens: list = encoder.sequences_to_texts(antigen_list)
     for i, decoded_antigen  in enumerate(decoded_antigens):
-        decoded_antigens[i] = decoded_antigen.replace(" ", "")
+        decoded_antigens[i]: str = decoded_antigen.replace(" ", "")
     #print("decoded_antigens: ", decoded_antigens)
 
     # Lade ESM-Tokenizer
