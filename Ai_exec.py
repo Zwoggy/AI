@@ -192,8 +192,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
             x = encoder_embed_out
         else:
             # soll trainiert werden
-            encoder_embed_out = embedding_layer(encoder_inputs)
-            x = encoder_embed_out
+            #encoder_embed_out = embedding_layer(encoder_inputs)
+            #x = encoder_embed_out
             esm_model = TFEsmModel.from_pretrained('facebook/esm2_t6_8M_UR50D')
             esm_model.trainable = True  # Stelle sicher, dass das Modell trainierbar ist
             esm_outputs = esm_model(x, training=True )['last_hidden_state']

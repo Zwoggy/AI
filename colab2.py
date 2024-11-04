@@ -189,7 +189,7 @@ def new_embedding(antigen_list, encoder):
     decoded_antigens = encoder.sequences_to_texts(antigen_list)
     for i, decoded_antigen  in enumerate(decoded_antigens):
         decoded_antigens[i] = decoded_antigen.replace(" ", "")
-    print("decoded_antigens: ", decoded_antigens)
+    #print("decoded_antigens: ", decoded_antigens)
 
     # Lade ESM-Tokenizer
     tokenizer = EsmTokenizer.from_pretrained('facebook/esm2_t6_8M_UR50D')
@@ -215,6 +215,7 @@ def new_embedding(antigen_list, encoder):
 
     new_embedded_docs = np.array(new_embedded_docs)
     print("new_embedded_docs shape:", new_embedded_docs.shape)
+    print(new_embedded_docs)
     return new_embedded_docs
 
 
