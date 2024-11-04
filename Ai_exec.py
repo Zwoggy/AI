@@ -1,7 +1,8 @@
 import numpy as np
 import tf_keras
 from tf_keras import optimizers as opt, layers
-from transformers import TFEsmModel, TFEsmForTokenClassification
+from transformers import AutoTokenizer, TFEsmForTokenClassification, TFEsmModel
+import tensorflow as tf
 
 from colab2 import embedding, modify_with_context, calculating_class_weights, TokenAndPositionEmbedding, \
     TransformerBlock, TransformerDecoderTwo, get_weighted_loss, save_ai, use_model_and_predict, new_embedding
@@ -191,17 +192,22 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
             encoder_embed_out = embedding_layer(encoder_inputs)
             x = encoder_embed_out
         else:
-            # soll trainiert werden
-            #encoder_embed_out = embedding_layer(encoder_inputs)
-            #x = encoder_embed_out
-            esm_model = TFEsmForTokenClassification.from_pretrained('facebook/esm2_t6_8M_UR50D')
-            #esm_model.trainable = True  # Stelle sicher, dass das Modell trainierbar ist
+            tokenizer = AutoTokenizer.from_pretrained("facebook/esm2_t6_8M_UR50D")
+            esm_model = TFEsmForTokenClassification.from_pretrained("facebook/esm2_t6_8M_UR50D")
 
-            outputs = esm_model(**encoder_inputs, output_hidden_states=True)
-            esm_embeddings = outputs.hidden_states[0]  # Nur die erste Embedding-Schicht
+            # Eingabe vorbereiten
+            encoder_inputs = layers.Input(shape=(length_of_longest_context,), name='encoder_inputs', dtype=tf.int32)
+            inputs = tokenizer(encoder_inputs, return_tensors="tf", padding="max_length", truncation=True,
+                               max_length=length_of_longest_context)
+
+            # Nur die Embeddings extrahieren
+            with tf.GradientTape() as tape:
+                outputs = esm_model(**inputs, output_hidden_states=True)
+                esm_embeddings = outputs.hidden_states[0]  # Nur die erste Embedding-Schicht
+
+            # Embedding-Schicht in das Modell einfügen
             x = esm_embeddings
-            print("Shape of esm_outputs:", x.shape)
-            output_dimension = x.shape[2]
+
         for i in range(num_transformer_blocks):
             transformer_block = TransformerBlock(output_dimension, num_heads, ff_dim, rate)
             x = transformer_block(x, training = training)
