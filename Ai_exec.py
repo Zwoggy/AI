@@ -180,67 +180,70 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
 
 
     if train:
+        strategy = tf.distribute.MirroredStrategy()
 
-        # with tpu_strategy.scope(): # creating the model in the TPUStrategy scope means we will train the model on the TPU
-        callback = tf_keras.callbacks.EarlyStopping(
-            monitor = 'val_loss',
-            min_delta = 0,
-            patience = 10,
-            verbose = 0,
-            mode = 'auto',
-            baseline = None,
-            restore_best_weights = True)
+        # Erstellen Sie Ihr Modell innerhalb der Strategie
+        with strategy.scope():
+            # with tpu_strategy.scope(): # creating the model in the TPUStrategy scope means we will train the model on the TPU
+            callback = tf_keras.callbacks.EarlyStopping(
+                monitor = 'val_loss',
+                min_delta = 0,
+                patience = 10,
+                verbose = 0,
+                mode = 'auto',
+                baseline = None,
+                restore_best_weights = True)
 
-        encoder_inputs = layers.Input(shape = (length_of_longest_context,), name = 'encoder_inputs')
+            encoder_inputs = layers.Input(shape = (length_of_longest_context,), name = 'encoder_inputs')
 
-        embedding_layer = TokenAndPositionEmbedding(maxlen, voc_size, embed_dim)
-        if old:
-            encoder_embed_out = embedding_layer(encoder_inputs)
-            x = encoder_embed_out
-        else:
+            embedding_layer = TokenAndPositionEmbedding(maxlen, voc_size, embed_dim)
+            if old:
+                encoder_embed_out = embedding_layer(encoder_inputs)
+                x = encoder_embed_out
+            else:
 
-            esm_model = TFEsmForTokenClassification.from_pretrained("facebook/esm2_t36_3B_UR50D")
+                esm_model = TFEsmForTokenClassification.from_pretrained("facebook/esm2_t36_3B_UR50D")
 
-            # Eingabe vorbereiten
-            #encoder_inputs = layers.Input(shape=(length_of_longest_context,), name='encoder_inputs', dtype=tf.int32)
-
-
-            # Nur die Embeddings extrahieren
-            with tf.GradientTape() as tape:
-                outputs = esm_model(encoder_inputs, output_hidden_states=True)
-                esm_embeddings = outputs.hidden_states[0]  # Nur die erste Embedding-Schicht
-
-            # Embedding-Schicht in das Modell einfügen
-            x = esm_embeddings
-            output_dimension = x.shape[2]
+                # Eingabe vorbereiten
+                #encoder_inputs = layers.Input(shape=(length_of_longest_context,), name='encoder_inputs', dtype=tf.int32)
 
 
-        for i in range(num_transformer_blocks):
-            transformer_block = TransformerBlock(output_dimension, num_heads, ff_dim, rate)
-            x = transformer_block(x, training = training)
+                # Nur die Embeddings extrahieren
+                with tf.GradientTape() as tape:
+                    outputs = esm_model(encoder_inputs, output_hidden_states=True)
+                    esm_embeddings = outputs.hidden_states[0]  # Nur die erste Embedding-Schicht
 
-        x = layers.Dropout(rate = rate)(x)
-        encoder_outputs = layers.Dense(embed_dim, activation = "sigmoid")(x)
+                # Embedding-Schicht in das Modell einfügen
+                x = esm_embeddings
+                output_dimension = x.shape[2]
 
-        decoder_outputs = TransformerDecoderTwo(embed_dim, ff_dim, num_heads)(encoder_outputs = encoder_outputs,
-                                                                              training = training)
 
-        for i in range(num_decoder_blocks):
-            transformer_decoder = TransformerDecoderTwo(embed_dim, ff_dim, num_heads)
-            decoder_outputs = transformer_decoder(decoder_outputs, training = training)
+            for i in range(num_transformer_blocks):
+                transformer_block = TransformerBlock(output_dimension, num_heads, ff_dim, rate)
+                x = transformer_block(x, training = training)
 
-        # decoder_outputs = layers.GlobalAveragePooling1D()(decoder_outputs)
-        decoder_outputs = layers.Dropout(rate = rate)(decoder_outputs)
-        decoder_outputs = layers.Dense(12, activation = "sigmoid", name = 'Not_the_last_Sigmoid')(decoder_outputs)
-        decoder_outputs_final = layers.TimeDistributed(layers.Dense(1, activation = "sigmoid", name = 'Final_Sigmoid'))(
-            decoder_outputs)
+            x = layers.Dropout(rate = rate)(x)
+            encoder_outputs = layers.Dense(embed_dim, activation = "sigmoid")(x)
 
-        model = tf_keras.Model(inputs = encoder_inputs, outputs = decoder_outputs_final)
+            decoder_outputs = TransformerDecoderTwo(embed_dim, ff_dim, num_heads)(encoder_outputs = encoder_outputs,
+                                                                                  training = training)
 
-        model.compile(optimizer, loss = get_weighted_loss(new_weights),
-                      weighted_metrics = ['accuracy', tf_keras.metrics.AUC(), tf_keras.metrics.Precision(),
-                                          tf_keras.metrics.Recall()])
-        # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
+            for i in range(num_decoder_blocks):
+                transformer_decoder = TransformerDecoderTwo(embed_dim, ff_dim, num_heads)
+                decoder_outputs = transformer_decoder(decoder_outputs, training = training)
+
+            # decoder_outputs = layers.GlobalAveragePooling1D()(decoder_outputs)
+            decoder_outputs = layers.Dropout(rate = rate)(decoder_outputs)
+            decoder_outputs = layers.Dense(12, activation = "sigmoid", name = 'Not_the_last_Sigmoid')(decoder_outputs)
+            decoder_outputs_final = layers.TimeDistributed(layers.Dense(1, activation = "sigmoid", name = 'Final_Sigmoid'))(
+                decoder_outputs)
+
+            model = tf_keras.Model(inputs = encoder_inputs, outputs = decoder_outputs_final)
+
+            model.compile(optimizer, loss = get_weighted_loss(new_weights),
+                          weighted_metrics = ['accuracy', tf_keras.metrics.AUC(), tf_keras.metrics.Precision(),
+                                              tf_keras.metrics.Recall()])
+            # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
 
         history = model.fit(x = antigen_list, y = epitope_list, batch_size = 50, epochs = 1000,
                             validation_data = (testx_list, testy_list), callbacks = [callback], verbose=1)
