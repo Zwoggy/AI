@@ -199,22 +199,21 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
             x = encoder_embed_out
         else:
 
-            tokenizer = AutoTokenizer.from_pretrained("facebook/esm2_t6_8M_UR50D")
             esm_model = TFEsmForTokenClassification.from_pretrained("facebook/esm2_t6_8M_UR50D")
 
             # Eingabe vorbereiten
             #encoder_inputs = layers.Input(shape=(length_of_longest_context,), name='encoder_inputs', dtype=tf.int32)
 
-            inputs = tokenizer(encoder_inputs, return_tensors="tf", padding="max_length", truncation=True,
-                               max_length=235)
 
             # Nur die Embeddings extrahieren
             with tf.GradientTape() as tape:
-                outputs = esm_model(**inputs, output_hidden_states=True)
+                outputs = esm_model(encoder_inputs, output_hidden_states=True)
                 esm_embeddings = outputs.hidden_states[0]  # Nur die erste Embedding-Schicht
 
             # Embedding-Schicht in das Modell einfügen
             x = esm_embeddings
+            output_dimension = x.shape[2]
+
 
         for i in range(num_transformer_blocks):
             transformer_block = TransformerBlock(output_dimension, num_heads, ff_dim, rate)

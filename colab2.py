@@ -215,7 +215,7 @@ def new_embedding(antigen_list, encoder):
 
     new_embedded_docs = np.array(new_embedded_docs)
     print("decoded_antigens: ",  decoded_antigens)
-    return decoded_antigens #new_embedded_docs # jetzt nur die sequenzen, da embedding woanders stattfindet
+    return new_embedded_docs
 
 
 
