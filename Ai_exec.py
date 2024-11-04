@@ -3,7 +3,7 @@ import tf_keras
 from tf_keras import optimizers as opt, layers
 from transformers import AutoTokenizer, TFEsmForTokenClassification, TFEsmModel
 import tensorflow as tf
-
+from tensorflow.keras import backend as K
 from colab2 import embedding, modify_with_context, calculating_class_weights, TokenAndPositionEmbedding, \
     TransformerBlock, TransformerDecoderTwo, get_weighted_loss, save_ai, use_model_and_predict, new_embedding
 from validate_45_blind import validate_on_45_blind
@@ -180,6 +180,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
 
 
     if train:
+        K.clear_session()
         strategy = tf.distribute.MirroredStrategy()
 
         # Erstellen Sie Ihr Modell innerhalb der Strategie
@@ -245,7 +246,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                                               tf_keras.metrics.Recall()])
             # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
 
-            history = model.fit(x = antigen_list, y = epitope_list, batch_size = 16, epochs = 1000,
+            history = model.fit(x = antigen_list, y = epitope_list, batch_size = 4, epochs = 1000,
                             validation_data = (testx_list, testy_list), callbacks = [callback], verbose=1)
         # history = model.fit(x=antigen_list, y=epitope_list, batch_size=50, epochs=100, validation_data=(testx_list, testy_list, testy_for_weights), callbacks=[callback], sample_weight = epitope_list_for_weights)
 
