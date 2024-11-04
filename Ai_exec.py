@@ -203,9 +203,12 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
 
             # Eingabe vorbereiten
             encoder_inputs = layers.Input(shape=(length_of_longest_context,), name='encoder_inputs', dtype=tf.int32)
+            print(f"Type of encoder_inputs: {type(encoder_inputs)}")
+            print(f"encoder_inputs: {encoder_inputs}")
             inputs = tokenizer(encoder_inputs, return_tensors="tf", padding="max_length", truncation=True,
                                max_length=235)
-
+            print(f"2 Type of encoder_inputs: {type(encoder_inputs)}")
+            print(f"2 encoder_inputs: {encoder_inputs}")
             # Nur die Embeddings extrahieren
             with tf.GradientTape() as tape:
                 outputs = esm_model(**inputs, output_hidden_states=True)
