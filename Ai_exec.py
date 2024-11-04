@@ -46,11 +46,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
         testx_list = np.array(testx_list, dtype = np.float32)
         testx_list = np.reshape(testx_list, (testx_list.shape[0], testx_list.shape[1], 1))
 
-    else:
-        antigen_list = np.array(antigen_list, dtype=np.str_)
-        antigen_list = np.reshape(antigen_list, (antigen_list.shape[0], antigen_list.shape[1], 1))
-        testx_list = np.array(testx_list, dtype=np.str_)
-        testx_list = np.reshape(testx_list, (testx_list.shape[0], testx_list.shape[1], 1))
+
 
 
 
