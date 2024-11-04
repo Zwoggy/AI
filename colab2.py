@@ -132,18 +132,18 @@ def embedding(filepath, old=False):
     epitope_embed_list = pad_sequences(epitope_embed_list, maxlen=length_of_longest_sequence,
                                        padding='post', value=0)
     encoder = text.Tokenizer(num_words = 35, char_level = True)
+    """
     with open('./AI/tokenizer.pickle', 'rb') as handle:
         encoder = pickle.load(handle)
-
+    """
     """Usage for the old AI"""
     # loading
 
 
     encoder.fit_on_texts(sequence_list)
     print(encoder.word_index)
-
     pre_embedded_docs = encoder.texts_to_sequences(sequence_list)
-    print("sequence_list: ", sequence_list[0])
+    print("sequence_list: ", sequence_list)
     # saving
 
     #with open('/content/drive/MyDrive/ifp/tokenizer.pickle', 'wb') as handle:
@@ -185,10 +185,11 @@ def new_embedding(antigen_list, encoder):
         New embedded sequences and epitopes.
     """
     # Rekonstruktion der originalen Sequenzen mit dem Encoder
+    #decoded_antigens = encoder.sequences_to_texts(antigen_list.tolist()) # alte Version / vielleicht ist die Liste notwendig
     decoded_antigens = encoder.sequences_to_texts(antigen_list)
     for i, decoded_antigen  in enumerate(decoded_antigens):
         decoded_antigens[i] = decoded_antigen.replace(" ", "")
-    print("decoded_antigens: ", decoded_antigens[0], "decoded_antigens2: ", decoded_antigens[1])
+    print("decoded_antigens: ", decoded_antigens)
 
     # Lade ESM-Tokenizer
     tokenizer = EsmTokenizer.from_pretrained('facebook/esm2_t6_8M_UR50D')
