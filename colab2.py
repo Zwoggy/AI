@@ -192,7 +192,7 @@ def new_embedding(antigen_list, encoder):
     #print("decoded_antigens: ", decoded_antigens)
 
     # Lade ESM-Tokenizer
-    tokenizer = EsmTokenizer.from_pretrained('facebook/esm2_t6_8M_UR50D')
+    tokenizer = EsmTokenizer.from_pretrained("facebook/esm2_t36_3B_UR50D")
     tokenizer.pad_token_id = 0
 
     # Neue Embeddings für Antigen
