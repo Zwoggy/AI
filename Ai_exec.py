@@ -195,9 +195,10 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
             #encoder_embed_out = embedding_layer(encoder_inputs)
             #x = encoder_embed_out
             esm_model = TFEsmForTokenClassification.from_pretrained('facebook/esm2_t6_8M_UR50D')
-            esm_model.trainable = True  # Stelle sicher, dass das Modell trainierbar ist
-            esm_outputs = esm_model(encoder_inputs, training=True)['hidden_states'] #
-            x = esm_outputs
+            esm_model.train()
+            #esm_model.trainable = True  # Stelle sicher, dass das Modell trainierbar ist
+            esm_outputs = esm_model(encoder_inputs, training=True)
+            x = esm_outputs[-1]
             print("Shape of esm_outputs:", esm_outputs.shape)
             output_dimension = esm_outputs.shape[2]
         for i in range(num_transformer_blocks):
