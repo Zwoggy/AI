@@ -201,7 +201,7 @@ def new_embedding(antigen_list, encoder):
             doc,
             return_tensors='tf',  # TensorFlow verwenden
             padding='max_length',
-            truncation=False,
+            truncation=True,
             max_length=235,
             add_special_tokens=False,
             padding_side='right',
