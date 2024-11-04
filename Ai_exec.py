@@ -195,9 +195,11 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
             #encoder_embed_out = embedding_layer(encoder_inputs)
             #x = encoder_embed_out
             esm_model = TFEsmForTokenClassification.from_pretrained('facebook/esm2_t6_8M_UR50D')
-            esm_model.trainable = True  # Stelle sicher, dass das Modell trainierbar ist
-            esm_outputs = esm_model(encoder_inputs, training=True)
-            x = esm_outputs[-1]
+            #esm_model.trainable = True  # Stelle sicher, dass das Modell trainierbar ist
+
+            outputs = esm_model(**encoder_inputs, output_hidden_states=True)
+            esm_embeddings = outputs.hidden_states[0]  # Nur die erste Embedding-Schicht
+            x = esm_embeddings
             print("Shape of esm_outputs:", x.shape)
             output_dimension = x.shape[2]
         for i in range(num_transformer_blocks):
@@ -227,7 +229,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                                           tf_keras.metrics.Recall()])
         # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
 
-        history = model.fit(x = antigen_list, y = epitope_list, batch_size = 50, epochs = 100,
+        history = model.fit(x = antigen_list, y = epitope_list, batch_size = 50, epochs = 1000,
                             validation_data = (testx_list, testy_list), callbacks = [callback], verbose=1)
         # history = model.fit(x=antigen_list, y=epitope_list, batch_size=50, epochs=100, validation_data=(testx_list, testy_list, testy_for_weights), callbacks=[callback], sample_weight = epitope_list_for_weights)
 
