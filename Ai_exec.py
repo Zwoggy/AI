@@ -40,7 +40,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
     epitope_list_for_weights = np.array(epitope_list_for_weights, dtype = np.float32)
 
     epitope_list = np.array(epitope_list, dtype = np.float32)
-    if old==False:
+    if old==True:
         antigen_list = np.array(antigen_list, dtype = np.float32)
         antigen_list = np.reshape(antigen_list, (antigen_list.shape[0], antigen_list.shape[1], 1))
         testx_list = np.array(testx_list, dtype = np.float32)
