@@ -211,9 +211,9 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
 
                 # Nur die Embeddings extrahieren
                 with tf.GradientTape() as tape:
-                    outputs = esm_model(encoder_inputs, output_hidden_states=True)
+                    outputs = esm_model(encoder_inputs, output_hidden_states=True, training=True)
                     #esm_embeddings = outputs.hidden_states[0]  # Nur die erste Embedding-Schicht
-                    esm_embeddings = outputs.hidden_states.mean() #outputs.hidden_states[-1] war am Besten!
+                    esm_embeddings = outputs.hidden_states[-1] #outputs.hidden_states[-1] war am Besten!
                 # Embedding-Schicht in das Modell einfügen
                 x = esm_embeddings
                 output_dimension = x.shape[2]
