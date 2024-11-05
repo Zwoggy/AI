@@ -13,7 +13,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
     embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder = embedding(filepath, old=old)
     print("Neue Anzahl an Sequenzen" + str(len(embedded_docs)))
 
-    optimizer = tf_keras.optimizers.Adam(learning_rate = 0.00001) # 0.001 for old_model # 0,0001 for New Model
+    optimizer = tf_keras.optimizers.Adam(learning_rate = 0.0001) # 0.001 for old_model # 0,0001 for New Model
     # optimizersgd = opt.sgd_experimental.SGD(learning_rate=0.001, clipnorm=5)
 
     antigen_list = embedded_docs[:-300]
@@ -203,7 +203,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                 x = encoder_embed_out
             else:
 
-                esm_model = TFEsmForTokenClassification.from_pretrained("facebook/esm2_t12_35M_UR50D")
+                esm_model = TFEsmForTokenClassification.from_pretrained("facebook/esm2_t30_150M_UR50D")
 
                 # Eingabe vorbereiten
                 #encoder_inputs = layers.Input(shape=(length_of_longest_context,), name='encoder_inputs', dtype=tf.int32)
