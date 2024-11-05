@@ -13,7 +13,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
     embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder = embedding(filepath, old=old)
     print("Neue Anzahl an Sequenzen" + str(len(embedded_docs)))
 
-    optimizer = tf_keras.optimizers.Adam(learning_rate = 0.001)
+    optimizer = tf_keras.optimizers.Adam(learning_rate = 0.01) # 0.001
     # optimizersgd = opt.sgd_experimental.SGD(learning_rate=0.001, clipnorm=5)
 
     antigen_list = embedded_docs[:-300]
@@ -246,7 +246,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                                               tf_keras.metrics.Recall()])
             # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
 
-            history = model.fit(x = antigen_list, y = epitope_list, batch_size = 4, epochs = 1000,
+            history = model.fit(x = antigen_list, y = epitope_list, batch_size = 16, epochs = 1000,
                             validation_data = (testx_list, testy_list), callbacks = [callback], verbose=1)
         # history = model.fit(x=antigen_list, y=epitope_list, batch_size=50, epochs=100, validation_data=(testx_list, testy_list, testy_for_weights), callbacks=[callback], sample_weight = epitope_list_for_weights)
 
