@@ -213,7 +213,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                 with tf.GradientTape() as tape:
                     outputs = esm_model(encoder_inputs, output_hidden_states=True)
                     #esm_embeddings = outputs.hidden_states[0]  # Nur die erste Embedding-Schicht
-                    esm_embeddings = outputs.hidden_states[-1]
+                    esm_embeddings = outputs.hidden_states.mean() #outputs.hidden_states[-1] war am Besten
                 # Embedding-Schicht in das Modell einfügen
                 x = esm_embeddings
                 output_dimension = x.shape[2]
