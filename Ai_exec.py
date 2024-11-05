@@ -7,6 +7,7 @@ from tensorflow.keras import backend as K
 from colab2 import embedding, modify_with_context, calculating_class_weights, TokenAndPositionEmbedding, \
     TransformerBlock, TransformerDecoderTwo, get_weighted_loss, save_ai, use_model_and_predict, new_embedding
 from validate_45_blind import validate_on_45_blind
+import tensorflow_model_optimization as tfmot
 
 
 def create_ai(filepath, save_file, output_file, train=False, safe=False,  validate=False, predict=False, old=False):
@@ -183,8 +184,11 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
         K.clear_session()
         strategy = tf.distribute.MirroredStrategy()
 
+
         # Erstellen Sie Ihr Modell innerhalb der Strategie
         with strategy.scope():
+
+            quantize_annotate_model = tfmot.quantization.keras.quantize_annotate_model
             # with tpu_strategy.scope(): # creating the model in the TPUStrategy scope means we will train the model on the TPU
             callback = tf_keras.callbacks.EarlyStopping(
                 monitor = 'val_loss',
@@ -240,7 +244,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                 decoder_outputs)
 
             model = tf_keras.Model(inputs = encoder_inputs, outputs = decoder_outputs_final)
-
+            model = tfmot.quantization.keras.quantize_apply(model)
             model.compile(optimizer, loss = get_weighted_loss(new_weights),
                           weighted_metrics = ['accuracy', tf_keras.metrics.AUC(), tf_keras.metrics.Precision(),
                                               tf_keras.metrics.Recall()])
