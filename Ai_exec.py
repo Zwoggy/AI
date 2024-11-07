@@ -256,7 +256,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
 
         # plot_results(history)
 
-
+#
 
         tf_keras.utils.plot_model(model, expand_nested = True, show_shapes = True,
                                   to_file = '/content/multi_model' + str(i) + '.png')
