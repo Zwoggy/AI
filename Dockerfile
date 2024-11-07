@@ -2,11 +2,12 @@
 FROM nvidia/cuda:12.3.0-devel-ubuntu20.04
 
 # Installiere Python 3.12 und notwendige Pakete
-RUN apt-get update && apt-get install -y \
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     python3.12 \
     python3-distutils \
     python3-pip \
     mc \
+    tzdata \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
