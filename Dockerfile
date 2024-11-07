@@ -1,10 +1,12 @@
 # Verwende ein offizielles Python-Laufzeit-Bild als Basisbild
 FROM python:3.12-slim
 
-
-# Installiere notwendige Pakete und Midnight Commander (mc)
+# Installiere notwendige Pakete und Midnight Commander (mc), sowie curl
 RUN apt-get update && apt-get install -y \
     mc \
+    curl \
+    gnupg \
+    ca-certificates \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -27,6 +29,7 @@ COPY requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
+
 # main.py executable
 RUN chmod +x /app/main.py
 
