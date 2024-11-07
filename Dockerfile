@@ -4,11 +4,12 @@ FROM nvidia/cuda:12.3.0-devel-ubuntu20.04
 # Installiere Python 3.12 und notwendige Pakete
 RUN apt-get update && apt-get install -y \
     python3.12 \
-    python3.12-distutils \
+    python3-distutils \
     python3-pip \
     mc \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
 
 # Setze das Arbeitsverzeichnis im Container
 WORKDIR /app
