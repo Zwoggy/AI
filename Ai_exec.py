@@ -12,7 +12,6 @@ from validate_45_blind import validate_on_45_blind
 
 def create_ai(filepath, save_file, output_file, train=False, safe=False,  validate=False, predict=False, old=False):
     embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder = embedding(filepath, old=old)
-    print("Neue Anzahl an Sequenzen" + str(len(embedded_docs)))
 
 
     # optimizersgd = opt.sgd_experimental.SGD(learning_rate=0.001, clipnorm=5)
@@ -26,11 +25,11 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
     antigen_list_full_sequence = antigen_list
     epitope_list_full_sequence = epitope_list
 
-    print(antigen_list[0])
+
 
     epitope_list, antigen_list, length_of_longest_context = modify_with_context(epitope_list, antigen_list,
                                                                                 length_of_longest_sequence)
-    print(antigen_list)
+
     testy_list, testx_list, length_of_longest_context_2 = modify_with_context(testy_list, testx_list,
                                                                               length_of_longest_sequence)
     if old==False:
