@@ -14,7 +14,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
     embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder = embedding(filepath, old=old)
     print("Neue Anzahl an Sequenzen" + str(len(embedded_docs)))
 
-    optimizer = tf_keras.optimizers.Adam(learning_rate = 0.0001) # 0.001 for old_model # 0,0001 for New Model
+
     # optimizersgd = opt.sgd_experimental.SGD(learning_rate=0.001, clipnorm=5)
 
     antigen_list = embedded_docs[:-300]
@@ -187,7 +187,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
 
         # Erstellen Sie Ihr Modell innerhalb der Strategie
         with strategy.scope():
-
+            optimizer = tf_keras.optimizers.Adam(learning_rate=0.0001)  # 0.001 for old_model # 0,0001 for New Model
             # with tpu_strategy.scope(): # creating the model in the TPUStrategy scope means we will train the model on the TPU
             callback = tf_keras.callbacks.EarlyStopping(
                 monitor = 'val_loss',
