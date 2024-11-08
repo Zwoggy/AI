@@ -1,6 +1,15 @@
-# Verwende ein offizielles Python-Laufzeit-Bild als Basisbild
-FROM python:3.12-slim
+# Stage 1: Verwende das Python Image, um Python zu kompilieren
+FROM python:3.12-slim AS python-build
 
+# Alle Python-Dateien und -Ordner in einen Ordner kopieren
+RUN mkdir -p /python/usr/local && cp -r /usr/local/* /python/usr/local/
+
+# Stage 2: Verwende aktuelles CUDA Image
+FROM nvidia/cuda:12.6.2-devel-ubuntu24.04
+
+
+# Python-Dateien aus dem python-build-Image in das CUDA-Image kopieren
+COPY --from=python-build /python/usr/local /usr/local
 
 # Installiere notwendige Pakete und Midnight Commander (mc)
 RUN apt-get update && apt-get install -y \
