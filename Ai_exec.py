@@ -186,7 +186,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
 
         # Erstellen Sie Ihr Modell innerhalb der Strategie
         with strategy.scope():
-            optimizer = tf_keras.optimizers.Adam(learning_rate=0.00001)  # 0.001 for old_model # 0,0001 for New Model
+            optimizer = tf_keras.optimizers.Adam(learning_rate=0.0001)  # 0.001 for old_model # 0,0001 for New Model
             # with tpu_strategy.scope(): # creating the model in the TPUStrategy scope means we will train the model on the TPU
             callback = tf_keras.callbacks.EarlyStopping(
                 monitor = 'val_loss',
@@ -248,7 +248,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                                               tf_keras.metrics.Recall()])
             # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
 
-            history = model.fit(x = antigen_list, y = epitope_list, batch_size = 16, epochs = 30,
+            history = model.fit(x = antigen_list, y = epitope_list, batch_size = 16, epochs = 100,
                             validation_data = (testx_list, testy_list), callbacks = [callback], verbose=1)
         # history = model.fit(x=antigen_list, y=epitope_list, batch_size=50, epochs=100, validation_data=(testx_list, testy_list, testy_for_weights), callbacks=[callback], sample_weight = epitope_list_for_weights)
 

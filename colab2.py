@@ -141,9 +141,7 @@ def embedding(filepath, old=False):
 
 
     encoder.fit_on_texts(sequence_list)
-    print(encoder.word_index)
     pre_embedded_docs = encoder.texts_to_sequences(sequence_list)
-    print("sequence_list: ", sequence_list)
     # saving
 
     #with open('/content/drive/MyDrive/ifp/tokenizer.pickle', 'wb') as handle:
