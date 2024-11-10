@@ -44,6 +44,7 @@ from keras_preprocessing.sequence import pad_sequences
 # set seed to counter rng during training
 ### New imports for ESM-2
 from transformers import EsmTokenizer
+from tensorflow.keras import backend as K
 
 random.seed(10)
 tf.random.set_seed(10)
@@ -712,14 +713,24 @@ def calculating_class_weights(y_true):
     print(weights)
     for i in range(len(weights)):
         weights[i][1] = weights[i][1] / 2.8 # used to be 2.2
-        #weights[i][0] = weights[i][0] * 2
-
-
 
     print("New WEIGHTS")
     print(weights)
 
     return weights
+
+
+def focal_loss(gamma=2.0, alpha=0.25):
+    def focal_loss_fixed(y_true, y_pred):
+        # Wahrscheinlichkeiten für jede Klasse beschneiden (Num. Stabilität)
+        y_pred = tf.clip_by_value(y_pred, K.epsilon(), 1 - K.epsilon())
+
+        # Berechne die Focal Loss
+        cross_entropy_loss = -y_true * tf.math.log(y_pred)
+        focal_loss_value = alpha * tf.math.pow(1 - y_pred, gamma) * cross_entropy_loss
+        return tf.reduce_sum(focal_loss_value, axis=1)
+
+    return focal_loss_fixed
 
 
 def get_weighted_loss(weights):
