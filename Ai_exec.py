@@ -4,9 +4,8 @@ from tf_keras import optimizers as opt, layers
 from transformers import AutoTokenizer, TFEsmForTokenClassification, TFEsmModel
 import tensorflow as tf
 from tensorflow.keras import backend as K
-from colab2 import (embedding, modify_with_context, calculating_class_weights, TokenAndPositionEmbedding, \
-    TransformerBlock, TransformerDecoderTwo, get_weighted_loss, save_ai, use_model_and_predict, new_embedding,
-                    focal_loss, combined_focal_cross_entropy_loss)
+from colab2 import embedding, modify_with_context, calculating_class_weights, TokenAndPositionEmbedding, \
+    TransformerBlock, TransformerDecoderTwo, get_weighted_loss, save_ai, use_model_and_predict, new_embedding, focal_loss
 from validate_45_blind import validate_on_45_blind
 
 
@@ -244,7 +243,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
 
             model = tf_keras.Model(inputs = encoder_inputs, outputs = decoder_outputs_final)
 
-            model.compile(optimizer, loss = combined_focal_cross_entropy_loss(gamma=1.0, alpha=0.25, lambda_ce=0.5), #get_weighted_loss(new_weights),
+            model.compile(optimizer, loss = focal_loss(gamma=1.0, alpha=[0.54868448, 5.63510714]), #get_weighted_loss(new_weights),
                           weighted_metrics = ['accuracy', tf_keras.metrics.AUC(), tf_keras.metrics.Precision(),
                                               tf_keras.metrics.Recall()])
             # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
