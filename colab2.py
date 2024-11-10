@@ -720,7 +720,7 @@ def calculating_class_weights(y_true):
     return weights
 
 
-def focal_loss(gamma=2.0, alpha=0.25):
+def focal_loss(gamma=1.0, alpha=0.25):
     def focal_loss_fixed(y_true, y_pred):
         # Wahrscheinlichkeiten für jede Klasse beschneiden (Num. Stabilität)
         y_pred = tf.clip_by_value(y_pred, K.epsilon(), 1 - K.epsilon())
