@@ -711,9 +711,13 @@ def calculating_class_weights(y_true):
     print(weights)
     for i in range(len(weights)):
         weights[i][1] = weights[i][1] / 2.2
-    print("WEIGHTS")
-    print(weights)
     """
+    # Überprüfen, ob `y_true` an dieser Stelle eine 0 enthält
+    if np.all(y_true[:, i] == 0):  # Wenn die gesamte Spalte i aus Nullen besteht
+        weights[i] = [1, 1]
+    print("New WEIGHTS")
+    print(weights)
+
     return weights
 
 
