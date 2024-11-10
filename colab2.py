@@ -707,15 +707,14 @@ def calculating_class_weights(y_true):
     weights = np.empty([number_dim, 2])
     for i in range(number_dim):
         weights[i] = compute_class_weight('balanced', classes = np.unique([0, 1]), y = np.ravel(y_true, order = 'C'))
-    """
+
     print("WEIGHTS")
     print(weights)
     for i in range(len(weights)):
-        weights[i][1] = weights[i][1] / 2.2
-    """
-    # Überprüfen, ob `y_true` an dieser Stelle eine 0 enthält
-    if np.all(y_true[:, i] == 0):  # Wenn die gesamte Spalte i aus Nullen besteht
-        weights[i] = [1, 1]
+        weights[i][1] = weights[i][1] / 5.2 # used to be 2.2
+
+
+
     print("New WEIGHTS")
     print(weights)
 
