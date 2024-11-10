@@ -703,19 +703,19 @@ def modify_with_context(epitope_list, antigen_list, length_of_longest_sequence):
 
 def calculating_class_weights(y_true):
     from sklearn.utils.class_weight import compute_class_weight
-    print("y_true: ",y_true)
+    #print("y_true: ",y_true)
     number_dim = np.shape(y_true)[1]
     weights = np.empty([number_dim, 2])
     for i in range(number_dim):
         weights[i] = compute_class_weight('balanced', classes = np.unique([0, 1]), y = np.ravel(y_true, order = 'C'))
 
-    print("WEIGHTS")
-    print(weights)
+    #print("WEIGHTS")
+    #print(weights)
     for i in range(len(weights)):
-        weights[i][1] = weights[i][1] / 2.8 # used to be 2.2
+        weights[i][1] = weights[i][1] / 2.2 # used to be 2.2
 
-    print("New WEIGHTS")
-    print(weights)
+    #print("New WEIGHTS")
+    #print(weights)
 
     return weights
 
