@@ -732,6 +732,24 @@ def focal_loss(gamma=2.0, alpha=0.25):
 
     return focal_loss_fixed
 
+def combined_focal_cross_entropy_loss(gamma=2.0, alpha=0.25, lambda_ce=0.5):
+    def loss(y_true, y_pred):
+        # Clip predictions for numerical stability
+        y_pred = tf.clip_by_value(y_pred, K.epsilon(), 1 - K.epsilon())
+
+        # Calculate Cross-Entropy Loss
+        cross_entropy_loss = -y_true * tf.math.log(y_pred)
+        cross_entropy_loss = tf.reduce_sum(cross_entropy_loss, axis=1)
+
+        # Calculate Focal Loss
+        focal_loss_value = alpha * tf.math.pow(1 - y_pred, gamma) * cross_entropy_loss
+        focal_loss_value = tf.reduce_sum(focal_loss_value, axis=1)
+
+        # Combine Cross-Entropy and Focal Loss
+        combined_loss = lambda_ce * cross_entropy_loss + (1 - lambda_ce) * focal_loss_value
+        return combined_loss
+
+    return loss
 
 def get_weighted_loss(weights):
     def weighted_loss(y_true, y_pred):
