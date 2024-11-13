@@ -916,7 +916,7 @@ def use_model_and_predict():
     model.load_weights('./AI/final_AI_weights')
     model.compile()
     tf_keras.utils.plot_model(model, expand_nested = True, show_shapes = True,
-                              to_file = 'G:/Users/tinys/PycharmProjects/teststuff/testpicture.png', show_layer_activations = True)
+                              to_file = './testpicture.png', show_layer_activations = True)
     print(model.summary(expand_nested = True))
     sequence_list = split_string(sequence)
 
