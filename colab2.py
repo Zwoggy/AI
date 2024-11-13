@@ -907,7 +907,7 @@ def use_model_and_predict():
     sequence = "tpenitdlcaeyhntqihtlnnkifsyteslagkremaiitfkdgatfevevpgsehidsekkaiermkdtlriaylteakveklcvwnnktphaiaaisman"  # Hier die Sequenz eingeben#
     tf_keras.backend.clear_session()
     """change the following path to the final_AI folder path"""
-    model = load_model('./AI/EMS2_AI/AI_model',
+    model = load_model('./AI/EMS2_AI',
                        custom_objects = {'TransformerBlock': TransformerBlock,
                                          'TokenAndPositionEmbedding': TokenAndPositionEmbedding,
                                          'TransformerDecoder': TransformerDecoder, "weighted_loss": get_weighted_loss},
