@@ -191,7 +191,7 @@ def new_embedding(antigen_list, encoder):
     #print("decoded_antigens: ", decoded_antigens)
 
     # Lade ESM-Tokenizer
-    tokenizer = EsmTokenizer.from_pretrained("facebook/esm2_t33_650M_UR50D")
+    tokenizer = EsmTokenizer.from_pretrained("facebook/esm2_t6_8M_UR50D")
     tokenizer.pad_token_id = 0
 
     # Neue Embeddings für Antigen
@@ -760,7 +760,7 @@ def get_weighted_loss(weights):
     return weighted_loss
 
 
-def save_ai(model, path="AI/final_AI"):
+def save_ai(model, path="./AI/final_AI"):
     model.save_weights(path + '_weights')
     model.save(path + '_model')
 
@@ -906,14 +906,14 @@ def use_model_and_predict():
     sequence = "tpenitdlcaeyhntqihtlnnkifsyteslagkremaiitfkdgatfevevpgsehidsekkaiermkdtlriaylteakveklcvwnnktphaiaaisman"  # Hier die Sequenz eingeben#
     tf_keras.backend.clear_session()
     """change the following path to the final_AI folder path"""
-    model = load_model('C:/Users/fkori/PycharmProjects/AI/AI/final_AI',
+    model = load_model('./AI/final_AI',
                        custom_objects = {'TransformerBlock': TransformerBlock,
                                          'TokenAndPositionEmbedding': TokenAndPositionEmbedding,
                                          'TransformerDecoder': TransformerDecoder, "weighted_loss": get_weighted_loss},
                        compile = False
                        )
     """change the following path to path/final_AI_weights """
-    model.load_weights('C:/Users/fkori/PycharmProjects/AI/AI/final_AI_weights')
+    model.load_weights('./AI/final_AI_weights')
     model.compile()
     tf_keras.utils.plot_model(model, expand_nested = True, show_shapes = True,
                               to_file = 'G:/Users/tinys/PycharmProjects/teststuff/testpicture.png', show_layer_activations = True)
