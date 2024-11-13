@@ -961,7 +961,7 @@ def create_better_heatmap(data, sequence, sequence_list):
     print(data_list.shape)
 
     """change the path to a folder to save the pictuers in"""
-    filename = "G:/Users/tinys/PycharmProjects/teststuff/AI/pictures/" + str(11) + ".png"
+    filename = "./AI/pictures/" + str(1) + ".png"
 
     plt.figure(dpi = 1000)
     sb.heatmap(data_list, xticklabels = False, yticklabels = False, vmin = 0.2, vmax = 0.8, cmap = "rocket_r", annot=sequence_list, fmt="")
