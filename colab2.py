@@ -760,7 +760,7 @@ def get_weighted_loss(weights):
     return weighted_loss
 
 
-def save_ai(model, path="./AI/EMS2_AI"):
+def save_ai(model, path="./AI/EMS2_AI/AI"):
     model.save_weights(path + '_weights')
     model.save(path + '_model')
 
@@ -901,19 +901,20 @@ def split_string(input_string: str):
 
 ##########################################################################################
 def use_model_and_predict():
+    new = True
     """Enter a sequence to use for prediction and generate the heatmap output.
     All path need to be changed to wherever the files are stored on your computer."""
     sequence = "tpenitdlcaeyhntqihtlnnkifsyteslagkremaiitfkdgatfevevpgsehidsekkaiermkdtlriaylteakveklcvwnnktphaiaaisman"  # Hier die Sequenz eingeben#
     tf_keras.backend.clear_session()
     """change the following path to the final_AI folder path"""
-    model = load_model('./AI/EMS2_AI_model',
+    model = load_model('./AI/EMS2_AI/AI_model',
                        custom_objects = {'TransformerBlock': TransformerBlock,
                                          'TokenAndPositionEmbedding': TokenAndPositionEmbedding,
                                          'TransformerDecoder': TransformerDecoder, "weighted_loss": get_weighted_loss},
                        compile = False
                        )
     """change the following path to path/final_AI_weights """
-    model.load_weights('./AI/EMS2_AI_weights')
+    model.load_weights('./AI/EMS2_AI/AI_weights')
     model.compile()
     tf_keras.utils.plot_model(model, expand_nested = True, show_shapes = True,
                               to_file = './testpicture.png', show_layer_activations = True)
@@ -921,14 +922,18 @@ def use_model_and_predict():
     sequence_list = split_string(sequence)
 
     """change the following path accordingly"""
+
     with open('./AI/tokenizer.pickle', 'rb') as handle:
         encoder = pickle.load(handle)
 
-    print(encoder.word_index)
+
+
 
     pre_embedded_docs = encoder.texts_to_sequences(sequence_list)
     embedded_docs = pad_sequences(pre_embedded_docs, maxlen = 235, padding = 'post',
                                                                value = 0)
+    if new:
+        embedded_docs = new_embedding(embedded_docs, encoder)
 
     predictions = model.predict(embedded_docs)
 
