@@ -903,6 +903,8 @@ def split_string(input_string: str):
 def use_model_and_predict():
     from transformers import AutoTokenizer, TFEsmForTokenClassification, TFEsmModel
     esm_model = TFEsmForTokenClassification.from_pretrained("facebook/esm2_t33_650M_UR50D")
+    esm_model = esm_model((235,), output_hidden_states=True)
+
     new = True
     """Enter a sequence to use for prediction and generate the heatmap output.
     All path need to be changed to wherever the files are stored on your computer."""
@@ -913,7 +915,7 @@ def use_model_and_predict():
                        custom_objects = {'TransformerBlock': TransformerBlock,
                                          'TokenAndPositionEmbedding': TokenAndPositionEmbedding,
                                          'TransformerDecoder': TransformerDecoder, "weighted_loss": get_weighted_loss,
-                                         'esm_model': esm_model.transformer},
+                                         'esm_model': esm_model},
                        compile = False
                        )
     """change the following path to path/final_AI_weights """
