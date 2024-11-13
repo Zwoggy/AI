@@ -14,6 +14,8 @@ COPY --from=python-build /python/usr/local /usr/local
 # Installiere notwendige Pakete und Midnight Commander (mc)
 RUN apt-get update && apt-get install -y \
     mc \
+    graphviz \
+    libgraphviz-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -27,6 +29,7 @@ COPY requirements.txt requirements.txt
 
 # Installiere die Abhängigkeiten
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir pydot
 
 COPY . .
 # main.py executable
