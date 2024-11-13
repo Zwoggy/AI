@@ -902,7 +902,7 @@ def split_string(input_string: str):
 ##########################################################################################
 def use_model_and_predict():
     from transformers import AutoTokenizer, TFEsmForTokenClassification, TFEsmModel
-    esm_model = TFEsmForTokenClassification.from_pretrained("facebook/esm2_t33_650M_UR50D"
+    esm_model = TFEsmForTokenClassification.from_pretrained("facebook/esm2_t33_650M_UR50D")
     new = True
     """Enter a sequence to use for prediction and generate the heatmap output.
     All path need to be changed to wherever the files are stored on your computer."""
