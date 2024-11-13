@@ -8,10 +8,10 @@ if __name__ == '__main__':
                         help='Der Pfad zur Datendatei.')
     parser.add_argument('--output_path', type=str, required=False, default='./output',
                         help='Der Pfad zur Datendatei.')
-    parser.add_argument('--save_file', type=str, required=False, default="./data/save_file",
+    parser.add_argument('--save_file', type=str, required=False, default="./AI/EMS2_AI",
                         help='Der Speicherort für die Ausgabe-Datei.')
     parser.add_argument('--train', action='store_true', help='Aktiviert das Training.')
-    parser.add_argument('--safe', action='store_true', help='Aktiviert das sichere Speichern.')
+    parser.add_argument('--save', action='store_true', help='Aktiviert das sichere Speichern.')
     parser.add_argument('--validate', action='store_true', help='Aktiviert die Validierung.')
     parser.add_argument('--predict', action='store_true', help='Aktiviert die Vorhersage.')
     parser.add_argument('--old', action='store_true', help='Verwende das alte Model.')

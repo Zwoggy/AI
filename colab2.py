@@ -760,7 +760,7 @@ def get_weighted_loss(weights):
     return weighted_loss
 
 
-def save_ai(model, path="./AI/final_AI"):
+def save_ai(model, path="./AI/EMS2_AI"):
     model.save_weights(path + '_weights')
     model.save(path + '_model')
 
@@ -906,14 +906,14 @@ def use_model_and_predict():
     sequence = "tpenitdlcaeyhntqihtlnnkifsyteslagkremaiitfkdgatfevevpgsehidsekkaiermkdtlriaylteakveklcvwnnktphaiaaisman"  # Hier die Sequenz eingeben#
     tf_keras.backend.clear_session()
     """change the following path to the final_AI folder path"""
-    model = load_model('./AI/final_AI',
+    model = load_model('./AI/EMS2_AI_model',
                        custom_objects = {'TransformerBlock': TransformerBlock,
                                          'TokenAndPositionEmbedding': TokenAndPositionEmbedding,
                                          'TransformerDecoder': TransformerDecoder, "weighted_loss": get_weighted_loss},
                        compile = False
                        )
     """change the following path to path/final_AI_weights """
-    model.load_weights('./AI/final_AI_weights')
+    model.load_weights('./AI/EMS2_AI_weights')
     model.compile()
     tf_keras.utils.plot_model(model, expand_nested = True, show_shapes = True,
                               to_file = './testpicture.png', show_layer_activations = True)
@@ -961,7 +961,7 @@ def create_better_heatmap(data, sequence, sequence_list):
     print(data_list.shape)
 
     """change the path to a folder to save the pictuers in"""
-    filename = "./AI/pictures/" + str(1) + ".png"
+    filename = "./AI/pictures/" + "new" + ".png"
 
     plt.figure(dpi = 1000)
     sb.heatmap(data_list, xticklabels = False, yticklabels = False, vmin = 0.2, vmax = 0.8, cmap = "rocket_r", annot=sequence_list, fmt="")
