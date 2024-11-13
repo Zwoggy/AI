@@ -23,7 +23,7 @@ if __name__ == '__main__':
               output_file=args.output_path,
               save_file=args.save_file,
               train=args.train,
-              safe=args.safe,
+              safe=args.save,
               validate=args.validate,
               predict=args.predict,
               old=args.old)
