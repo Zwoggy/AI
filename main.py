@@ -1,5 +1,4 @@
 from Ai_exec import create_ai
-from colab2 import use_model_and_predict
 import argparse
 
 if __name__ == '__main__':
