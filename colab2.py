@@ -927,8 +927,6 @@ def use_model_and_predict():
         encoder = pickle.load(handle)
 
 
-
-
     pre_embedded_docs = encoder.texts_to_sequences(sequence_list)
     embedded_docs = pad_sequences(pre_embedded_docs, maxlen = 235, padding = 'post',
                                                                value = 0)
