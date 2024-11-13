@@ -913,7 +913,7 @@ def use_model_and_predict():
                        custom_objects = {'TransformerBlock': TransformerBlock,
                                          'TokenAndPositionEmbedding': TokenAndPositionEmbedding,
                                          'TransformerDecoder': TransformerDecoder, "weighted_loss": get_weighted_loss,
-                                         'esm_model': esm_model[-1]},
+                                         'esm_model': esm_model.transformer},
                        compile = False
                        )
     """change the following path to path/final_AI_weights """
