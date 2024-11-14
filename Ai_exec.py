@@ -220,7 +220,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                 # Embedding-Schicht in das Modell einfügen
                 x = esm_embeddings
                 #output_dimension = x.shape[2]  #without mean reduction
-                output_dimension = x.shape[1]
+                output_dimension = x.shape[0]
 
 
 
