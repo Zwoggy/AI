@@ -735,32 +735,33 @@ def focal_loss(gamma=2.0, alpha=0.25):
 
 import tensorflow as tf
 
+def masked_binary_crossentropy():
+    def masked_binary_crossentropy_function(y_true, y_pred, mask_fraction=0.7):
+        """
+        Binary Cross-Entropy mit dynamischer Maskierung.
+        - y_true: Shape (batch_size, seq_len)
+        - y_pred: Shape (batch_size, seq_len)
+        - mask_fraction: Anteil der 0en, die maskiert werden sollen
+        """
+        # Berechne Maske: Identifiziere Tokens mit Klasse 0
+        zero_mask = tf.cast(tf.equal(y_true, 0), tf.float32)
 
-def masked_binary_crossentropy(y_true, y_pred, mask_fraction=0.7):
-    """
-    Binary Cross-Entropy mit dynamischer Maskierung.
-    - y_true: Shape (batch_size, seq_len)
-    - y_pred: Shape (batch_size, seq_len)
-    - mask_fraction: Anteil der 0en, die maskiert werden sollen
-    """
-    # Berechne Maske: Identifiziere Tokens mit Klasse 0
-    zero_mask = tf.cast(tf.equal(y_true, 0), tf.float32)
+        # Erstelle zufällige Maske für Tokens mit Klasse 0
+        random_mask = tf.random.uniform(tf.shape(zero_mask)) > mask_fraction
 
-    # Erstelle zufällige Maske für Tokens mit Klasse 0
-    random_mask = tf.random.uniform(tf.shape(zero_mask)) > mask_fraction
+        # Kombiniere die Maske: Klasse 1 bleibt erhalten, einige 0en werden maskiert
+        combined_mask = tf.where(zero_mask == 1, tf.cast(random_mask, tf.float32), tf.ones_like(zero_mask))
 
-    # Kombiniere die Maske: Klasse 1 bleibt erhalten, einige 0en werden maskiert
-    combined_mask = tf.where(zero_mask == 1, tf.cast(random_mask, tf.float32), tf.ones_like(zero_mask))
+        # Berechne BCE
+        bce = y_true * tf.math.log(y_pred + tf.keras.backend.epsilon()) + \
+              (1 - y_true) * tf.math.log(1 - y_pred + tf.keras.backend.epsilon())
 
-    # Berechne BCE
-    bce = y_true * tf.math.log(y_pred + tf.keras.backend.epsilon()) + \
-          (1 - y_true) * tf.math.log(1 - y_pred + tf.keras.backend.epsilon())
+        # Wende die Maske an
+        masked_bce = combined_mask * bce
 
-    # Wende die Maske an
-    masked_bce = combined_mask * bce
-
-    # Durchschnittlicher Verlust, normiert auf die verbleibenden Tokens
-    return -tf.reduce_sum(masked_bce) / tf.reduce_sum(combined_mask)
+        # Durchschnittlicher Verlust, normiert auf die verbleibenden Tokens
+        return -tf.reduce_sum(masked_bce) / tf.reduce_sum(combined_mask)
+    return masked_binary_crossentropy_function
 
 
 def combined_focal_cross_entropy_loss(gamma=2.0, alpha=0.25, lambda_ce=0.5):
