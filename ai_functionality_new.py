@@ -147,38 +147,57 @@ class TokenAndPositionEmbedding(tensorflow.keras.layers.Layer):
         return cls(**config)
 
 class TokenAndPositionEmbedding_for_ESM(tf.keras.layers.Layer):
-
     def __init__(self, maxlen, embed_dim, **kwargs):
-        super(TokenAndPositionEmbedding_for_ESM, self).__init__(**kwargs)
+        """
+        Klasse zur Kombination von Positions-Embeddings mit bereits existierenden Token-Embeddings.
+        :param maxlen: Maximale Sequenzlänge.
+        :param embed_dim: Dimensionalität der Embeddings.
+        """
+        super().__init__(**kwargs)
         self.maxlen = maxlen
         self.embed_dim = embed_dim
+        # Nur Positions-Embeddings, da die Token-Embeddings bereits durch das ESM-Modell bereitgestellt werden
+        self.pos_emb = layers.Embedding(input_dim=maxlen, output_dim=embed_dim)
+
+    def call(self, x):
+        """
+        Kombiniert die Eingabe-Embeddings mit Positionsinformationen.
+        :param x: Tensor der Form (batch_size, seq_len, embed_dim).
+        :return: Tensor der Form (batch_size, seq_len, embed_dim) mit hinzugefügten Positionsinformationen.
+        """
+        batch_size = tf.shape(x)[0]  # Batch-Größe
+        seq_len = tf.shape(x)[1]    # Dynamische Sequenzlänge
+
+        # Positions-Indices erstellen: [0, 1, ..., seq_len-1]
+        positions = tf.range(start=0, limit=seq_len, delta=1)
+        positions = self.pos_emb(positions)  # Embedding für die Positionen anwenden
+        positions = tf.expand_dims(positions, axis=0)  # Batch-Dimension hinzufügen
+        positions = tf.tile(positions, [batch_size, 1, 1])  # Für alle Batch-Elemente duplizieren
+
+        return x + positions  # Positions-Embeddings zu den Eingaben addieren
 
     def compute_mask(self, inputs, mask=None):
-        return mask  # Maske unverändert weitergeben
-
-    def build(self, input_shape):
-        # Nur Positions-Embedding, da Token-Embeddings vom ESM-Modell kommen
-        self.pos_emb = tf.keras.layers.Embedding(input_dim=self.maxlen, output_dim=self.embed_dim, mask_zero=True)
-
-    @tf.function
-    def call(self, x):
-        batch_size, seq_length, _ = tf.unstack(tf.shape(x))
-        positions = tf.range(start=0, limit=seq_length, delta=1)  # Positionen: (seq_length,)
-        positions = self.pos_emb(positions)  # Positionsembeddings: (seq_length, embed_dim)
-        positions = tf.expand_dims(positions, axis=0)  # Batch-Dimension hinzufügen: (1, seq_length, embed_dim)
-        positions = tf.tile(positions, [batch_size, 1, 1])  # Auf Batch-Größe erweitern
-        return x + positions  # Embeddings + Positionsembeddings
+        """
+        Gibt die Maske unverändert weiter. Nützlich, wenn Maskierungen bei der Verarbeitung benötigt werden.
+        """
+        return mask
 
     def get_config(self):
-        config = super(TokenAndPositionEmbedding_for_ESM, self).get_config()
+        """
+        Speichert die Konfigurationsparameter der Schicht, um sie später rekonstruieren zu können.
+        """
+        config = super().get_config()
         config.update({
             'maxlen': self.maxlen,
-            'embed_dim': self.embed_dim,
+            'embed_dim': self.embed_dim
         })
         return config
 
     @classmethod
     def from_config(cls, config):
+        """
+        Rekonstruiert die Schicht aus der gespeicherten Konfiguration.
+        """
         return cls(**config)
 
 
