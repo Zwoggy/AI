@@ -16,6 +16,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
 
     if old==True:
         from ai_functionality_new import TokenAndPositionEmbedding_for_ESM, TransformerBlock, TransformerDecoderTwo
+    else: from ai_functionality_old import TransformerBlock, TransformerDecoderTwo, TokenAndPositionEmbedding
 
 
     embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder = embedding(filepath, old=old)
