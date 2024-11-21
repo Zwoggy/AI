@@ -213,7 +213,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                 encoder_embed_out = embedding_layer(encoder_inputs)
                 x = encoder_embed_out
             else:
-                embedding_layer = TokenAndPositionEmbedding(maxlen, 1280)
+
                 esm_model = TFEsmForTokenClassification.from_pretrained("facebook/esm2_t33_650M_UR50D")
 
                 # Eingabe vorbereiten
@@ -228,6 +228,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                     #esm_embeddings = tf.reduce_mean(esm_embeddings, axis=1) ##new new new
                 # Embedding-Schicht in das Modell einfügen
                 x = esm_embeddings
+                embedding_layer = TokenAndPositionEmbedding(x.shape[0], x.shape[1], x.shape[2])
                 encoder_embed_out = embedding_layer(x)
                 x = encoder_embed_out
                 output_dimension = x.shape[2]  #without mean reduction
