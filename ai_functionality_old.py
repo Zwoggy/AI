@@ -736,7 +736,7 @@ def focal_loss(gamma=2.0, alpha=0.25):
 import tensorflow as tf
 
 def stochastic_loss():
-    def loss_function(y_true, y_pred, ignore_fraction=0.9):
+    def loss_function(y_true, y_pred, ignore_fraction=0.85):
         """
         Binary Crossentropy mit stochastischem Ignorieren von 0en, ohne explizite Masken.
         - ignore_fraction: Wahrscheinlichkeit, mit der 0en ignoriert werden.
