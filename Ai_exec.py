@@ -15,7 +15,7 @@ from validate_45_blind import validate_on_45_blind
 def create_ai(filepath, save_file, output_file, train=False, safe=False,  validate=False, predict=False, old=False):
 
     if old==False:
-        from ai_functionality_new import TokenAndPositionEmbedding, TransformerBlock, TransformerDecoderTwo
+        from ai_functionality_new import TokenAndPositionEmbedding_for_ESM, TransformerBlock, TransformerDecoderTwo
 
 
     embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder = embedding(filepath, old=old)
@@ -228,7 +228,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                     #esm_embeddings = tf.reduce_mean(esm_embeddings, axis=1) ##new new new
                 # Embedding-Schicht in das Modell einfügen
                 x = esm_embeddings
-                embedding_layer = TokenAndPositionEmbedding(maxlen, embed_dim=1280)
+                embedding_layer = TokenAndPositionEmbedding_for_ESM(maxlen, embed_dim=1280)
                 encoder_embed_out = embedding_layer(x)
                 x = encoder_embed_out
                 output_dimension = x.shape[2]  #without mean reduction

@@ -146,6 +146,42 @@ class TokenAndPositionEmbedding(tensorflow.keras.layers.Layer):
     def from_config(cls, config):
         return cls(**config)
 
+class TokenAndPositionEmbedding_for_ESM(tf.keras.layers.Layer):
+
+    def __init__(self, maxlen, embed_dim, **kwargs):
+        super(TokenAndPositionEmbedding, self).__init__(**kwargs)
+        self.maxlen = maxlen
+        self.embed_dim = embed_dim
+
+    def compute_mask(self, inputs, mask=None):
+        return mask  # Maske unverändert weitergeben
+
+    def build(self, input_shape):
+        # Nur Positions-Embedding, da Token-Embeddings vom ESM-Modell kommen
+        self.pos_emb = tf.keras.layers.Embedding(input_dim=self.maxlen, output_dim=self.embed_dim, mask_zero=True)
+
+    @tf.function
+    def call(self, x):
+        batch_size, seq_length, _ = tf.unstack(tf.shape(x))
+        positions = tf.range(start=0, limit=seq_length, delta=1)  # Positionen: (seq_length,)
+        positions = self.pos_emb(positions)  # Positionsembeddings: (seq_length, embed_dim)
+        positions = tf.expand_dims(positions, axis=0)  # Batch-Dimension hinzufügen: (1, seq_length, embed_dim)
+        positions = tf.tile(positions, [batch_size, 1, 1])  # Auf Batch-Größe erweitern
+        return x + positions  # Embeddings + Positionsembeddings
+
+    def get_config(self):
+        config = super(TokenAndPositionEmbedding, self).get_config()
+        config.update({
+            'maxlen': self.maxlen,
+            'embed_dim': self.embed_dim,
+        })
+        return config
+
+    @classmethod
+    def from_config(cls, config):
+        return cls(**config)
+
+
 
 # class TokenAndPositionEmbedding2(tf.keras.Model):
 class TokenAndPositionEmbedding2(tensorflow.keras.layers.Layer):
