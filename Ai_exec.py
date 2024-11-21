@@ -3,6 +3,7 @@ import tf_keras
 from tf_keras import optimizers as opt, layers
 from transformers import AutoTokenizer, TFEsmForTokenClassification, TFEsmModel
 import tensorflow as tf
+import tensorflow
 from tensorflow.keras import backend as K
 from ai_functionality_old import embedding, modify_with_context, calculating_class_weights, TokenAndPositionEmbedding, \
     TransformerBlock, TransformerDecoderTwo, get_weighted_loss, save_ai, use_model_and_predict, new_embedding, \
