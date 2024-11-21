@@ -226,6 +226,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                     #esm_embeddings = tf.reduce_mean(esm_embeddings, axis=1) ##new new new
                 # Embedding-Schicht in das Modell einfügen
                 x = esm_embeddings
+                encoder_embed_out = embedding_layer(x)
+                x = encoder_embed_out
                 output_dimension = x.shape[2]  #without mean reduction
                 #output_dimension = x.shape[0]
 
