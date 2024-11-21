@@ -149,7 +149,7 @@ class TokenAndPositionEmbedding(tensorflow.keras.layers.Layer):
 class TokenAndPositionEmbedding_for_ESM(tf.keras.layers.Layer):
 
     def __init__(self, maxlen, embed_dim, **kwargs):
-        super(TokenAndPositionEmbedding, self).__init__(**kwargs)
+        super(TokenAndPositionEmbedding_for_ESM, self).__init__(**kwargs)
         self.maxlen = maxlen
         self.embed_dim = embed_dim
 
@@ -170,7 +170,7 @@ class TokenAndPositionEmbedding_for_ESM(tf.keras.layers.Layer):
         return x + positions  # Embeddings + Positionsembeddings
 
     def get_config(self):
-        config = super(TokenAndPositionEmbedding, self).get_config()
+        config = super(TokenAndPositionEmbedding_for_ESM, self).get_config()
         config.update({
             'maxlen': self.maxlen,
             'embed_dim': self.embed_dim,
