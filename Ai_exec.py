@@ -14,7 +14,7 @@ from validate_45_blind import validate_on_45_blind
 
 def create_ai(filepath, save_file, output_file, train=False, safe=False,  validate=False, predict=False, old=False):
 
-    if old==False:
+    if old==True:
         from ai_functionality_new import TokenAndPositionEmbedding_for_ESM, TransformerBlock, TransformerDecoderTwo
 
 
@@ -207,9 +207,9 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
 
             encoder_inputs = layers.Input(shape = (length_of_longest_context,), name = 'encoder_inputs')
 
-
+            embedding_layer = TokenAndPositionEmbedding(maxlen, voc_size, embed_dim)
             if old:
-                embedding_layer = TokenAndPositionEmbedding(maxlen, voc_size, embed_dim)
+
                 encoder_embed_out = embedding_layer(encoder_inputs)
                 x = encoder_embed_out
             else:
