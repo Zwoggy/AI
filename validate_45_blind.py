@@ -1,4 +1,4 @@
-from colab2 import load_model_and_tokenizer, modify_with_context, evaluate_model
+from ai_functionality_old import load_model_and_tokenizer, modify_with_context, evaluate_model
 
 
 def validate_on_45_blind():

@@ -4,15 +4,21 @@ from tf_keras import optimizers as opt, layers
 from transformers import AutoTokenizer, TFEsmForTokenClassification, TFEsmModel
 import tensorflow as tf
 from tensorflow.keras import backend as K
-from colab2 import embedding, modify_with_context, calculating_class_weights, TokenAndPositionEmbedding, \
+from ai_functionality_old import embedding, modify_with_context, calculating_class_weights, TokenAndPositionEmbedding, \
     TransformerBlock, TransformerDecoderTwo, get_weighted_loss, save_ai, use_model_and_predict, new_embedding, \
-    focal_loss, masked_binary_crossentropy
+    focal_loss, stochastic_loss
 from validate_45_blind import validate_on_45_blind
 
 
 
 def create_ai(filepath, save_file, output_file, train=False, safe=False,  validate=False, predict=False, old=False):
+
+    if old==False:
+        from ai_functionality_new import TokenAndPositionEmbedding, TransformerBlock, TransformerDecoderTwo
+
+
     embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder = embedding(filepath, old=old)
+
 
 
     # optimizersgd = opt.sgd_experimental.SGD(learning_rate=0.001, clipnorm=5)
@@ -247,7 +253,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
 
             model = tf_keras.Model(inputs = encoder_inputs, outputs = decoder_outputs_final)
 
-            model.compile(optimizer, loss = masked_binary_crossentropy(), #loss = get_weighted_loss(new_weights),
+            model.compile(optimizer, loss = stochastic_loss(), #loss = get_weighted_loss(new_weights),
                           weighted_metrics = ['accuracy', tf_keras.metrics.AUC(), tf_keras.metrics.Precision(),
                                               tf_keras.metrics.Recall()])
             # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
@@ -263,7 +269,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
         tf_keras.utils.plot_model(model, expand_nested = True, show_shapes = True,
                                   to_file = './multi_model' + str(i) + '.png')
         if safe:
-            save_ai(model, save_file)
+            save_ai(model, save_file, old=old)
         # load_model_and_do_stuff(testx_list, testy_list, model)
         # load_model_and_do_stuff(antigen_list, epitope_list, model)
 
