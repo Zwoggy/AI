@@ -59,7 +59,7 @@ class TransformerBlock(tensorflow.keras.layers.Layer):
         self.ff_dim = ff_dim
         self.rate = rate
 
-    @tf.function
+
     def call(self, inputs, training = True, mask = None):
         attn_output = self.att(inputs, inputs, attention_mask = mask)
         if training:
