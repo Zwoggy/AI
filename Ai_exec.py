@@ -14,7 +14,7 @@ from validate_45_blind import validate_on_45_blind
 
 def create_ai(filepath, save_file, output_file, train=False, safe=False,  validate=False, predict=False, old=False):
 
-    if old==True:
+    if old==False:
         from ai_functionality_new import TokenAndPositionEmbedding_for_ESM, TransformerBlock, TransformerDecoderTwo
     else: from ai_functionality_old import TransformerBlock, TransformerDecoderTwo, TokenAndPositionEmbedding
 
