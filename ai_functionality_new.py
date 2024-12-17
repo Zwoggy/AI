@@ -122,7 +122,7 @@ class TokenAndPositionEmbedding(tensorflow.keras.layers.Layer):
         self.token_emb = layers.Embedding(input_dim = self.vocab_size, output_dim = self.embed_dim, mask_zero = True)
         self.pos_emb = layers.Embedding(input_dim = self.maxlen, output_dim = self.embed_dim, mask_zero = True)
 
-    @tf.function
+
     def call(self, x):
         maxlen = tf.shape(x)[-1]
         positions = tf.range(start = 0, limit = maxlen, delta = 1)
@@ -220,7 +220,7 @@ class TokenAndPositionEmbedding2(tensorflow.keras.layers.Layer):
         # manipulate it if this layer changes the shape of the input
         return mask
 
-    @tf.function
+
     def call(self, x):
         maxlen = tf.shape(x)[-1]
         positions = tf.range(start = 0, limit = maxlen, delta = 1)
@@ -258,7 +258,7 @@ class TransformerDecoder(tensorflow.keras.layers.Layer):
         # manipulate it if this layer changes the shape of the input
         return mask
 
-    @tf.function
+
     def call(self, decoder_inputs, encoder_outputs, training = True, mask = None):
 
         causal_mask = self.get_causal_attention_mask(decoder_inputs)
@@ -355,7 +355,7 @@ class TransformerDecoderTwo(tensorflow.keras.layers.Layer):
         # manipulate it if this layer changes the shape of the input
         return mask
 
-    @tf.function
+
     def call(self, encoder_outputs, training = True, mask = None):
 
         if mask is not None:
