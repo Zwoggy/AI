@@ -218,7 +218,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                 x = encoder_embed_out
             else:
 
-                esm_model = TFEsmForTokenClassification.from_pretrained("facebook/esm2_t33_650M_UR50D")
+                esm_model = TFEsmForTokenClassification.from_pretrained("facebook/esm2_t36_3B_UR50D")
 
                 # Eingabe vorbereiten
                 #encoder_inputs = layers.Input(shape=(length_of_longest_context,), name='encoder_inputs', dtype=tf.int32)
@@ -264,7 +264,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                                               tf_keras.metrics.Recall()])
             # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
 
-            history = model.fit(x = antigen_list, y = epitope_list, batch_size = 200, epochs = 100,
+            history = model.fit(x = antigen_list, y = epitope_list, batch_size = 16, epochs = 100,
                             validation_data = (testx_list, testy_list), callbacks = [callback], verbose=1)
         # history = model.fit(x=antigen_list, y=epitope_list, batch_size=50, epochs=100, validation_data=(testx_list, testy_list, testy_for_weights), callbacks=[callback], sample_weight = epitope_list_for_weights)
 
