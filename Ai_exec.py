@@ -10,7 +10,8 @@ from ai_functionality_old import embedding, modify_with_context, calculating_cla
     focal_loss, stochastic_loss
 from validate_45_blind import validate_on_45_blind
 from tensorflow.keras.mixed_precision import set_global_policy
-set_global_policy('mixed_float16')
+from tensorflow.keras import mixed_precision
+
 
 
 def create_ai(filepath, save_file, output_file, train=False, safe=False,  validate=False, predict=False, old=False):
@@ -190,10 +191,13 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
 
     testx_list = testx_list.astype(np.float16)
     testy_list = testy_list.astype(np.float16)
+    set_global_policy('mixed_float16')
+    policy = mixed_precision.Policy('mixed_float16')
+    mixed_precision.set_global_policy(policy)
 
     if train:
         K.clear_session()
-        strategy = tf.distribute.MirroredStrategy(devices=["/gpu:0", "/gpu:1", "/gpu:2", "/gpu:3"])
+        strategy = tf.distribute.MirroredStrategy()
 
 
         # Erstellen Sie Ihr Modell innerhalb der Strategie
