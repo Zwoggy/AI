@@ -219,11 +219,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
             else:
 
                 esm_model = TFEsmForTokenClassification.from_pretrained("facebook/esm2_t36_3B_UR50D")
-                # Manuelle Verteilung der Schichten
-                esm_model.encoder.layers[:9] = esm_model.encoder.layers[:9].to("/gpu:0")
-                esm_model.encoder.layers[9:18] = esm_model.encoder.layers[9:18].to("/gpu:1")
-                esm_model.encoder.layers[18:27] = esm_model.encoder.layers[18:27].to("/gpu:2")
-                esm_model.encoder.layers[27:] = esm_model.encoder.layers[27:].to("/gpu:3")
+
+
                 # Eingabe vorbereiten
                 #encoder_inputs = layers.Input(shape=(length_of_longest_context,), name='encoder_inputs', dtype=tf.int32)
 
