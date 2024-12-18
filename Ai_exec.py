@@ -8,6 +8,8 @@ from tensorflow.keras import backend as K
 from ai_functionality_old import embedding, modify_with_context, calculating_class_weights, \
      get_weighted_loss, save_ai, use_model_and_predict, new_embedding
 
+import logging
+
 from validate_45_blind import validate_on_45_blind
 from tensorflow.keras.mixed_precision import set_global_policy
 from tensorflow.keras import mixed_precision
@@ -195,7 +197,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
     #set_global_policy('mixed_float16')
     #policy = mixed_precision.Policy('mixed_float16')
     #mixed_precision.set_global_policy(policy)
-
+    tf.get_logger().setLevel(logging.ERROR)
     if train:
         K.clear_session()
         strategy = tf.distribute.MirroredStrategy()
