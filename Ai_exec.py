@@ -9,7 +9,8 @@ from ai_functionality_old import embedding, modify_with_context, calculating_cla
     TransformerBlock, TransformerDecoderTwo, get_weighted_loss, save_ai, use_model_and_predict, new_embedding, \
     focal_loss, stochastic_loss
 from validate_45_blind import validate_on_45_blind
-
+from tensorflow.keras.mixed_precision import set_global_policy
+set_global_policy('mixed_float16')
 
 
 def create_ai(filepath, save_file, output_file, train=False, safe=False,  validate=False, predict=False, old=False):
