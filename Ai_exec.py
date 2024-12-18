@@ -235,28 +235,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                 # Nur die Embeddings extrahieren
                 with tf.GradientTape() as tape:
                     outputs = esm_model(encoder_inputs, output_hidden_states=True)
-                    converter = tf.lite.TFLiteConverter.from_keras_model(
-                        outputs)  # Wandelt das Modell direkt in ein TFLite-Modell um
-                    converter.optimizations = [
-                        tf.lite.Optimize.DEFAULT]  # Standardoptimierungen, die auch Quantisierung beinhalten
-                    quantized_model = converter.convert()
 
-                    # Lade das quantisierte Modell in einen Interpreter
-                    interpreter = tf.lite.Interpreter(model_content=quantized_model)
-                    interpreter.allocate_tensors()
-
-                    # Erhalte Input- und Output-Details für die Inferenz
-                    input_details = interpreter.get_input_details()
-                    output_details = interpreter.get_output_details()
-
-                    # Vorbereiten der Eingabedaten (encoder_inputs, hier als Beispiel)
-                    interpreter.set_tensor(input_details[0]['index'], encoder_inputs.numpy())
-
-                    # Inferenz durchführen
-                    interpreter.invoke()
-
-                    # Extrahieren der Embeddings (aus den quantisierten Modell-Ausgaben)
-                    outputs = interpreter.get_tensor(output_details[0]['index'])
                     #esm_embeddings = outputs.hidden_states[0]  # Nur die erste Embedding-Schicht
                     esm_embeddings = outputs.hidden_states[-1] #outputs.hidden_states[-1] war am Besten!
                     #esm_embeddings = tf.reduce_mean(esm_embeddings, axis=1) ##new new new
