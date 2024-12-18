@@ -1,13 +1,13 @@
 import numpy as np
 import tf_keras
 from tf_keras import optimizers as opt, layers
-from transformers import AutoTokenizer, TFEsmForTokenClassification, TFEsmModel
+from transformers import  TFEsmForTokenClassification
 import tensorflow as tf
 import tensorflow
 from tensorflow.keras import backend as K
-from ai_functionality_old import embedding, modify_with_context, calculating_class_weights, TokenAndPositionEmbedding, \
-    TransformerBlock, TransformerDecoderTwo, get_weighted_loss, save_ai, use_model_and_predict, new_embedding, \
-    focal_loss, stochastic_loss
+from ai_functionality_old import embedding, modify_with_context, calculating_class_weights, \
+     get_weighted_loss, save_ai, use_model_and_predict, new_embedding
+
 from validate_45_blind import validate_on_45_blind
 from tensorflow.keras.mixed_precision import set_global_policy
 from tensorflow.keras import mixed_precision
@@ -269,7 +269,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                                               tf_keras.metrics.Recall()])
             # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
 
-            history = model.fit(x = antigen_list, y = epitope_list, batch_size = 16, epochs = 100,
+            history = model.fit(x = antigen_list, y = epitope_list, batch_size = 200, epochs = 100,
                             validation_data = (testx_list, testy_list), callbacks = [callback], verbose=1)
         # history = model.fit(x=antigen_list, y=epitope_list, batch_size=50, epochs=100, validation_data=(testx_list, testy_list, testy_for_weights), callbacks=[callback], sample_weight = epitope_list_for_weights)
 
