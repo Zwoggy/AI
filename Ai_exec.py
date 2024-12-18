@@ -222,7 +222,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                 x = encoder_embed_out
             else:
 
-                esm_model = TFEsmForTokenClassification.from_pretrained("facebook/esm2_t36_3B_UR50D")
+                esm_model = TFEsmForTokenClassification.from_pretrained("facebook/esm2_t6_8M_UR50D")
 
 
                 # Eingabe vorbereiten
