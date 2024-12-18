@@ -191,9 +191,10 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
 
     testx_list = testx_list.astype(np.float16)
     testy_list = testy_list.astype(np.float16)
-    set_global_policy('mixed_float16')
-    policy = mixed_precision.Policy('mixed_float16')
-    mixed_precision.set_global_policy(policy)
+
+    #set_global_policy('mixed_float16')
+    #policy = mixed_precision.Policy('mixed_float16')
+    #mixed_precision.set_global_policy(policy)
 
     if train:
         K.clear_session()
