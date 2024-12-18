@@ -188,6 +188,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
     some_class_weight = {0: 1.,
                          1: 3.}
 
+    testx_list = tf.cast(testx_list.float16)
+    testy_list = tf.cast(testy_list.float16)
 
     if train:
         K.clear_session()
