@@ -264,7 +264,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                         part4_layers = all_layers[3 * split_size:-2]
                         part4_model = LayerGroup(part4_layers)
                         outputs = part4_model.call(part3_outputs, training=False)
-
+                    outputs = tf.convert_to_tensor(outputs, np.float16)
                     esm_embeddings = outputs
                     print("These are the outputs",outputs)
 
