@@ -237,28 +237,50 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                 with tf.GradientTape() as tape:
                     #outputs = esm_model(encoder_inputs, output_hidden_states=True)
                     # Aufteilen der Transformer-Layers und sie zu Modellen umwandeln
+                    # Extrahiere die Schichten des Modells und teile sie auf
+                    all_layers = esm_model.layers
+
+                    # Anzahl der Layer teilen und auf GPUs verteilen
+                    num_layers = len(all_layers)
+                    split_size = num_layers // 4
+
+                    # Layer-Gruppen erstellen
                     with tf.device('/GPU:0'):
-                        part1_model = LayerGroup(esm_model(encoder_inputs, output_hidden_states=True).layers[:9])
+                        part1_layers = all_layers[:split_size]
+                        part1_model = LayerGroup(part1_layers)
 
                     with tf.device('/GPU:1'):
-                        part2_model = LayerGroup(esm_model.layers[9:18])
+                        part2_layers = all_layers[split_size:2 * split_size]
+                        part2_model = LayerGroup(part2_layers)
 
                     with tf.device('/GPU:2'):
-                        part3_model = LayerGroup(esm_model.layers[18:27])
+                        part3_layers = all_layers[2 * split_size:3 * split_size]
+                        part3_model = LayerGroup(part3_layers)
 
                     with tf.device('/GPU:3'):
-                        part4_model = LayerGroup(esm_model.layers[27:])
+                        part4_layers = all_layers[3 * split_size:]
+                        part4_model = LayerGroup(part4_layers)
 
-
-                    # Forward pass
+                    # Vorwärtsdurchlauf der Schichten, schrittweise auf den GPUs
                     with tf.device('/GPU:0'):
-                        hidden_states = part1_model(encoder_inputs, training=False)
+                        # Nur die ersten Schichten verarbeiten
+                        part1_outputs = part1_model(encoder_inputs,
+                                                    training=False)  # Nur die Schichten der ersten Gruppe
+
                     with tf.device('/GPU:1'):
-                        hidden_states = part2_model(hidden_states, training=False)
+                        # Ausgaben von part1 an part2 weitergeben
+                        part2_outputs = part2_model(part1_outputs,
+                                                    training=False)  # Nur die Schichten der zweiten Gruppe
+
                     with tf.device('/GPU:2'):
-                        hidden_states = part3_model(hidden_states, training=False)
+                        # Ausgaben von part2 an part3 weitergeben
+                        part3_outputs = part3_model(part2_outputs,
+                                                    training=False)  # Nur die Schichten der dritten Gruppe
+
                     with tf.device('/GPU:3'):
-                        outputs = part4_model(hidden_states, training=False)
+                        # Ausgaben von part3 an part4 weitergeben
+                        outputs = part4_model(part3_outputs,
+                                                    training=False)  # Nur die Schichten der vierten Gruppe
 
                     #esm_embeddings = outputs.hidden_states[0]  # Nur die erste Embedding-Schicht
                     esm_embeddings = outputs.hidden_states[-1] #outputs.hidden_states[-1] war am Besten!
