@@ -55,6 +55,7 @@ class LayerGroup(tf.keras.layers.Layer):
     def call(self, inputs, **kwargs):
         x = inputs
         for layer in self.layers:
+            # Übergebe alle zusätzlichen Argumente (z.B. `training`) an das Layer
             x = layer(x, **kwargs)
         return x
 
