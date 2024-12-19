@@ -270,7 +270,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                     #esm_embeddings = outputs.hidden_states[-1] #outputs.hidden_states[-1] war am Besten!
                 # Embedding-Schicht in das Modell einfügen
                 x = esm_embeddings
-                output_dimension = x.shape[1]  # without mean reduction
+                output_dimension = x.shape[-1]  # without mean reduction
                 #output_dimension = x.shape[2]  #without mean reduction LATEST
                 #output_dimension = x.shape[0]
 
