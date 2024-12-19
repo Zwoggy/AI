@@ -243,12 +243,12 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                     # Anzahl der Layer teilen und auf GPUs verteilen
                     num_layers = len(all_layers)
                     split_size = num_layers // 4
-
+                    x = encoder_inputs
                     # Layer-Gruppen erstellen
                     with tf.device('/GPU:0'):
                         part1_layers = all_layers[:split_size]
                         part1_model = LayerGroup(part1_layers)
-                        part1_outputs = part1_model.call(encoder_inputs, training=False)
+                        part1_outputs = part1_model.call(x, training=False)
 
                     with tf.device('/GPU:1'):
                         part2_layers = all_layers[split_size:2 * split_size]
