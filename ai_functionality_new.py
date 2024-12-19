@@ -52,11 +52,11 @@ class LayerGroup(tf.keras.layers.Layer):
         super().__init__()
         self.layers = layers
 
-    def call(self, inputs, **kwargs):
+    def call(self, inputs, training=False, **kwargs):
         x = inputs
         for layer in self.layers:
             # Übergebe alle zusätzlichen Argumente (z.B. `training`) an das Layer
-            x = layer(x, **kwargs)
+            x = layer(x, training=training, **kwargs)
         return x
 
 # class TransformerBlock(tf.keras.Model):
