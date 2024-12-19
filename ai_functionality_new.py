@@ -52,12 +52,10 @@ class LayerGroup(tf.keras.layers.Layer):
         super().__init__()
         self.layers = layers
 
-    def call(self, inputs, training=False, **kwargs):
+    def call(self, inputs, **kwargs):
         x = inputs
-        for layer in self.esm_layers:
-            if isinstance(x, tuple):  # Handle tuple outputs
-                x = x[0]
-            x = layer(x, training=training, **kwargs)
+        for layer in self.layers:
+            x = layer(x, **kwargs)
         return x
 
 # class TransformerBlock(tf.keras.Model):

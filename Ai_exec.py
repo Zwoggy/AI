@@ -252,7 +252,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
 
                     # Forward pass
                     with tf.device('/GPU:0'):
-                        hidden_states = part1_model(encoder_inputs, training=False)
+                        hidden_states = part1_model(encoder_inputs, training=False, output_hidden_states=True)
                     with tf.device('/GPU:1'):
                         hidden_states = part2_model(hidden_states, training=False)
                     with tf.device('/GPU:2'):
