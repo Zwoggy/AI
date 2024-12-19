@@ -54,8 +54,9 @@ class LayerGroup(tf.keras.layers.Layer):
 
     def call(self, inputs, training=False, **kwargs):
         x = inputs
-        for layer in self.layers:
-            # Übergebe alle zusätzlichen Argumente (z.B. `training`) an das Layer
+        for layer in self.esm_layers:
+            if isinstance(x, tuple):  # Handle tuple outputs
+                x = x[0]
             x = layer(x, training=training, **kwargs)
         return x
 
