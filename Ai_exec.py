@@ -266,6 +266,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                         outputs = part4_model.call(part3_outputs, training=False)
 
                     esm_embeddings = outputs
+                    print("These are the outputs",outputs)
 
                     #esm_embeddings = outputs.hidden_states[-1] #outputs.hidden_states[-1] war am Besten!
                 # Embedding-Schicht in das Modell einfügen
