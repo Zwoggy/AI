@@ -238,16 +238,16 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                     #outputs = esm_model(encoder_inputs, output_hidden_states=True)
                     # Aufteilen der Transformer-Layers und sie zu Modellen umwandeln
                     with tf.device('/GPU:0'):
-                        part1_model = LayerGroup(esm_model.esm.encoder.layer[:9])
+                        part1_model = LayerGroup(esm_model.layer[:9])
 
                     with tf.device('/GPU:1'):
-                        part2_model = LayerGroup(esm_model.esm.encoder.layer[9:18])
+                        part2_model = LayerGroup(esm_model.layer[9:18])
 
                     with tf.device('/GPU:2'):
-                        part3_model = LayerGroup(esm_model.esm.encoder.layer[18:27])
+                        part3_model = LayerGroup(esm_model.layer[18:27])
 
                     with tf.device('/GPU:3'):
-                        part4_model = LayerGroup(esm_model.esm.encoder.layer[27:])
+                        part4_model = LayerGroup(esm_model.layer[27:])
 
                     # Forward pass
                     with tf.device('/GPU:0'):
