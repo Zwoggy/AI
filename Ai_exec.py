@@ -248,39 +248,27 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                     with tf.device('/GPU:0'):
                         part1_layers = all_layers[:split_size]
                         part1_model = LayerGroup(part1_layers)
-
-                    with tf.device('/GPU:1'):
-                        part2_layers = all_layers[split_size:2 * split_size]
-                        part2_model = LayerGroup(part2_layers)
-
-                    with tf.device('/GPU:2'):
-                        part3_layers = all_layers[2 * split_size:3 * split_size]
-                        part3_model = LayerGroup(part3_layers)
-
-                    with tf.device('/GPU:3'):
-                        part4_layers = all_layers[3 * split_size:]
-                        part4_model = LayerGroup(part4_layers)
-
-                    # Vorwärtsdurchlauf der Schichten, schrittweise auf den GPUs
-                    with tf.device('/GPU:0'):
-                        # Nur die ersten Schichten verarbeiten
                         part1_outputs = part1_model(encoder_inputs,
                                                     training=False)  # Nur die Schichten der ersten Gruppe
 
                     with tf.device('/GPU:1'):
-                        # Ausgaben von part1 an part2 weitergeben
+                        part2_layers = all_layers[split_size:2 * split_size]
+                        part2_model = LayerGroup(part2_layers)
                         part2_outputs = part2_model(part1_outputs,
                                                     training=False)  # Nur die Schichten der zweiten Gruppe
 
                     with tf.device('/GPU:2'):
-                        # Ausgaben von part2 an part3 weitergeben
+                        part3_layers = all_layers[2 * split_size:3 * split_size]
+                        part3_model = LayerGroup(part3_layers)
                         part3_outputs = part3_model(part2_outputs,
                                                     training=False)  # Nur die Schichten der dritten Gruppe
 
                     with tf.device('/GPU:3'):
-                        # Ausgaben von part3 an part4 weitergeben
+                        part4_layers = all_layers[3 * split_size:]
+                        part4_model = LayerGroup(part4_layers)
                         outputs = part4_model(part3_outputs,
                                                     training=False)  # Nur die Schichten der vierten Gruppe
+
 
                     #esm_embeddings = outputs.hidden_states[0]  # Nur die erste Embedding-Schicht
                     esm_embeddings = outputs.hidden_states[-1] #outputs.hidden_states[-1] war am Besten!
