@@ -227,7 +227,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                 x = encoder_embed_out
             else:
 
-                esm_model = TFEsmForTokenClassification.from_pretrained("facebook/esm2_t36_3B_UR50D")
+                esm_model = TFEsmForTokenClassification.from_pretrained("facebook/esm2_t33_650M_UR50D")
 
                 # Eingabe vorbereiten
                 #encoder_inputs = layers.Input(shape=(length_of_longest_context,), name='encoder_inputs', dtype=tf.int32)
@@ -250,17 +250,17 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                         part1_model = LayerGroup(part1_layers)
                         part1_outputs = part1_model.call(x, training=False)
 
-                    with tf.device('/GPU:1'):
+                    with tf.device('/GPU:0'):
                         part2_layers = all_layers[split_size:2 * split_size]
                         part2_model = LayerGroup(part2_layers)
                         part2_outputs = part2_model.call(part1_outputs, training=False)
 
-                    with tf.device('/GPU:2'):
+                    with tf.device('/GPU:0'):
                         part3_layers = all_layers[2 * split_size:3 * split_size]
                         part3_model = LayerGroup(part3_layers)
                         part3_outputs = part3_model.call(part2_outputs, training=False)
 
-                    with tf.device('/GPU:3'):
+                    with tf.device('/GPU:0'):
                         part4_layers = all_layers[3 * split_size:]
                         part4_model = LayerGroup(part4_layers)
                         outputs = part4_model.call(part3_outputs, training=False)
