@@ -55,6 +55,8 @@ class LayerGroup(tf.keras.layers.Layer):
     def call(self, inputs, **kwargs):
         x = inputs
         for layer in self.layers:
+            if isinstance(x, tuple):
+                x = x[0]  # Nimm den ersten Wert aus dem Tuple
             x = layer(x, **kwargs)
         return x
 
