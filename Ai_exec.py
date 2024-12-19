@@ -234,25 +234,28 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                 # Nur die Embeddings extrahieren
                 with tf.GradientTape() as tape:
                     #outputs = esm_model(encoder_inputs, output_hidden_states=True)
-                    # Assign specific blocks to GPUs
+                    # Aufteilen der Transformer-Layers und sie zu Modellen umwandeln
                     with tf.device('/GPU:0'):
-                        part1 = esm_model.esm.encoder.layer[:9]  # First 9 transformer layers
+                        part1_model = tf.keras.Sequential(esm_model.esm.encoder.layer[:9])
+
                     with tf.device('/GPU:1'):
-                        part2 = esm_model.esm.encoder.layer[9:18]  # Next 9 layers
+                        part2_model = tf.keras.Sequential(esm_model.esm.encoder.layer[9:18])
+
                     with tf.device('/GPU:2'):
-                        part3 = esm_model.esm.encoder.layer[18:27]  # Next 9 layers
+                        part3_model = tf.keras.Sequential(esm_model.esm.encoder.layer[18:27])
+
                     with tf.device('/GPU:3'):
-                        part4 = esm_model.esm.encoder.layer[27:]  # Remaining layers
+                        part4_model = tf.keras.Sequential(esm_model.esm.encoder.layer[27:])
 
                     # Forward pass
                     with tf.device('/GPU:0'):
-                        hidden_states = part1(encoder_inputs)
+                        hidden_states = part1_model(encoder_inputs)
                     with tf.device('/GPU:1'):
-                        hidden_states = part2(hidden_states)
+                        hidden_states = part2_model(hidden_states)
                     with tf.device('/GPU:2'):
-                        hidden_states = part3(hidden_states)
+                        hidden_states = part3_model(hidden_states)
                     with tf.device('/GPU:3'):
-                        outputs = part4(hidden_states)
+                        outputs = part4_model(hidden_states)
 
                     #esm_embeddings = outputs.hidden_states[0]  # Nur die erste Embedding-Schicht
                     esm_embeddings = outputs.hidden_states[-1] #outputs.hidden_states[-1] war am Besten!
