@@ -261,7 +261,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                         part3_outputs = part3_model.call(part2_outputs, training=False)
 
                     with tf.device('/GPU:3'):
-                        part4_layers = all_layers[3 * split_size:]
+                        part4_layers = all_layers[3 * split_size:-2]
                         part4_model = LayerGroup(part4_layers)
                         outputs = part4_model.call(part3_outputs, training=False)
 
