@@ -266,12 +266,12 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                         outputs = part4_model.call(part3_outputs, training=False)
 
                     esm_embeddings = outputs[-1]
-                    #esm_embeddings = outputs.hidden_states[0]  # Nur die erste Embedding-Schicht
+
                     #esm_embeddings = outputs.hidden_states[-1] #outputs.hidden_states[-1] war am Besten!
-                    #esm_embeddings = tf.reduce_mean(esm_embeddings, axis=1) ##new new new
                 # Embedding-Schicht in das Modell einfügen
                 x = esm_embeddings
-                output_dimension = x.shape[2]  #without mean reduction
+                output_dimension = x.shape[1]  # without mean reduction
+                #output_dimension = x.shape[2]  #without mean reduction LATEST
                 #output_dimension = x.shape[0]
 
 
