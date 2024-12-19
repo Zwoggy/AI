@@ -227,7 +227,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                 x = encoder_embed_out
             else:
 
-                esm_model = TFEsmForTokenClassification.from_pretrained("facebook/esm2_t33_650M_UR50D")
+                esm_model = TFEsmForTokenClassification.from_pretrained("facebook/esm2_t36_3B_UR50D")
 
                 # Eingabe vorbereiten
                 #encoder_inputs = layers.Input(shape=(length_of_longest_context,), name='encoder_inputs', dtype=tf.int32)
