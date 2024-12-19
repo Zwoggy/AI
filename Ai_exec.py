@@ -227,14 +227,32 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
 
                 esm_model = TFEsmForTokenClassification.from_pretrained("facebook/esm2_t6_8M_UR50D")
 
-
                 # Eingabe vorbereiten
                 #encoder_inputs = layers.Input(shape=(length_of_longest_context,), name='encoder_inputs', dtype=tf.int32)
 
 
                 # Nur die Embeddings extrahieren
                 with tf.GradientTape() as tape:
-                    outputs = esm_model(encoder_inputs, output_hidden_states=True)
+                    #outputs = esm_model(encoder_inputs, output_hidden_states=True)
+                    # Assign specific blocks to GPUs
+                    with tf.device('/GPU:0'):
+                        part1 = esm_model.esm.encoder.layer[:9]  # First 9 transformer layers
+                    with tf.device('/GPU:1'):
+                        part2 = esm_model.esm.encoder.layer[9:18]  # Next 9 layers
+                    with tf.device('/GPU:2'):
+                        part3 = esm_model.esm.encoder.layer[18:27]  # Next 9 layers
+                    with tf.device('/GPU:3'):
+                        part4 = esm_model.esm.encoder.layer[27:]  # Remaining layers
+
+                    # Forward pass
+                    with tf.device('/GPU:0'):
+                        hidden_states = part1(encoder_inputs)
+                    with tf.device('/GPU:1'):
+                        hidden_states = part2(hidden_states)
+                    with tf.device('/GPU:2'):
+                        hidden_states = part3(hidden_states)
+                    with tf.device('/GPU:3'):
+                        outputs = part4(hidden_states)
 
                     #esm_embeddings = outputs.hidden_states[0]  # Nur die erste Embedding-Schicht
                     esm_embeddings = outputs.hidden_states[-1] #outputs.hidden_states[-1] war am Besten!
