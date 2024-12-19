@@ -47,7 +47,16 @@ from tensorflow.keras import backend as K
 random.seed(10)
 tf.random.set_seed(10)
 
+class LayerGroup(tf.keras.layers.Layer):
+    def __init__(self, layers):
+        super().__init__()
+        self.layers = layers
 
+    def call(self, inputs, **kwargs):
+        x = inputs
+        for layer in self.layers:
+            x = layer(x, **kwargs)
+        return x
 
 # class TransformerBlock(tf.keras.Model):
 class TransformerBlock(tensorflow.keras.layers.Layer):
