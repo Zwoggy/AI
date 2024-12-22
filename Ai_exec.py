@@ -42,7 +42,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
 
 
     if big_dataset:
-        antigen_list, epitope_list, length_of_longest_context = modify_with_context_big_dataset(antigen_list, epitope_list, length_of_longest_sequence)
+        antigen_list, epitope_list, length_of_longest_context = modify_with_context_big_dataset(epitope_list, antigen_list,  length_of_longest_sequence)
 
     else:
         epitope_list, antigen_list, length_of_longest_context = modify_with_context(epitope_list, antigen_list,
