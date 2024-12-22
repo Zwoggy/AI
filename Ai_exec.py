@@ -43,13 +43,16 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
 
     if big_dataset:
         epitope_list, antigen_list, length_of_longest_context = modify_with_context_big_dataset(epitope_list, antigen_list,  length_of_longest_sequence)
+        testy_list, testx_list, length_of_longest_context_2 = modify_with_context_big_dataset(testy_list, testx_list,
+                                                                                  length_of_longest_sequence)
 
     else:
         epitope_list, antigen_list, length_of_longest_context = modify_with_context(epitope_list, antigen_list,
                                                                                 length_of_longest_sequence)
-
-    testy_list, testx_list, length_of_longest_context_2 = modify_with_context(testy_list, testx_list,
+        testy_list, testx_list, length_of_longest_context_2 = modify_with_context(testy_list, testx_list,
                                                                               length_of_longest_sequence)
+
+
     if old==False:
         antigen_list = new_embedding(antigen_list, encoder)
         testx_list = new_embedding(testx_list, encoder)
