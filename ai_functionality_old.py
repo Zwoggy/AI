@@ -712,64 +712,71 @@ def modify_with_context_big_dataset(epitope_list, antigen_list, length_of_longes
         - new_epitope_list: Alle möglichen Epitope-Sequenzen
         - length_of_longest_context: Neue maximale Sequenzlänge
     """
-    new_antigen_list = []
-    new_epitope_list = []
-    context_before = 10
-    context_after = 20
-
+    new_antigen_list: list = []
+    new_epitope_list: list = []
+    decoder_list: list = []
+    context = 20
     for epitope, antigen in zip(epitope_list, antigen_list):
-        for start_offset in range(1, context_before + 1):
-            for end_offset in range(1, context_after + 1):
-                short_epitope = []
-                short_antigen = []
-                start_found = False
+
+        for new_start in range(1,10):
+            for new_end in range(1,20):
+                short_epitope: list = []
+                short_antigen: list = []
                 context_length = 0
+                i = 0
+                start = True
 
                 for run, (aminoacid, char) in enumerate(zip(epitope, antigen)):
-                    if aminoacid == 1 and not start_found:
-                        # Beginn der Sequenz mit dem Offset davor
-                        start_index = max(0, run - start_offset)
-                        end_index = min(len(antigen), run + end_offset + 1)
+                    i += 1
+                    if aminoacid == 1:
 
-                        # Füge vor dem Epitope-Start hinzu
-                        for i in range(start_index, run):
-                            short_epitope.append(0.0)
-                            short_antigen.append(antigen[i])
+                        if start is True:
 
-                        start_found = True
+                            number = new_start
 
-                    if start_found:
-                        # Epitop hinzufügen
-                        short_epitope.append(float(aminoacid))
+                            while number > 0:
+                                # short_epitope.append(-1)
+                                short_epitope.append(0.)
+                                short_antigen.append(antigen[run - number])
+                                number -= 1
+
+                        start = False
+                        short_epitope.append(1.)
                         short_antigen.append(char)
+                        context_length = context
 
-                        # Kontext nach dem Epitope-Ende
-                        if context_length > 0:
-                            context_length -= 1
-                        elif aminoacid == 1:
-                            context_length = end_offset
-                        else:
-                            break
+                    elif (context_length < 1) and (start is False):
 
-                if short_antigen and short_epitope:
+                        continue
+
+                    elif (aminoacid == -1) and (i < length_of_longest_sequence + 1) and (context_length > 0) and (
+                            start is False):
+                        # short_epitope.append(-1)
+                        short_epitope.append(0.)
+                        short_antigen.append(char)
+                        context_length -= 1
+
+                    elif (aminoacid == 0) and (i < length_of_longest_sequence + 1) and (context_length > 0) and (
+                            start is False):
+                        short_epitope.append(0.)
+                        short_antigen.append(char)
+                        context_length -= 1
+                    short_epitope = short_epitope[:(new_end - context_length)]
+                    short_antigen = short_antigen[:(new_end - context_length)]
                     print(short_antigen, short_epitope)
-                    new_epitope_list.append(short_epitope)
-                    new_antigen_list.append(short_antigen)
+                new_epitope_list.append(short_epitope)
+                new_antigen_list.append(short_antigen)
 
-    if not new_antigen_list or not new_epitope_list:
-        print("Warnung: Keine Sequenzen generiert. Überprüfen Sie die Eingabedaten.")
-        return [], [], 0
+                # print(short_antigen)
+                # print(short_epitope)
 
-    # Maximale Länge berechnen
-    length_of_longest_context = max(len(seq) for seq in new_antigen_list)
-
-    # Padding der Sequenzen
-    new_epitope_list = tf.keras.preprocessing.sequence.pad_sequences(
-        new_epitope_list, maxlen=length_of_longest_context, padding='post', value=0.0
-    )
-    new_antigen_list = tf.keras.preprocessing.sequence.pad_sequences(
-        new_antigen_list, maxlen=length_of_longest_context, padding='post', value=0.0
-    )
+    length_of_longest_context = int(len(max(new_antigen_list, key=len)))
+    # print(short_epitope)
+    length_of_longest_context = 235
+    new_epitope_list = tf_keras.preprocessing.sequence.pad_sequences(new_epitope_list, maxlen=length_of_longest_context,
+                                                                     padding='post', value=0)
+    new_antigen_list = tf_keras.preprocessing.sequence.pad_sequences(new_antigen_list, maxlen=length_of_longest_context,
+                                                                     padding='post', value=0)
 
     return new_epitope_list, new_antigen_list, length_of_longest_context
 
