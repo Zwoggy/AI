@@ -637,7 +637,6 @@ def modify_with_context(epitope_list, antigen_list, length_of_longest_sequence):
         context: defines the length after which the sequence will be cut if no epitope was found.
 
         returns the new antigen(actually protein) and epitope list aswell as the new length of the longest sequence to which every new sequence is padded."""
-    print(epitope_list, antigen_list)
     new_antigen_list: list = []
     new_epitope_list: list = []
     decoder_list: list = []
