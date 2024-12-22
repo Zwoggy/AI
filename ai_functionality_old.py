@@ -652,6 +652,7 @@ def modify_with_context(epitope_list, antigen_list, length_of_longest_sequence):
         for run, (aminoacid, char) in enumerate(zip(epitope, antigen)):
             i += 1
             if aminoacid == 1:
+                print("Yes2")
 
                 if start is True:
 
