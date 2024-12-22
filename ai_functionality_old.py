@@ -750,6 +750,7 @@ def modify_with_context_big_dataset(epitope_list, antigen_list, length_of_longes
                             break
 
                 # Speichern der Kombination
+                print(short_epitope, short_antigen)
                 new_epitope_list.append(short_epitope)
                 new_antigen_list.append(short_antigen)
 
