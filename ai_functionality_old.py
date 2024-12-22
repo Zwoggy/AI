@@ -724,13 +724,14 @@ def modify_with_context_big_dataset(epitope_list, antigen_list, length_of_longes
     start_number = 5
     for epitope, antigen in zip(epitope_list, antigen_list):
 
-        short_epitope: list = []
-        short_antigen: list = []
-        context_length = 0
-        i = 0
-        start = True
+
         for current_start in range(0, start_number):
             for current_end in range(0, context):
+                short_epitope: list = []
+                short_antigen: list = []
+                context_length = 0
+                i = 0
+                start = True
                 for run, (aminoacid, char) in enumerate(zip(epitope, antigen)):
                     i += 1
                     if aminoacid == 1:
@@ -740,17 +741,17 @@ def modify_with_context_big_dataset(epitope_list, antigen_list, length_of_longes
 
 
 
-
-                            while start_number > 0:
+                            current = current_start
+                            while current > 0:
                                 # short_epitope.append(-1)
                                 short_epitope.append(0.)
-                                short_antigen.append(antigen[run - current_start])
+                                short_antigen.append(antigen[run - current])
                                 start_number -= 1
 
                         start = False
                         short_epitope.append(1.)
                         short_antigen.append(char)
-                        context_length = current_end
+                        context_length = context
 
                     elif (context_length < 1) and (start is False):
 
@@ -769,7 +770,6 @@ def modify_with_context_big_dataset(epitope_list, antigen_list, length_of_longes
                         short_antigen.append(char)
                         context_length -= 1
 
-                print(short_antigen, short_epitope)
                 new_epitope_list.append(short_epitope)
                 new_antigen_list.append(short_antigen)
                 # print(short_antigen)
