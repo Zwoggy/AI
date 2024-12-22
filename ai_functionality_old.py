@@ -725,8 +725,8 @@ def modify_with_context_big_dataset(epitope_list, antigen_list, length_of_longes
     for epitope, antigen in zip(epitope_list, antigen_list):
 
 
-        for current_start in range(0, start_number):
-            for current_end in range(0, context):
+        for current_start in range(start_number, 0, -1):
+            for current_end in range(context, 0, -1):
                 short_epitope: list = []
                 short_antigen: list = []
                 context_length = 0
