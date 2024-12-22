@@ -231,6 +231,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                 embedding_layer = TokenAndPositionEmbedding(maxlen, voc_size, embed_dim)
                 encoder_embed_out = embedding_layer(encoder_inputs)
                 x = encoder_embed_out
+                output_dimension = x.shape[2]
+
             else:
 
                 esm_model = TFEsmForTokenClassification.from_pretrained("facebook/esm2_t36_3B_UR50D")
@@ -241,18 +243,20 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
 
                 # Nur die Embeddings extrahieren
                 with tf.GradientTape() as tape:
-                    if gpu_split:
-                        esm_embeddings = split_esm_on_4GPUs(encoder_inputs, esm_model)
-                        x = esm_embeddings
-                        output_dimension = x.shape[-1]  # without mean reduction
+                    if old == False:
+                        if gpu_split:
+                            esm_embeddings = split_esm_on_4GPUs(encoder_inputs, esm_model)
+                            x = esm_embeddings
+                            output_dimension = x.shape[-1]  # without mean reduction
 
-                    else:
-                        outputs = esm_model(encoder_inputs, output_hidden_states=True)
-                        esm_embeddings = outputs.hidden_states[-1] #outputs.hidden_states[-1] war am Besten!
-                        # Embedding-Schicht in das Modell einfügen
-                        x = esm_embeddings
+                        else:
+                            outputs = esm_model(encoder_inputs, output_hidden_states=True)
+                            esm_embeddings = outputs.hidden_states[-1] #outputs.hidden_states[-1] war am Besten!
+                            # Embedding-Schicht in das Modell einfügen
+                            x = esm_embeddings
 
-                        output_dimension = x.shape[2]  #without mean reduction LATEST
+                            output_dimension = x.shape[2]  #without mean reduction LATEST
+
                 #output_dimension = x.shape[0]
 
 
