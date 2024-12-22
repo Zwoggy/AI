@@ -752,6 +752,7 @@ def modify_with_context_big_dataset(epitope_list, antigen_list, length_of_longes
                             break
 
                 if short_antigen and short_epitope:
+                    print(short_antigen, short_epitope)
                     new_epitope_list.append(short_epitope)
                     new_antigen_list.append(short_antigen)
 
