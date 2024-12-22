@@ -435,9 +435,6 @@ class TransformerDecoderTwo(tensorflow.keras.layers.Layer):
         return cls(**config)
 
 
-
-
-
 def my_loss(weight):
     def weighted_cross_entropy_with_logits(labels, logits):
         loss = tf.nn.weighted_cross_entropy_with_logits(

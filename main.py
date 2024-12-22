@@ -14,6 +14,8 @@ if __name__ == '__main__':
     parser.add_argument('--validate', action='store_true', help='Aktiviert die Validierung.')
     parser.add_argument('--predict', action='store_true', help='Aktiviert die Vorhersage.')
     parser.add_argument('--old', action='store_true', help='Verwende das alte Model.')
+    parser.add_argument('--gpu_split', action='store_true', help='Teile das Model auf 4 GPUs auf.')
+    parser.add_argument('--big_dataset', action='store_true', help='Verwende den größeren Datensatz.')
 
     args = parser.parse_args()
 
@@ -25,5 +27,7 @@ if __name__ == '__main__':
               safe=args.save,
               validate=args.validate,
               predict=args.predict,
-              old=args.old)
+              old=args.old,
+              gpu_split=args.gpu_split,
+              big_dataset=args.big_dataset)
 

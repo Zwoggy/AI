@@ -8,7 +8,7 @@ from tensorflow.keras import backend as K
 
 from ai_functionality_new import LayerGroup
 from ai_functionality_old import embedding, modify_with_context, calculating_class_weights, \
-     get_weighted_loss, save_ai, use_model_and_predict, new_embedding
+    get_weighted_loss, save_ai, use_model_and_predict, new_embedding, modify_with_context_big_dataset
 
 import logging
 
@@ -18,7 +18,7 @@ from tensorflow.keras import mixed_precision
 
 
 
-def create_ai(filepath, save_file, output_file, train=False, safe=False,  validate=False, predict=False, old=False):
+def create_ai(filepath, save_file, output_file, train=False, safe=False,  validate=False, predict=False, old=False, gpu_split=False, big_dataset=True):
 
     if old==False:
         from ai_functionality_new import TokenAndPositionEmbedding_for_ESM, TransformerBlock, TransformerDecoderTwo
@@ -41,8 +41,11 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
     epitope_list_full_sequence = epitope_list
 
 
+    if big_dataset:
+        antigen_list, epitope_list, length_of_longest_context = modify_with_context_big_dataset(antigen_list, epitope_list, length_of_longest_sequence)
 
-    epitope_list, antigen_list, length_of_longest_context = modify_with_context(epitope_list, antigen_list,
+    else:
+        epitope_list, antigen_list, length_of_longest_context = modify_with_context(epitope_list, antigen_list,
                                                                                 length_of_longest_sequence)
 
     testy_list, testx_list, length_of_longest_context_2 = modify_with_context(testy_list, testx_list,
@@ -235,44 +238,18 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
 
                 # Nur die Embeddings extrahieren
                 with tf.GradientTape() as tape:
-                    #outputs = esm_model(encoder_inputs, output_hidden_states=True)
-                    # Aufteilen der Transformer-Layers und sie zu Modellen umwandeln
-                    # Extrahiere die Schichten des Modells und teile sie auf
-                    all_layers = esm_model.layers
+                    if gpu_split:
+                        esm_embeddings = split_esm_on_4GPUs(encoder_inputs, esm_model)
+                        x = esm_embeddings
+                        output_dimension = x.shape[-1]  # without mean reduction
 
-                    # Anzahl der Layer teilen und auf GPUs verteilen
-                    num_layers = len(all_layers)
-                    split_size = num_layers // 4
-                    x = encoder_inputs
-                    # Layer-Gruppen erstellen
-                    with tf.device('/GPU:0'):
-                        part1_layers = all_layers[:split_size]
-                        part1_model = LayerGroup(part1_layers)
-                        part1_outputs = part1_model.call(x, training=False)
+                    else:
+                        outputs = esm_model(encoder_inputs, output_hidden_states=True)
+                        esm_embeddings = outputs.hidden_states[-1] #outputs.hidden_states[-1] war am Besten!
+                        # Embedding-Schicht in das Modell einfügen
+                        x = esm_embeddings
 
-                    with tf.device('/GPU:1'):
-                        part2_layers = all_layers[split_size:2 * split_size]
-                        part2_model = LayerGroup(part2_layers)
-                        part2_outputs = part2_model.call(part1_outputs, training=False)
-
-                    with tf.device('/GPU:2'):
-                        part3_layers = all_layers[2 * split_size:3 * split_size]
-                        part3_model = LayerGroup(part3_layers)
-                        part3_outputs = part3_model.call(part2_outputs, training=False)
-
-                    with tf.device('/GPU:3'):
-                        part4_layers = all_layers[3 * split_size:-2]
-                        part4_model = LayerGroup(part4_layers)
-                        outputs = part4_model.call(part3_outputs, training=False)
-
-                    esm_embeddings = outputs[0]
-                    print("These are the outputs",outputs)
-
-                    #esm_embeddings = outputs.hidden_states[-1] #outputs.hidden_states[-1] war am Besten!
-                # Embedding-Schicht in das Modell einfügen
-                x = esm_embeddings
-                output_dimension = x.shape[-1]  # without mean reduction
-                #output_dimension = x.shape[2]  #without mean reduction LATEST
+                        output_dimension = x.shape[2]  #without mean reduction LATEST
                 #output_dimension = x.shape[0]
 
 
@@ -304,7 +281,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                                               tf_keras.metrics.Recall()])
             # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
 
-            history = model.fit(x = antigen_list, y = epitope_list, batch_size = 1, epochs = 100,
+            history = model.fit(x = antigen_list, y = epitope_list, batch_size = 60, epochs = 100,
                             validation_data = (testx_list, testy_list), callbacks = [callback], verbose=1)
         # history = model.fit(x=antigen_list, y=epitope_list, batch_size=50, epochs=100, validation_data=(testx_list, testy_list, testy_for_weights), callbacks=[callback], sample_weight = epitope_list_for_weights)
 
@@ -355,3 +332,34 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
         use_model_and_predict()
     if validate:
         validate_on_45_blind()
+
+
+def split_esm_on_4GPUs(encoder_inputs, esm_model):
+    # outputs = esm_model(encoder_inputs, output_hidden_states=True)
+    # Aufteilen der Transformer-Layers und sie zu Modellen umwandeln
+    # Extrahiere die Schichten des Modells und teile sie auf
+    all_layers = esm_model.layers
+    # Anzahl der Layer teilen und auf GPUs verteilen
+    num_layers = len(all_layers)
+    split_size = num_layers // 4
+    x = encoder_inputs
+    # Layer-Gruppen erstellen
+    with tf.device('/GPU:0'):
+        part1_layers = all_layers[:split_size]
+        part1_model = LayerGroup(part1_layers)
+        part1_outputs = part1_model.call(x, training=False)
+    with tf.device('/GPU:1'):
+        part2_layers = all_layers[split_size:2 * split_size]
+        part2_model = LayerGroup(part2_layers)
+        part2_outputs = part2_model.call(part1_outputs, training=False)
+    with tf.device('/GPU:2'):
+        part3_layers = all_layers[2 * split_size:3 * split_size]
+        part3_model = LayerGroup(part3_layers)
+        part3_outputs = part3_model.call(part2_outputs, training=False)
+    with tf.device('/GPU:3'):
+        part4_layers = all_layers[3 * split_size:-2]
+        part4_model = LayerGroup(part4_layers)
+        outputs = part4_model.call(part3_outputs, training=False)
+    esm_embeddings = outputs[0]
+    print("These are the outputs", outputs)
+    return esm_embeddings

@@ -701,6 +701,72 @@ def modify_with_context(epitope_list, antigen_list, length_of_longest_sequence):
     return new_epitope_list, new_antigen_list, length_of_longest_context
 
 
+def modify_with_context_big_dataset(epitope_list, antigen_list, length_of_longest_sequence):
+    """
+    Die Sequenzen werden in kürzere Stücke aufgeteilt. Für jede Position wird
+    eine Kombination von 1–10 Stellen vor dem Epitope-Start und 1–20 Stellen
+    nach dem Epitope-Ende erzeugt.
+
+    Rückgabewerte:
+        - new_antigen_list: Alle möglichen Antigen-Sequenzen
+        - new_epitope_list: Alle möglichen Epitope-Sequenzen
+        - length_of_longest_context: Neue maximale Sequenzlänge
+    """
+    new_antigen_list = []
+    new_epitope_list = []
+    context_before = 10
+    context_after = 20
+
+    for epitope, antigen in zip(epitope_list, antigen_list):
+        for start_offset in range(1, context_before + 1):
+            for end_offset in range(1, context_after + 1):
+                short_epitope = []
+                short_antigen = []
+
+                start_found = False
+                context_length = 0
+
+                for run, (aminoacid, char) in enumerate(zip(epitope, antigen)):
+                    if aminoacid == 1 and not start_found:
+                        # Beginn der Sequenz mit dem Offset davor
+                        start_index = max(0, run - start_offset)
+                        for i in range(start_index, run):
+                            short_epitope.append(0.0)
+                            short_antigen.append(antigen[i])
+
+                        start_found = True
+
+                    if start_found:
+                        # Epitop hinzufügen
+                        short_epitope.append(float(aminoacid))
+                        short_antigen.append(char)
+
+                        if aminoacid == 1:
+                            context_length = end_offset
+
+                        elif context_length > 0:
+                            context_length -= 1
+                        else:
+                            break
+
+                # Speichern der Kombination
+                new_epitope_list.append(short_epitope)
+                new_antigen_list.append(short_antigen)
+
+    # Maximale Länge berechnen
+    length_of_longest_context = max(len(seq) for seq in new_antigen_list)
+
+    # Padding der Sequenzen
+    new_epitope_list = tf.keras.preprocessing.sequence.pad_sequences(
+        new_epitope_list, maxlen=length_of_longest_context, padding='post', value=0.0
+    )
+    new_antigen_list = tf.keras.preprocessing.sequence.pad_sequences(
+        new_antigen_list, maxlen=length_of_longest_context, padding='post', value=0.0
+    )
+    print(new_antigen_list, new_epitope_list)
+    return new_epitope_list, new_antigen_list, length_of_longest_context
+
+
 def calculating_class_weights(y_true):
     from sklearn.utils.class_weight import compute_class_weight
     #print("y_true: ",y_true)
