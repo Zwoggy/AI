@@ -727,14 +727,18 @@ def modify_with_context_big_dataset(epitope_list, antigen_list, length_of_longes
                 start = True
 
                 for run, (aminoacid, char) in enumerate(zip(epitope, antigen)):
+                    print("YES1")
                     i += 1
                     if aminoacid == 1:
+                        print("YES2")
 
                         if start is True:
+                            print("YES3")
 
                             number = new_start
 
                             while number > 0:
+                                print("YES4")
                                 # short_epitope.append(-1)
                                 short_epitope.append(0.)
                                 short_antigen.append(antigen[run - number])
