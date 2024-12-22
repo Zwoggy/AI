@@ -728,6 +728,7 @@ def modify_with_context_big_dataset(epitope_list, antigen_list, length_of_longes
                 start = True
 
                 for run, (aminoacid, char) in enumerate(zip(epitope, antigen)):
+                    print(aminoacid)
                     print("YES1")
                     i += 1
                     if aminoacid == 1:
