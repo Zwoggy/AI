@@ -754,7 +754,6 @@ def modify_with_context_big_dataset(epitope_list, antigen_list, length_of_longes
                     short_epitope.append(0.)
                     short_antigen.append(char)
                     context_length -= 1
-            print(short_antigen, short_epitope)
             new_epitope_list.append(short_epitope)
             new_antigen_list.append(short_antigen)
             # print(short_antigen)
