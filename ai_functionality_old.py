@@ -711,8 +711,8 @@ def modify_with_context_big_dataset(epitope_list, antigen_list, length_of_longes
     new_antigen_list: list = []
     new_epitope_list: list = []
     decoder_list: list = []
-    end = 0
-    for context in range (10,20):
+    context = 20
+    for end in range (1,5):
         # to cut off 1 to 10 aminoacids from the end for more different sequences in the dataset
         for number in range(1, 10):
             # to cut off 1 to 10 aminoacids from the start for more different sequences in the dataset
