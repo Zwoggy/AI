@@ -712,52 +712,56 @@ def modify_with_context_big_dataset(epitope_list, antigen_list, length_of_longes
     new_epitope_list: list = []
     decoder_list: list = []
     context = 20
-    for number in range(1, 10):
-        for epitope, antigen in zip(epitope_list, antigen_list):
+    for end in range (1,10):
+        for number in range(1, 10):
+            for epitope, antigen in zip(epitope_list, antigen_list):
 
-            short_epitope: list = []
-            short_antigen: list = []
-            context_length = 0
-            i = 0
-            start = True
+                short_epitope: list = []
+                short_antigen: list = []
+                context_length = 0
+                i = 0
+                start = True
 
-            for run, (aminoacid, char) in enumerate(zip(epitope, antigen)):
-                i += 1
-                if aminoacid == 1:
+                for run, (aminoacid, char) in enumerate(zip(epitope, antigen)):
+                    i += 1
+                    if aminoacid == 1:
 
-                    if start is True:
+                        if start is True:
 
-                        while number > 0:
-                            # short_epitope.append(-1)
-                            short_epitope.append(0.)
-                            short_antigen.append(antigen[run - number])
-                            number -= 1
+                            while number > 0:
+                                # short_epitope.append(-1)
+                                short_epitope.append(0.)
+                                short_antigen.append(antigen[run - number])
+                                number -= 1
 
-                    start = False
-                    short_epitope.append(1.)
-                    short_antigen.append(char)
-                    context_length = context
+                        start = False
+                        short_epitope.append(1.)
+                        short_antigen.append(char)
+                        context_length = context
 
-                elif (context_length < 1) and (start is False):
+                    elif (context_length < 1) and (start is False):
 
-                    continue
+                        continue
 
-                elif (aminoacid == -1) and (i < length_of_longest_sequence + 1) and (context_length > 0) and (
-                        start is False):
-                    # short_epitope.append(-1)
-                    short_epitope.append(0.)
-                    short_antigen.append(char)
-                    context_length -= 1
+                    elif (aminoacid == -1) and (i < length_of_longest_sequence + 1) and (context_length > 0) and (
+                            start is False):
+                        # short_epitope.append(-1)
+                        short_epitope.append(0.)
+                        short_antigen.append(char)
+                        context_length -= 1
 
-                elif (aminoacid == 0) and (i < length_of_longest_sequence + 1) and (context_length > 0) and (
-                        start is False):
-                    short_epitope.append(0.)
-                    short_antigen.append(char)
-                    context_length -= 1
-            new_epitope_list.append(short_epitope)
-            new_antigen_list.append(short_antigen)
-            # print(short_antigen)
-            # print(short_epitope)
+                    elif (aminoacid == 0) and (i < length_of_longest_sequence + 1) and (context_length > 0) and (
+                            start is False):
+                        short_epitope.append(0.)
+                        short_antigen.append(char)
+                        context_length -= 1
+
+                short_epitope = short_epitope[:-end]
+                short_antigen = short_antigen[:-end]
+                new_epitope_list.append(short_epitope)
+                new_antigen_list.append(short_antigen)
+                # print(short_antigen)
+                # print(short_epitope)
 
     length_of_longest_context = int(len(max(new_antigen_list, key = len)))
     # print(short_epitope)
