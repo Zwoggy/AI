@@ -702,86 +702,71 @@ def modify_with_context(epitope_list, antigen_list, length_of_longest_sequence):
 
 
 def modify_with_context_big_dataset(epitope_list, antigen_list, length_of_longest_sequence):
-    """
-    Die Sequenzen werden in kürzere Stücke aufgeteilt. Für jede Position wird
-    eine Kombination von 1–10 Stellen vor dem Epitope-Start und 1–20 Stellen
-    nach dem Epitope-Ende erzeugt.
+    """ The sequences are going to be cut into shorter pieces, where the first aminoacid being part of an epitope is marked as the start.
+        A random number of non-epitope aminoacids will be added infront of the starting epitope.
 
-    Rückgabewerte:
-        - new_antigen_list: Alle möglichen Antigen-Sequenzen
-        - new_epitope_list: Alle möglichen Epitope-Sequenzen
-        - length_of_longest_context: Neue maximale Sequenzlänge
-    """
+        context: defines the length after which the sequence will be cut if no epitope was found.
+
+        returns the new antigen(actually protein) and epitope list aswell as the new length of the longest sequence to which every new sequence is padded."""
     new_antigen_list: list = []
     new_epitope_list: list = []
     decoder_list: list = []
     context = 20
-    for epitope, antigen in zip(epitope_list, antigen_list):
+    for number in range(1, 10):
+        for epitope, antigen in zip(epitope_list, antigen_list):
 
-        for new_end in range(1,20):
-            for new_start in range(1,10):
-                short_epitope: list = []
-                short_antigen: list = []
-                context_length = 0
-                i = 0
-                start = True
+            short_epitope: list = []
+            short_antigen: list = []
+            context_length = 0
+            i = 0
+            start = True
 
-                for run, (aminoacid, char) in enumerate(zip(epitope, antigen)):
-                    print(aminoacid)
-                    print("YES1")
-                    i += 1
-                    if aminoacid == 1:
-                        print("YES2")
+            for run, (aminoacid, char) in enumerate(zip(epitope, antigen)):
+                i += 1
+                if aminoacid == 1:
 
-                        if start is True:
-                            print("YES3")
+                    if start is True:
 
-                            number = new_start
+                        while number > 0:
+                            # short_epitope.append(-1)
+                            short_epitope.append(0.)
+                            short_antigen.append(antigen[run - number])
+                            number -= 1
 
-                            while number > 0:
-                                print("YES4")
-                                # short_epitope.append(-1)
-                                short_epitope.append(0.)
-                                short_antigen.append(antigen[run - number])
-                                number -= 1
+                    start = False
+                    short_epitope.append(1.)
+                    short_antigen.append(char)
+                    context_length = context
 
-                        start = False
-                        short_epitope.append(1.)
-                        short_antigen.append(char)
-                        context_length = context
+                elif (context_length < 1) and (start is False):
 
-                    elif (context_length < 1) and (start is False):
+                    continue
 
-                        continue
+                elif (aminoacid == -1) and (i < length_of_longest_sequence + 1) and (context_length > 0) and (
+                        start is False):
+                    # short_epitope.append(-1)
+                    short_epitope.append(0.)
+                    short_antigen.append(char)
+                    context_length -= 1
 
-                    elif (aminoacid == -1) and (i < length_of_longest_sequence + 1) and (context_length > 0) and (
-                            start is False):
-                        # short_epitope.append(-1)
-                        short_epitope.append(0.)
-                        short_antigen.append(char)
-                        context_length -= 1
+                elif (aminoacid == 0) and (i < length_of_longest_sequence + 1) and (context_length > 0) and (
+                        start is False):
+                    short_epitope.append(0.)
+                    short_antigen.append(char)
+                    context_length -= 1
+            print(short_antigen, short_epitope)
+            new_epitope_list.append(short_epitope)
+            new_antigen_list.append(short_antigen)
+            # print(short_antigen)
+            # print(short_epitope)
 
-                    elif (aminoacid == 0) and (i < length_of_longest_sequence + 1) and (context_length > 0) and (
-                            start is False):
-                        short_epitope.append(0.)
-                        short_antigen.append(char)
-                        context_length -= 1
-                    short_epitope = short_epitope[:(new_end - context_length)]
-                    short_antigen = short_antigen[:(new_end - context_length)]
-                    print(short_antigen, short_epitope)
-                new_epitope_list.append(short_epitope)
-                new_antigen_list.append(short_antigen)
-
-                # print(short_antigen)
-                # print(short_epitope)
-
-    length_of_longest_context = int(len(max(new_antigen_list, key=len)))
+    length_of_longest_context = int(len(max(new_antigen_list, key = len)))
     # print(short_epitope)
     length_of_longest_context = 235
-    new_epitope_list = tf_keras.preprocessing.sequence.pad_sequences(new_epitope_list, maxlen=length_of_longest_context,
-                                                                     padding='post', value=0)
-    new_antigen_list = tf_keras.preprocessing.sequence.pad_sequences(new_antigen_list, maxlen=length_of_longest_context,
-                                                                     padding='post', value=0)
+    new_epitope_list = tf_keras.preprocessing.sequence.pad_sequences(new_epitope_list, maxlen = length_of_longest_context,
+                                                                  padding = 'post', value = 0)
+    new_antigen_list = tf_keras.preprocessing.sequence.pad_sequences(new_antigen_list, maxlen = length_of_longest_context,
+                                                                  padding = 'post', value = 0)
 
     return new_epitope_list, new_antigen_list, length_of_longest_context
 
