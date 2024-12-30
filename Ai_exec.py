@@ -8,7 +8,8 @@ from tensorflow.keras import backend as K
 
 from ai_functionality_new import LayerGroup
 from ai_functionality_old import embedding, modify_with_context, calculating_class_weights, \
-    get_weighted_loss, save_ai, use_model_and_predict, new_embedding, modify_with_context_big_dataset
+    get_weighted_loss, save_ai, use_model_and_predict, new_embedding, modify_with_context_big_dataset, \
+    embedding_incl_structure
 
 import logging
 
@@ -18,14 +19,17 @@ from tensorflow.keras import mixed_precision
 
 
 
-def create_ai(filepath, save_file, output_file, train=False, safe=False,  validate=False, predict=False, old=False, gpu_split=False, big_dataset=True):
+def create_ai(filepath, save_file, output_file, train=False, safe=False,  validate=False, predict=False, old=False, gpu_split=False, big_dataset=True, use_structure=False):
 
     if old==False:
         from ai_functionality_new import TokenAndPositionEmbedding_for_ESM, TransformerBlock, TransformerDecoderTwo
     else: from ai_functionality_old import TransformerBlock, TransformerDecoderTwo, TokenAndPositionEmbedding
 
-
-    embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder = embedding(filepath, old=old)
+    if use_structure:
+        embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder, structure_data = embedding_incl_structure(filepath, pdb_dir="./data/alphafold_structures_02", old=old)
+        print(structure_data)
+    else:
+        embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder = embedding(filepath, old=old)
 
 
 
@@ -67,7 +71,10 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
         testx_list = np.array(testx_list, dtype = np.float32)
         testx_list = np.reshape(testx_list, (testx_list.shape[0], testx_list.shape[1], 1))
 
-
+    if use_structure:
+        training_data = get_training_data(antigen_list)
+    else:
+        training_data = antigen_list
 
 
 
@@ -288,7 +295,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
                                               tf_keras.metrics.Recall()])
             # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
 
-            history = model.fit(x = antigen_list, y = epitope_list, batch_size = 200, epochs = 100,
+            history = model.fit(x = training_data, y = epitope_list, batch_size = 200, epochs = 100,
                             validation_data = (testx_list, testy_list), callbacks = [callback], verbose=1)
         # history = model.fit(x=antigen_list, y=epitope_list, batch_size=50, epochs=100, validation_data=(testx_list, testy_list, testy_for_weights), callbacks=[callback], sample_weight = epitope_list_for_weights)
 
@@ -341,9 +348,13 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
         validate_on_45_blind()
 
 
+def get_training_data(antigen_list, structure_data):
+    return [antigen_list, structure_data]
+
+
 def split_esm_on_4GPUs(encoder_inputs, esm_model):
     # outputs = esm_model(encoder_inputs, output_hidden_states=True)
-    # Aufteilen der Transformer-Layers und sie zu Modellen umwandeln
+    # Aufteilen der Transformer-Layer und sie zu Modellen umwandeln
     # Extrahiere die Schichten des Modells und teile sie auf
     all_layers = esm_model.layers
     # Anzahl der Layer teilen und auf GPUs verteilen

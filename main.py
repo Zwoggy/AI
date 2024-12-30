@@ -16,7 +16,7 @@ if __name__ == '__main__':
     parser.add_argument('--old', action='store_true', help='Verwende das alte Model.')
     parser.add_argument('--gpu_split', action='store_true', help='Teile das Model auf 4 GPUs auf.')
     parser.add_argument('--big_dataset', action='store_true', help='Verwende den größeren Datensatz.')
-
+    parser.add_argument('--use_structure', action='store_true', help='Verwende die von Alphafold 2 vorhergesagten Strukturen.')
     args = parser.parse_args()
 
     # Verwende den Standardpfad, wenn --filepath nicht angegeben ist
@@ -29,5 +29,6 @@ if __name__ == '__main__':
               predict=args.predict,
               old=args.old,
               gpu_split=args.gpu_split,
-              big_dataset=args.big_dataset)
+              big_dataset=args.big_dataset,
+              use_structure=args.use_structure)
 

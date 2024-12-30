@@ -50,6 +50,57 @@ random.seed(10)
 tf.random.set_seed(10)
 
 
+def extract_sequence_from_pdb_simple(pdb_file_path):
+    """
+    Extracts the amino acid sequence from a PDB file based on residue information.
+    """
+    three_to_one = {
+        'ALA': 'A', 'ARG': 'R', 'ASN': 'N', 'ASP': 'D',
+        'CYS': 'C', 'GLN': 'Q', 'GLU': 'E', 'GLY': 'G',
+        'HIS': 'H', 'ILE': 'I', 'LEU': 'L', 'LYS': 'K',
+        'MET': 'M', 'PHE': 'F', 'PRO': 'P', 'SER': 'S',
+        'THR': 'T', 'TRP': 'W', 'TYR': 'Y', 'VAL': 'V'
+    }
+
+    sequence = []
+    with open(pdb_file_path, 'r') as file:
+        for line in file:
+            if line.startswith("ATOM") and line[13:15] == "CA":  # Alpha carbons denote residues
+                residue_name = line[17:20].strip()
+                sequence.append(three_to_one.get(residue_name, 'X'))  # Use 'X' for unknown residues
+
+    return ''.join(sequence)
+
+
+def load_structure_data(pdb_dir, sequence_list):
+    """
+    Load structural data for each sequence from corresponding PDB files.
+
+    Parameters:
+    ----------
+    pdb_dir : str
+        Directory containing PDB files.
+    sequence_list : list
+        List of sequences for which structural data needs to be retrieved.
+
+    Returns:
+    ----------
+    list
+        List of structural data corresponding to the sequences.
+    """
+    structure_data = []
+    for sequence in sequence_list:
+        matched_structure = None
+        for pdb_file in os.listdir(pdb_dir):
+            pdb_path = os.path.join(pdb_dir, pdb_file)
+            if pdb_file.endswith('.pdb'):
+                pdb_sequence = extract_sequence_from_pdb_simple(pdb_path)
+                if pdb_sequence == sequence:
+                    matched_structure = pdb_file
+                    break
+        structure_data.append(matched_structure if matched_structure else None)
+    return structure_data
+
 def read_data(filepath):
     df = pd.read_excel(filepath, skiprows = [-1])
 
@@ -95,7 +146,6 @@ def read_data(filepath):
             sequence_as_aminoacids_list.append(sequence_as_sentence)
 
     return sequence_as_aminoacids_list, epitope_embed_list
-
 
 def embedding(filepath, old=False):
     """
@@ -159,7 +209,74 @@ def embedding(filepath, old=False):
 
     # embedded_docs = np.array(embedded_docs)
 
+
     return embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder
+
+
+def embedding_incl_structure(filepath, pdb_dir, old=False):
+    """
+    Embeds sequences and epitope data from a given filepath.
+
+    Parameters:
+    ----------
+    filepath : str
+        Path to the file containing the sequence and epitope data.
+    old : bool, optional
+        Flag to determine the usage of the old embedding method (default is False).
+
+    Returns:
+    ----------
+    tuple or None
+        returns a tuple of:
+        - embedded_docs: numpy.ndarray
+            Embedded sequences of the same length.
+        - epitope_embed_list: numpy.ndarray
+            Padded sequences of epitope embeddings.
+        - voc_size: int
+            The vocabulary size used for embedding.
+        - length_of_longest_sequence: int
+            The length of the longest sequence used in padding.
+        - encoder: keras.preprocessing.text.Tokenizer
+            The tokenizer used for embedding the sequences.
+    """
+
+    sequence_list, epitope_embed_list = read_data(filepath)
+
+    voc_size = 100
+
+    length_of_longest_sequence = int(len(max(sequence_list, key = len)) / 2)
+
+    epitope_embed_list = pad_sequences(epitope_embed_list, maxlen=length_of_longest_sequence,
+                                       padding='post', value=0)
+    encoder = text.Tokenizer(num_words = 1000, char_level = True,  oov_token="X")
+    """
+    with open('./AI/tokenizer.pickle', 'rb') as handle:
+        encoder = pickle.load(handle)
+    """
+    """Usage for the old AI"""
+    # loading
+
+
+    encoder.fit_on_texts(sequence_list)
+    pre_embedded_docs = encoder.texts_to_sequences(sequence_list)
+    # saving
+
+    #with open('/content/drive/MyDrive/ifp/tokenizer.pickle', 'wb') as handle:
+    #  pickle.dump(encoder, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    #print(encoder.word_index)
+
+    embedded_docs = pad_sequences(pre_embedded_docs, maxlen = length_of_longest_sequence,
+                                                            padding = 'post', value = 0)
+
+
+    # embedded_docs = np.array(embedded_docs)
+
+    max_len_antigen: int = len(max(epitope_embed_list, key = len))
+
+    # embedded_docs = np.array(embedded_docs)
+    structure_data = load_structure_data(pdb_dir, sequence_list)
+
+    return embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder, structure_data
 
 
 
