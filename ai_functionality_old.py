@@ -76,6 +76,9 @@ def load_structure_data(pdb_dir, sequence_list):
     """
     Load structural data for each sequence from corresponding PDB files.
 
+    The sequence from the sequence list must fully exist as a substring
+    in the sequence extracted from the PDB file.
+
     Parameters:
     ----------
     pdb_dir : str
@@ -86,20 +89,30 @@ def load_structure_data(pdb_dir, sequence_list):
     Returns:
     ----------
     list
-        List of structural data corresponding to the sequences.
+        List of structural data corresponding to the sequences, with None for sequences without matches.
     """
+    used_pdb_files = set()  # To track used PDB files
     structure_data = []
+
     for sequence in sequence_list:
         matched_structure = None
+
         for pdb_file in os.listdir(pdb_dir):
+            if pdb_file in used_pdb_files:  # Skip already used files
+                continue
+
             pdb_path = os.path.join(pdb_dir, pdb_file)
             if pdb_file.endswith('.pdb'):
                 pdb_sequence = extract_sequence_from_pdb_simple(pdb_path)
-                if pdb_sequence == sequence:
+                if sequence in pdb_sequence:  # Check if the sequence exists in the PDB sequence
                     matched_structure = pdb_file
+                    used_pdb_files.add(pdb_file)  # Mark this file as used
                     break
+
         structure_data.append(matched_structure if matched_structure else None)
+
     return structure_data
+
 
 def read_data(filepath):
     df = pd.read_excel(filepath, skiprows = [-1])
