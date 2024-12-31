@@ -110,7 +110,8 @@ def load_structure_data(pdb_dir, sequence_list):
                     break
 
         structure_data.append(matched_structure if matched_structure else None)
-
+    none_count = structure_data.count(None)
+    print(none_count)
     return structure_data
 
 
