@@ -111,7 +111,14 @@ def load_structure_data(pdb_dir, sequence_list):
 
         structure_data.append(matched_structure if matched_structure else None)
     none_count = structure_data.count(None)
-    print(none_count)
+    print(f"Anzahl der None-Einträge: {none_count}")
+    pdb_count = sum(1 for item in structure_data if item and item.endswith('.pdb'))
+    print(f"Anzahl der .pdb-Dateien: {pdb_count}")
+    total_length = len(structure_data)
+    print(f"Gesamtlänge der Liste: {total_length}")
+    missing_files = total_length - (none_count + pdb_count)
+    print(f"Fehlende Einträge: {missing_files}")
+
     return structure_data
 
 
