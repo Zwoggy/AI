@@ -8,7 +8,7 @@ def validate_on_45_blind():
     # Assuming load_model_and_tokenizer() and evaluate_model() are defined elsewhere
     model, encoder = load_model_and_tokenizer()
     # Read the DataFrame with the sequences and the binary epitope
-    df = pd.read_csv('./AI/data/epitope3d_dataset_45_Blind_Test_translated.csv')  # Update with your actual file path
+    df = pd.read_csv('./AI/data/epitope3d_dataset_45_Blind_Test_manual_with_epitopes2.csv')
     # Prepare lists for modification
     epitope_list = [np.array([int(x) for x in row['Epitope 0/1 Sequence']]) for idx, row in df.iterrows()]
     antigen_list = [row['Raw Sequence'] for idx, row in df.iterrows()]
