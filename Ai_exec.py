@@ -349,6 +349,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
 
 
 def get_training_data(antigen_list, structure_data):
+    """returns a list of training data for the model where antigen_list contains the sequences and structure_data the corresponding structures"""
     return [antigen_list, structure_data]
 
 

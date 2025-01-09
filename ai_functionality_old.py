@@ -1458,17 +1458,17 @@ def use_model_and_predict_45_blind(sequence, model, encoder):
 def load_model_and_tokenizer():
     """Lädt das Modell und den Tokenizer."""
     # Lade das Modell
-    model = load_model('G:/Users/tinys/PycharmProjects/teststuff/AI/final_AI',
+    model = load_model('./AI/final_AI',
                        custom_objects={'TransformerBlock': TransformerBlock,
                                        'TokenAndPositionEmbedding': TokenAndPositionEmbedding,
                                        'TransformerDecoder': TransformerDecoder,
                                        "weighted_loss": get_weighted_loss},
                        compile=False)
     # Lade die Gewichte
-    model.load_weights('G:/Users/tinys/PycharmProjects/teststuff/AI/final_AI_weights')
+    model.load_weights('./AI/final_AI_weights')
     model.compile()
     # Lade den Tokenizer
-    with open('G:/Users/tinys/PycharmProjects/teststuff/AI/tokenizer.pickle', 'rb') as handle:
+    with open('./AI/tokenizer.pickle', 'rb') as handle:
         encoder = pickle.load(handle)
 
     return model, encoder
