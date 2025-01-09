@@ -11,6 +11,7 @@ def validate_on_45_blind():
     df = pd.read_csv('./data/epitope3d_dataset_45_Blind_Test_manual_with_epitopes2.csv')
     # Prepare lists for modification
     epitope_list = [np.array([int(x) for x in row['Epitope Sequence']]) for idx, row in df.iterrows()]
+    print("epitope_list", epitope_list)
     antigen_list = [row['Sequence'] for idx, row in df.iterrows()]
     # Modify the sequences and get padded results
     modified_antigen_list, modified_epitope_list, padded_length = modify_with_context(antigen_list, epitope_list, 235)
