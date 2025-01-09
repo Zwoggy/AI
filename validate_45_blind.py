@@ -15,6 +15,7 @@ def validate_on_45_blind():
     antigen_list = [row['Sequence'] for idx, row in df.iterrows()]
     # Modify the sequences and get padded results
     modified_antigen_list, modified_epitope_list, padded_length = modify_with_context(antigen_list, epitope_list, 235)
+    print("modified_epitope_list", modified_epitope_list)
     # Evaluate the model with modified sequences
     results = []
     for idx, (pdb_id, padded_sequence, true_binary_epitope) in enumerate(
