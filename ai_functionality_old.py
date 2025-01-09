@@ -1479,6 +1479,8 @@ def evaluate_model(model, encoder, sequence, true_binary_epitope):
     predictions = use_model_and_predict_45_blind(sequence, model, encoder)
 
     # Da das Modell Wahrscheinlichkeiten ausgibt, runde auf 0 oder 1
+    print(true_binary_epitope[0])
+    print(predictions[0])
     predicted_binary = np.where(predictions >= 0.5, 1, 0)
 
     # Berechne die Metriken
