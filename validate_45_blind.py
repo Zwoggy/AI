@@ -14,20 +14,19 @@ def validate_on_45_blind():
     # Prepare lists for modification
     epitope_list = [np.array([-1 if int(x) == 0 else int(x) for x in row['Epitope Sequence']]) for idx, row in df.iterrows()]
 
-    print("epitope_list", epitope_list)
     antigen_list = [row['Sequence'] for idx, row in df.iterrows()]
     with open('./AI/tokenizer.pickle', 'rb') as handle:
         encoder = pickle.load(handle)
     antigen_list = encoder.texts_to_sequences(antigen_list)
     # Modify the sequences and get padded results
     modified_epitope_list, modified_antigen_list, padded_length = modify_with_context(epitope_list, antigen_list, length_of_longest_sequence=235) #ERROR HERE
-    print("modified_epitope_list", modified_epitope_list[0])
     # Evaluate the model with modified sequences
     results = []
     for idx, (pdb_id, padded_sequence, true_binary_epitope) in enumerate(
             zip(df['PDB ID'], modified_antigen_list, modified_epitope_list)):
         # Convert the padded sequence back to a string if needed
         padded_sequence_str = ''.join([char for char in padded_sequence.astype(str)])
+        print(padded_sequence_str)
 
         # Calculate AUC, Recall, Precision, and F1
         recall, precision, f1 = evaluate_model(model, encoder, [padded_sequence_str], true_binary_epitope)
