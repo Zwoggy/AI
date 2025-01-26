@@ -25,7 +25,7 @@ def validate_on_45_blind():
     for idx, (pdb_id, padded_sequence, true_binary_epitope) in enumerate(
             zip(df['PDB ID'], modified_antigen_list, modified_epitope_list)):
         # Convert the padded sequence back to a string if needed
-        padded_sequence_str = ''.join([char for char in padded_sequence.astype(str)])
+        padded_sequence_str = ''.join([", " + char for char in padded_sequence.astype(str)])
         print(padded_sequence_str)
 
         # Calculate AUC, Recall, Precision, and F1
