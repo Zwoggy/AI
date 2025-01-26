@@ -1,3 +1,5 @@
+import pickle
+
 from ai_functionality_old import load_model_and_tokenizer, modify_with_context, evaluate_model
 
 
@@ -14,6 +16,9 @@ def validate_on_45_blind():
 
     print("epitope_list", epitope_list)
     antigen_list = [row['Sequence'] for idx, row in df.iterrows()]
+    with open('./AI/tokenizer.pickle', 'rb') as handle:
+        encoder = pickle.load(handle)
+    antigen_list = encoder.texts_to_sequences(antigen_list)
     # Modify the sequences and get padded results
     modified_antigen_list, modified_epitope_list, padded_length = modify_with_context(epitope_list, antigen_list, length_of_longest_sequence=235) #ERROR HERE
     print("modified_epitope_list", modified_epitope_list[0])
