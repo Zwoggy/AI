@@ -20,7 +20,7 @@ def validate_on_45_blind():
         encoder = pickle.load(handle)
     antigen_list = encoder.texts_to_sequences(antigen_list)
     # Modify the sequences and get padded results
-    modified_antigen_list, modified_epitope_list, padded_length = modify_with_context(epitope_list, antigen_list, length_of_longest_sequence=235) #ERROR HERE
+    modified_epitope_list, modified_antigen_list, padded_length = modify_with_context(epitope_list, antigen_list, length_of_longest_sequence=235) #ERROR HERE
     print("modified_epitope_list", modified_epitope_list[0])
     # Evaluate the model with modified sequences
     results = []
