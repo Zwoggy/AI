@@ -833,6 +833,7 @@ def modify_with_context(epitope_list, antigen_list, length_of_longest_sequence):
     length_of_longest_context = 235
     new_epitope_list = tf_keras.preprocessing.sequence.pad_sequences(new_epitope_list, maxlen = length_of_longest_context,
                                                                   padding = 'post', value = 0)
+    print(new_antigen_list) # debug
     new_antigen_list = tf_keras.preprocessing.sequence.pad_sequences(new_antigen_list, maxlen = length_of_longest_context,
                                                                   padding = 'post', value = 0)
 
