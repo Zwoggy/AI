@@ -10,7 +10,8 @@ def validate_on_45_blind():
     # Read the DataFrame with the sequences and the binary epitope
     df = pd.read_csv('./data/epitope3d_dataset_45_Blind_Test_manual_with_epitopes2.csv')
     # Prepare lists for modification
-    epitope_list = [np.array([int(x) for x in row['Epitope Sequence']]) for idx, row in df.iterrows()]
+    epitope_list = [np.array([-1 if int(x) == 0 else int(x) for x in row['Epitope Sequence']]) for idx, row in df.iterrows()]
+
     print("epitope_list", epitope_list)
     antigen_list = [row['Sequence'] for idx, row in df.iterrows()]
     # Modify the sequences and get padded results
