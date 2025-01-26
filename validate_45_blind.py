@@ -24,12 +24,13 @@ def validate_on_45_blind():
     results = []
     for idx, (pdb_id, padded_sequence, true_binary_epitope) in enumerate(
             zip(df['PDB ID'], modified_antigen_list, modified_epitope_list)):
+        padded_sequence_list = []
         # Convert the padded sequence back to a string if needed
-        padded_sequence_str = ''.join([", " + char for char in padded_sequence.astype(str)])
-        print(padded_sequence_str)
+        padded_sequence_list = padded_sequence_list.append([[float(char)] for char in padded_sequence.astype(str)])
+        print(padded_sequence_list)
 
         # Calculate AUC, Recall, Precision, and F1
-        recall, precision, f1 = evaluate_model(model, encoder, [padded_sequence_str], true_binary_epitope)
+        recall, precision, f1 = evaluate_model(model, encoder, [padded_sequence_list], true_binary_epitope)
 
         # Store the results
         results.append({
