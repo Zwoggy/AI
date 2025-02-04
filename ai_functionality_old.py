@@ -1444,12 +1444,11 @@ def use_model_and_predict_45_blind(sequence, model, encoder):
     sequence_list = split_string(sequence)
 
     # Encode die Sequenz mit dem gespeicherten Tokenizer
-    pre_embedded_docs = encoder.texts_to_sequences(sequence_list)
-    embedded_docs = pad_sequences(pre_embedded_docs, maxlen=235, padding='post',
-                                                                  value=0)
+    #pre_embedded_docs = encoder.texts_to_sequences(sequence_list)
+    #embedded_docs = pad_sequences(pre_embedded_docs, maxlen=235, padding='post', value=0)
 
     # Vorhersagen
-    predictions = model.predict(embedded_docs)
+    predictions = model.predict(sequence_list)
 
     # Reduziere die Vorhersagen auf 1D
     return predictions.flatten()[:235]
