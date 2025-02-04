@@ -1447,9 +1447,10 @@ def use_model_and_predict_45_blind(sequence, model, encoder):
     #pre_embedded_docs = encoder.texts_to_sequences(sequence_list)
     #embedded_docs = pad_sequences(pre_embedded_docs, maxlen=235, padding='post', value=0)
 
-    # Vorhersagen
-    predictions = model.predict(sequence)
+    seq_reshaped = np.expand_dims(sequence, axis=0)
 
+    # Vorhersagen
+    predictions = model.predict(seq_reshaped)
     # Reduziere die Vorhersagen auf 1D
     return predictions.flatten()[:235]
 
