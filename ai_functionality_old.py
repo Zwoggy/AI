@@ -1482,7 +1482,7 @@ def evaluate_model(model, encoder, sequence, true_binary_epitope):
     # print(true_binary_epitope)
     # print(predictions)
     predicted_binary = np.where(predictions >= 0.5, 1, 0)
-    print(predicted_binary)
+    print(predicted_binary, print("true_binary_epitope"), true_binary_epitope)
     # Berechne die Metriken
     #auc = roc_auc_score(true_binary_epitope, predictions)
     recall = recall_score(true_binary_epitope, predicted_binary)
