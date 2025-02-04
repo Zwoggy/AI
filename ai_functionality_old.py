@@ -1441,14 +1441,14 @@ Use use_model_and_predict() to use the model for prediction.
 def use_model_and_predict_45_blind(sequence, model, encoder):
     """Verwendet ein Modell zur Vorhersage einer Sequenz und gibt die Wahrscheinlichkeiten zurück."""
     # Sequence in eine Liste aufsplitten
-    sequence_list = split_string(sequence)
+    #sequence_list = split_string(sequence)
 
     # Encode die Sequenz mit dem gespeicherten Tokenizer
     #pre_embedded_docs = encoder.texts_to_sequences(sequence_list)
     #embedded_docs = pad_sequences(pre_embedded_docs, maxlen=235, padding='post', value=0)
 
     # Vorhersagen
-    predictions = model.predict(sequence_list)
+    predictions = model.predict(sequence)
 
     # Reduziere die Vorhersagen auf 1D
     return predictions.flatten()[:235]
