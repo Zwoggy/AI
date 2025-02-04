@@ -1488,6 +1488,7 @@ def evaluate_model(model, encoder, sequence, true_binary_epitope):
     recall = recall_score(true_binary_epitope, predicted_binary)
     precision = precision_score(true_binary_epitope, predicted_binary)
     f1 = f1_score(true_binary_epitope, predicted_binary)
+    print(recall, precision, f1)
 
     return recall, precision, f1 #,auc
 
