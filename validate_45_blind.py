@@ -74,7 +74,7 @@ def validate_on_45_blind():
         pdb_id = df['PDB ID'].iloc[idx]
 
         # Beispielhafter Aufruf
-        recall, precision, f1 = evaluate_model(model, encoder, [seq], epi)
+        recall, precision, f1 = evaluate_model(model, encoder, seq, epi)
 
         results.append({
             'PDB ID': pdb_id,
