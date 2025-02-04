@@ -56,6 +56,7 @@ def validate_on_45_blind():
     # Die erfassten Sequenzen mithilfe des Tokenizers in Zahlen umwandeln
     encoded_sequences = encoder.texts_to_sequences(sequence_list)
 
+
     # Alle Sequenzen auf Länge 235 polstern (Padding mit 0)
     padded_sequences = sequence.pad_sequences(encoded_sequences, maxlen=fixed_length,
                                               padding='post', value=0)
@@ -65,6 +66,7 @@ def validate_on_45_blind():
     padded_epitope_list = sequence.pad_sequences(epitope_list, maxlen=fixed_length,
                                                  padding='post', value=0)
 
+    print(padded_sequences[0])
     # Modell evaluieren – je nach Bedarf anpassen. Die Funktion evaluate_model
     # muss ggf. so geschrieben sein, dass sie die Listen verarbeiten kann.
     results = []
