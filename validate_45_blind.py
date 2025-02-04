@@ -66,7 +66,7 @@ def validate_on_45_blind():
     padded_epitope_list = sequence.pad_sequences(epitope_list, maxlen=fixed_length,
                                                  padding='post', value=0)
 
-    print(padded_sequences[0])
+    print("Anzahl der Sequenzen: ",len(padded_sequences))
     # Modell evaluieren – je nach Bedarf anpassen. Die Funktion evaluate_model
     # muss ggf. so geschrieben sein, dass sie die Listen verarbeiten kann.
     results = []
@@ -87,7 +87,7 @@ def validate_on_45_blind():
 
     # Ergebnisse in CSV speichern
     results_df = pd.DataFrame(results)
-    results_df.to_csv('evaluation_results_2.csv', index=False)
+    results_df.to_csv('./data/evaluation_results_2.csv', index=False)
     print("Evaluation abgeschlossen und in 'evaluation_results.csv' gespeichert.")
 
 
