@@ -389,7 +389,7 @@ import numpy as np
 from sklearn.metrics import confusion_matrix
 
 
-def analyze_amino_acids_in_validation_data(model, validation_sequences, validation_labels, encoder):
+def analyze_amino_acids_in_validation_data(model, validation_sequences, validation_labels, encoder, batch_size=4):
     """
     Bestimmt für alle Aminosäuren in den Validierungsdaten,
     wie oft sie als Epitope gekennzeichnet sind bzw. vorhergesagt werden,
@@ -406,11 +406,19 @@ def analyze_amino_acids_in_validation_data(model, validation_sequences, validati
         im selben Format/Shape wie validation_sequences.
     encoder : <Encoder-Klasse>
         Encoder (oder Mapping), der Indizes zu Aminosäure-Symbolen umwandelt.
+    batch_size : int
+        Größe der Batches, in denen vorhersagt wird.
     """
 
-    # Vorhersagen vom Modell holen (Shape sollte dem der validation_labels entsprechen)
-    predictions = model.predict(validation_sequences)  # Form: (batch_size, seq_length, 1) o.Ä.
-    predictions = (predictions > 0.5).astype(int)  # In 0/1 konvertieren
+    # 1) Vorhersagen in kleineren Batches holen
+    all_predictions = []
+    for i in range(0, len(validation_sequences), batch_size):
+        batch_seq = validation_sequences[i:i+batch_size]
+        batch_pred = model.predict(batch_seq)
+        batch_pred = (batch_pred > 0.5).astype(int)  # In 0/1 konvertieren
+        all_predictions.append(batch_pred)
+    # Gesamte Vorhersage zusammenführen
+    predictions = np.concatenate(all_predictions, axis=0)
 
     # Statistik-Strukturen vorbereiten
     amino_acid_counts_total = {}
@@ -418,7 +426,6 @@ def analyze_amino_acids_in_validation_data(model, validation_sequences, validati
     amino_acid_counts_epitope_predicted = {}
 
     # Zum Speichern der Confusionsmatrix pro Aminosäure
-    # dict: Aminosäure -> [TP, FP, FN, TN] oder als Sklearn-Matrix
     confusion_matrices = {}
 
     # Durch alle Sequenzen und Positionen iterieren
@@ -440,14 +447,11 @@ def analyze_amino_acids_in_validation_data(model, validation_sequences, validati
 
             # Zähler, falls in Prediction ein Epitope
             if pred_label == 1:
-                amino_acid_counts_epitope_predicted[aa_symbol] = amino_acid_counts_epitope_predicted.get(aa_symbol,
-                                                                                                         0) + 1
+                amino_acid_counts_epitope_predicted[aa_symbol] = \
+                    amino_acid_counts_epitope_predicted.get(aa_symbol, 0) + 1
 
     # Für die Confusionsmatrix werden alle Positionen derselben Aminosäure
     # gesammelt und einmalig gegenübergestellt
-    # (Alternativ: man könnte Position für Position als Einzelbeispiel werten)
-
-    # Alle gefundenen Aminosäuren ermitteln
     all_amino_acids = list(amino_acid_counts_total.keys())
 
     for aa_symbol in all_amino_acids:
@@ -463,11 +467,10 @@ def analyze_amino_acids_in_validation_data(model, validation_sequences, validati
                     aa_pred_labels.append(int(pred_labels[pos_idx]))
 
         # Confusionsmatrix erstellen
-        # confusion_matrix liefert eine 2x2-Matrix in der Reihenfolge [ [TN, FP], [FN, TP] ]
         cm = confusion_matrix(aa_true_labels, aa_pred_labels, labels=[0, 1])
         confusion_matrices[aa_symbol] = cm
 
-    # Ausgabe oder Rückgabe der Ergebnisse
+    # Ausgabe der Ergebnisse
     for aa_symbol in all_amino_acids:
         total = amino_acid_counts_total[aa_symbol]
         true_epi = amino_acid_counts_epitope_true.get(aa_symbol, 0)
@@ -481,6 +484,15 @@ def analyze_amino_acids_in_validation_data(model, validation_sequences, validati
         print("Confusionsmatrix (TN, FP / FN, TP):")
         print(cm)
         print("------------------------------------------------\n")
+
+    # Optional: Ergebnisse zurückgeben
+    return (
+        amino_acid_counts_total,
+        amino_acid_counts_epitope_true,
+        amino_acid_counts_epitope_predicted,
+        confusion_matrices
+)
+
 
     # Optional: Ergebnisse zurückgeben, falls sie anderswo weiterverarbeitet werden sollen
     return (amino_acid_counts_total,
