@@ -434,7 +434,8 @@ def analyze_amino_acids_in_validation_data(model, validation_sequences, validati
         pred_labels = predictions[seq_idx]
 
         for pos_idx, aa_index in enumerate(sequence):
-            aa_symbol = encoder[aa_index]  # z.B. 'A', 'R', 'N' usw.
+            aa_symbol = encoder.index_word.get(aa_index, "<UNK>")
+
             true_label = int(true_labels[pos_idx])
             pred_label = int(pred_labels[pos_idx])
 
