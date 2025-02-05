@@ -389,102 +389,96 @@ import numpy as np
 from sklearn.metrics import confusion_matrix
 
 
-def analyze_amino_acids_in_validation_data(model, validation_sequences, validation_labels, encoder, batch_size=4):
+def analyze_amino_acids_in_validation_data(
+    model,
+    validation_sequences,
+    validation_labels,
+    encoder,
+    batch_size=4
+):
     """
-    Bestimmt für alle Aminosäuren in den Validierungsdaten,
-    wie oft sie als Epitope gekennzeichnet sind bzw. vorhergesagt werden,
-    und erstellt Confusionsmatrizen für jede Aminosäure.
+    1) Dekodiert die Validierungssequenzen über den Encoder.
+       (sequences_to_texts)
+    2) Entfernt die Leerzeichen, um reine Aminosäurestrings zu erhalten.
+    3) Führt die Vorhersage in Batches durch und konvertiert sie in 0/1.
+    4) Erstellt pro Aminosäure eine Confusionsmatrix über alle Sequenzen.
+
+    Parameter
+    ---------
+    model : Beliebiges Modell mit predict()-Methode
+        Ihr trainiertes Modell, das Epitope (0/1) vorhersagen kann.
+    validation_sequences : list oder np.array
+        Liste/Array aller Sequenzen (Aminosäure-Indices),
+        Shape: (n, seq_len)
+    validation_labels : list oder np.array
+        Liste/Array der wahren Labels (0/1) in gleicher Reihenfolge/Größe
+        wie validation_sequences, Shape: (n, seq_len)
+    encoder :
+        Ein Objekt (z.B. Keras Tokenizer) mit einer Methode sequences_to_texts.
+    batch_size : int
+        Größe der Batches für die Vorhersage.
+
+    Returns
+    -------
+    dict
+        Dictionary, das jeder Aminosäure (als Schlüssel) die entsprechende
+        Confusionsmatrix (2x2) zuordnet.
     """
 
-    # 1) Alle Sequenzen bereits in Textform dekodieren
-    #    sequences_to_texts gibt eine Liste von Strings zurück,
-    #    wobei jeder String die (verknüpften) Token pro Sequenz enthält.
-    decoded_sequences = encoder.sequences_to_texts(validation_sequences)
+    # 1) Dekodierung aller Sequenzen zu Text
+    decoded_antigens = encoder.sequences_to_texts(validation_sequences)
 
-    # 2) Vorhersagen in kleineren Batches holen
+    # 2) Leerzeichen entfernen
+    for i, decoded_antigen in enumerate(decoded_antigens):
+        decoded_antigens[i] = decoded_antigen.replace(" ", "")
+
+    # 3) Batches für Vorhersagen
     all_predictions = []
-    for i in range(0, len(validation_sequences), batch_size):
-        batch_seq = validation_sequences[i:i+batch_size]
+    for start_idx in range(0, len(validation_sequences), batch_size):
+        batch_seq = validation_sequences[start_idx:start_idx+batch_size]
         batch_pred = model.predict(batch_seq)
-        batch_pred = (batch_pred > 0.5).astype(int)  # In 0/1 konvertieren
+
+        # Konvertieren zu 0 und 1 (Schwellwert 0.5)
+        batch_pred = (batch_pred > 0.5).astype(int)
         all_predictions.append(batch_pred)
+
     predictions = np.concatenate(all_predictions, axis=0)
 
-    # Statistik-Strukturen vorbereiten
-    amino_acid_counts_total = {}
-    amino_acid_counts_epitope_true = {}
-    amino_acid_counts_epitope_predicted = {}
+    # 4) Pro Aminosäure Confusionsmatrix erstellen
+    amino_acid_true_labels = {}
+    amino_acid_pred_labels = {}
+
+    for seq_idx, sequence_str in enumerate(decoded_antigens):
+        true_seq = validation_labels[seq_idx]
+        pred_seq = predictions[seq_idx]
+
+        # Jede Position = ein Aminosäuren-Charakter
+        for pos_idx, aa_symbol in enumerate(sequence_str):
+            true_label = int(true_seq[pos_idx])
+            pred_label = int(pred_seq[pos_idx])
+
+            if aa_symbol not in amino_acid_true_labels:
+                amino_acid_true_labels[aa_symbol] = []
+                amino_acid_pred_labels[aa_symbol] = []
+
+            amino_acid_true_labels[aa_symbol].append(true_label)
+            amino_acid_pred_labels[aa_symbol].append(pred_label)
+
     confusion_matrices = {}
+    for aa_symbol in amino_acid_true_labels:
+        y_true = amino_acid_true_labels[aa_symbol]
+        y_pred = amino_acid_pred_labels[aa_symbol]
 
-    # 3) Durch alle dekodierten Sequenzen iterieren
-    for seq_idx, decoded_seq in enumerate(decoded_sequences):
-        # true_labels und pred_labels gelten nach wie vor für den selben Index
-        true_labels = validation_labels[seq_idx]
-        pred_labels = predictions[seq_idx]
-
-        # sequences_to_texts gibt standardmäßig Tokens zusammengefügt durch Leerzeichen zurück.
-        # Daher können wir diese wieder splitten, um pro Position den einzelnen Aminosäure-Token zu erhalten.
-        tokens = decoded_seq.split()
-
-        # Für die Analyse: Schleife über alle Positionen
-        for pos_idx, aa_symbol in enumerate(tokens):
-            # Ground-Truth / Prediction an gleicher Position übernehmen
-            true_label = int(true_labels[pos_idx])
-            pred_label = int(pred_labels[pos_idx])
-
-            # Aminosäurezähler
-            amino_acid_counts_total[aa_symbol] = amino_acid_counts_total.get(aa_symbol, 0) + 1
-
-            if true_label == 1:
-                amino_acid_counts_epitope_true[aa_symbol] = \
-                    amino_acid_counts_epitope_true.get(aa_symbol, 0) + 1
-
-            if pred_label == 1:
-                amino_acid_counts_epitope_predicted[aa_symbol] = \
-                    amino_acid_counts_epitope_predicted.get(aa_symbol, 0) + 1
-
-    # 4) Confusionsmatrix pro Aminosäure erstellen
-    all_amino_acids = list(amino_acid_counts_total.keys())
-
-    from sklearn.metrics import confusion_matrix
-    for aa_symbol in all_amino_acids:
-        aa_true_labels = []
-        aa_pred_labels = []
-
-        # Jede dekodierte Sequenz erneut durchlaufen und die relevanten Labels pro Aminosäure abgreifen
-        for seq_idx, decoded_seq in enumerate(decoded_sequences):
-            tokens = decoded_seq.split()
-            true_labels = validation_labels[seq_idx]
-            pred_labels = predictions[seq_idx]
-
-            for pos_idx, token in enumerate(tokens):
-                if token == aa_symbol:
-                    aa_true_labels.append(int(true_labels[pos_idx]))
-                    aa_pred_labels.append(int(pred_labels[pos_idx]))
-
-        # Confusionsmatrix
-        cm = confusion_matrix(aa_true_labels, aa_pred_labels, labels=[0, 1])
+        # Confusionsmatrix (labels=[0,1]):
+        cm = confusion_matrix(y_true, y_pred, labels=[0, 1])
         confusion_matrices[aa_symbol] = cm
 
-    # 5) Ausgabe
-    for aa_symbol in all_amino_acids:
-        total = amino_acid_counts_total[aa_symbol]
-        true_epi = amino_acid_counts_epitope_true.get(aa_symbol, 0)
-        pred_epi = amino_acid_counts_epitope_predicted.get(aa_symbol, 0)
-        cm = confusion_matrices[aa_symbol]
-
+        # Beispielhafte Ausgabe
         print(f"Aminosäure: {aa_symbol}")
-        print(f"- Gesamt vorkommend: {total}")
-        print(f"- Tatsächlich Epitope: {true_epi}")
-        print(f"- Vorhergesagte Epitope: {pred_epi}")
-        print("Confusionsmatrix (TN, FP / FN, TP):")
+        print("Confusionsmatrix [TN, FP; FN, TP]:")
         print(cm)
-        print("------------------------------------------------\n")
+        print("-" * 30)
 
-    return (
-        amino_acid_counts_total,
-        amino_acid_counts_epitope_true,
-        amino_acid_counts_epitope_predicted,
-        confusion_matrices)
+    return confusion_matrices
 
 
