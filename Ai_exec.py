@@ -426,7 +426,7 @@ def analyze_amino_acids_in_validation_data(
     """
 
     # 1) Dekodierung aller Sequenzen zu Text
-    decoded_antigens = encoder.sequences_to_texts(validation_sequences)
+    decoded_antigens: list = encoder.sequences_to_texts(validation_sequences)
 
     # 2) Leerzeichen entfernen
     for i, decoded_antigen in enumerate(decoded_antigens):
