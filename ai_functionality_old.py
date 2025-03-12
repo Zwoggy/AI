@@ -1483,13 +1483,13 @@ def evaluate_model(model, encoder, sequence, true_binary_epitope):
     # print(predictions)
     predicted_binary = np.where(predictions >= 0.5, 1, -1)
     # Berechne die Metriken
-    #auc = roc_auc_score(true_binary_epitope, predictions)
+    auc = roc_auc_score(true_binary_epitope, predictions)
     recall = recall_score(true_binary_epitope, predicted_binary)
     precision = precision_score(true_binary_epitope, predicted_binary)
     f1 = f1_score(true_binary_epitope, predicted_binary)
     print(recall, precision, f1)
 
-    return recall, precision, f1 #,auc
+    return recall, precision, f1 ,auc
 
 
 
