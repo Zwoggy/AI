@@ -89,7 +89,7 @@ def validate_on_45_blind():
     # Ergebnisse in CSV speichern
     results_df = pd.DataFrame(results)
     results_df.to_csv('./data/evaluation_results_2.csv', index=False)
-    print("Evaluation abgeschlossen und in 'evaluation_results.csv' gespeichert.")
+    print("Evaluation abgeschlossen und in 'evaluation_results_2.csv' gespeichert.")
 
 
 
