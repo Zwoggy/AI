@@ -19,7 +19,7 @@ print("Tensorflow version " + tf.__version__)
 print('Start 1')
 
 import sys
-from sklearn.metrics import recall_score, precision_score, f1_score
+from sklearn.metrics import recall_score, precision_score, f1_score, roc_auc_score
 import pickle
 import pandas as pd
 import numpy as np

@@ -61,7 +61,7 @@ def validate_on_45_blind():
     padded_sequences = sequence.pad_sequences(encoded_sequences, maxlen=fixed_length,
                                               padding='post', value=0)
 
-    # Auch epitope_list polstern (falls nötig) – in diesem Beispiel sind sie schon fix 235
+
     # Falls Sie trotzdem sequence.pad_sequences möchten, ginge das so:
     padded_epitope_list = sequence.pad_sequences(epitope_list, maxlen=fixed_length,
                                                  padding='post', value=0)
