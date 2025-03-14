@@ -1481,7 +1481,7 @@ def evaluate_model(model, encoder, sequence, true_binary_epitope):
     # Da das Modell Wahrscheinlichkeiten ausgibt, runde auf 0 oder 1
     # print(true_binary_epitope)
     # print(predictions)
-    predicted_binary = np.where(predictions >= 0.5, 1, -1)
+    predicted_binary = np.where(predictions >= 0.5, 1, 0)
     # Berechne die Metriken
     print( "test: ", true_binary_epitope, predicted_binary)
     auc = roc_auc_score(true_binary_epitope, predictions)
