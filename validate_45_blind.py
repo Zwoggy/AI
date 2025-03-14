@@ -15,7 +15,7 @@ def validate_on_45_blind():
     model, _ = load_model_and_tokenizer()
 
     # CSV-Datei einlesen
-    df = pd.read_csv('./data/epitope3d_dataset_45_Blind_Test_manual_with_epitopes2.csv')
+    df = pd.read_csv('./data/final_blind_test_set.csv')
 
     # Feste Länge
     fixed_length = 235
@@ -43,7 +43,7 @@ def validate_on_45_blind():
                     epitope_embed[i] = 1
 
         # Optional: Mindestanzahl an Epitope überprüfen
-        if epitope_embed.count(1) > 0:
+        if epitope_embed.count(1) > 4:
             # Sequenz abspeichern (wird später tokenisiert)
             sequence_list.append(full_sequence)
             # Liste der Epitope

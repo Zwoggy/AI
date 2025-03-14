@@ -11,6 +11,8 @@ import pandas as pd
 
 
 import pandas as pd
+import re
+
 
 aminoacid_code = {
     "ALA": "A", "ARG": "R", "ASN": "N", "ASP": "D", "CYS": "C", "GLU": "E", "GLN": "Q",
@@ -22,7 +24,7 @@ aminoacid_code = {
 data = pd.read_csv("data/epitope3d_dataset_45_Blind_Test_manual.csv")
 
 
-def convert_epitope_list(epitope_list):
+def convert_epitope_list(epitope_list, start=1):
     """
     Wandelt die Epitop-Liste in eine Liste von Tupeln (position, aminosäure)
     """
@@ -30,7 +32,7 @@ def convert_epitope_list(epitope_list):
     for epitope in epitope_list.split(", "):
         pos, aa, _ = epitope.split("_")
         if aa in aminoacid_code:
-            converted_list.append((int(pos), aminoacid_code[aa]))
+            converted_list.append((int(pos)-start, aminoacid_code[aa]))
     return converted_list
 
 
@@ -68,9 +70,11 @@ data["Epitope Sequence"] = ""
 for index, row in data.iterrows():
     pdb_id = row["PDB ID"]
     epitope_list = row["Epitope List (residueid_residuename_chain)"]
-    sequence = row["Sequence"].replace("(", "").replace(")","")
+    start_index = row["Start"]
+    sequence = re.sub(r'\([A-Za-z]+\)', 'X', row["Sequence"])
 
-    converted_epitope_list = convert_epitope_list(epitope_list)
+
+    converted_epitope_list = convert_epitope_list(epitope_list, start=start_index)
     epitope_seq = create_epitope_sequence(converted_epitope_list, sequence)
 
     # Epitop-Sequenz in die neue Spalte einfügen
@@ -78,4 +82,4 @@ for index, row in data.iterrows():
     data.at[index, "Sequence"] = sequence
 
 # Neue Datei speichern
-data.to_csv("epitope3d_dataset_45_Blind_Test_manual_with_epitopes2.csv", index=False)
+data.to_csv("final_blind_test_set.csv", index=False)
