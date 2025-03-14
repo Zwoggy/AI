@@ -41,33 +41,15 @@ def create_epitope_sequence(epitope_list, sequence):
     Erstellt eine Epitop-Sequenz aus 0en und markiert die Positionen der Epitope mit 1en
     """
     epitope_sequence = [0] * len(sequence)
+
+
+    start_indices = [i for i in range(1, len(epitope_list)) if sequence[int(epitope_list[i][0])] == epitope_list[i][1]]
     for i in range(1, len(epitope_list)):
-        print(len(sequence), sequence, int(epitope_list[i][0]))
-        print(sequence[int(epitope_list[i][0])], epitope_list[i][1])
-
-    start_indices = [int(epitope_list[i][0]) for i in range(1, len(epitope_list)) if sequence[int(epitope_list[i][0])] == epitope_list[i][1]]
+        if sequence[int(epitope_list[i][0])] == epitope_list[i][1]:
+            epitope_sequence[int(epitope_list[i][0])]=1
 
 
-    print(start_indices)
-    print(epitope_list)
 
-    for start_index in start_indices:
-        current_index = start_index
-        is_correct = True
-        positions = [start_index]
-
-        for i in range(1, len(epitope_list)):
-            expected_index = current_index + (epitope_list[i][0] - epitope_list[i - 1][0])
-            if expected_index >= len(sequence) or sequence[expected_index] != epitope_list[i][1]:
-                is_correct = False
-                break
-            positions.append(expected_index)
-            current_index = expected_index
-
-        if is_correct:
-            for pos in positions:
-                epitope_sequence[pos] = 1
-            break
 
     return epitope_sequence
 
