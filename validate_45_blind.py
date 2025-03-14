@@ -64,7 +64,7 @@ def validate_on_45_blind():
     encoded_sequences = encoder.texts_to_sequences(sequence_list)
     epitope_list, antigen_list, length_of_longest_context = modify_with_context(encoded_sequences, epitope_list,
                                                                                 fixed_length)
-    print(epitope_list[1])
+    print(epitope_list)
 
     """
     # Alle Sequenzen auf Länge 235 polstern (Padding mit 0)
