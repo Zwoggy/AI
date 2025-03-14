@@ -1,4 +1,7 @@
 import pickle
+import pandas as pd
+from keras_preprocessing.sequence import pad_sequences
+from tf_keras.preprocessing import text
 
 from ai_functionality_old import load_model_and_tokenizer, modify_with_context, evaluate_model
 
@@ -28,7 +31,7 @@ def validate_on_45_blind():
         full_sequence = str(row['Sequence'])
 
         # Epitope-Array mit -1 initialisieren
-        epitope_embed = [-1] * fixed_length
+        epitope_embed = [-1] * len(full_sequence)
 
         # Falls Epitope-Informationen 0/1-codiert sind, hier aus der Spalte entnehmen und eintragen
         # Beispiel: 'Epitope Sequence' enthält ein String-Array aus 0ern/1ern oder ähnlichem
@@ -38,9 +41,13 @@ def validate_on_45_blind():
         # Beispiel: wenn raw_epitope_info eine Liste von Ziffern "0" oder "1" ist
         # und deren Länge der tatsächlichen Sequenz entspricht
         for i, c in enumerate(raw_epitope_info):
+            """
             if i < fixed_length:
                 if c == '1':
                     epitope_embed[i] = 1
+            """
+            if c == '1':
+                epitope_embed[i] = 1
 
         # Optional: Mindestanzahl an Epitope überprüfen
         if epitope_embed.count(1) > 0:
@@ -55,8 +62,11 @@ def validate_on_45_blind():
 
     # Die erfassten Sequenzen mithilfe des Tokenizers in Zahlen umwandeln
     encoded_sequences = encoder.texts_to_sequences(sequence_list)
+    epitope_list, antigen_list, length_of_longest_context = modify_with_context(encoded_sequences, epitope_list,
+                                                                                fixed_length)
 
 
+    """
     # Alle Sequenzen auf Länge 235 polstern (Padding mit 0)
     padded_sequences = sequence.pad_sequences(encoded_sequences, maxlen=fixed_length,
                                               padding='post', value=0)
@@ -65,12 +75,12 @@ def validate_on_45_blind():
     # Falls Sie trotzdem sequence.pad_sequences möchten, ginge das so:
     padded_epitope_list = sequence.pad_sequences(epitope_list, maxlen=fixed_length,
                                                  padding='post', value=0)
-
-    print("Anzahl der Sequenzen: ",len(padded_sequences))
+    """
+    print("Anzahl der Sequenzen: ",len(antigen_list))
     # Modell evaluieren – je nach Bedarf anpassen. Die Funktion evaluate_model
     # muss ggf. so geschrieben sein, dass sie die Listen verarbeiten kann.
     results = []
-    for idx, (seq, epi) in enumerate(zip(padded_sequences, padded_epitope_list)):
+    for idx, (seq, epi) in enumerate(zip(antigen_list, epitope_list)):
         # Auswertung
         # PDB-ID oder ähnliches aus df entnehmen
         pdb_id = df['PDB ID'].iloc[idx]
@@ -90,6 +100,7 @@ def validate_on_45_blind():
     results_df = pd.DataFrame(results)
     results_df.to_csv('./data/evaluation_results_2.csv', index=False)
     print("Evaluation abgeschlossen und in 'evaluation_results_2.csv' gespeichert.")
+
 
 
 

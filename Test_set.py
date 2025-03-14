@@ -32,7 +32,7 @@ def convert_epitope_list(epitope_list, start=1):
     for epitope in epitope_list.split(", "):
         pos, aa, _ = epitope.split("_")
         if aa in aminoacid_code:
-            converted_list.append((int(pos)-start, aminoacid_code[aa]))
+            converted_list.append((int(pos) - start, aminoacid_code[aa]))
     return converted_list
 
 
@@ -41,7 +41,15 @@ def create_epitope_sequence(epitope_list, sequence):
     Erstellt eine Epitop-Sequenz aus 0en und markiert die Positionen der Epitope mit 1en
     """
     epitope_sequence = [0] * len(sequence)
-    start_indices = [i for i in range(len(sequence)) if sequence[i] == epitope_list[0][1]]
+    for i in range(1, len(epitope_list)):
+        print(len(sequence), sequence, int(epitope_list[i][0]))
+        print(sequence[int(epitope_list[i][0])], epitope_list[i][1])
+
+    start_indices = [int(epitope_list[i][0]) for i in range(1, len(epitope_list)) if sequence[int(epitope_list[i][0])] == epitope_list[i][1]]
+
+
+    print(start_indices)
+    print(epitope_list)
 
     for start_index in start_indices:
         current_index = start_index
@@ -75,6 +83,7 @@ for index, row in data.iterrows():
 
 
     converted_epitope_list = convert_epitope_list(epitope_list, start=start_index)
+    print("converted_epitope_list", converted_epitope_list)
     epitope_seq = create_epitope_sequence(converted_epitope_list, sequence)
 
     # Epitop-Sequenz in die neue Spalte einfügen
