@@ -81,6 +81,7 @@ def validate_on_45_blind():
     # muss ggf. so geschrieben sein, dass sie die Listen verarbeiten kann.
     results = []
     for idx, (seq, epi) in enumerate(zip(antigen_list, epitope_list)):
+        print("epi", epi)
         # Auswertung
         # PDB-ID oder ähnliches aus df entnehmen
         pdb_id = df['PDB ID'].iloc[idx]
