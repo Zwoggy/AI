@@ -37,7 +37,7 @@ def validate_on_45_blind():
         # Beispiel: 'Epitope Sequence' enthält ein String-Array aus 0ern/1ern oder ähnlichem
         # Passen Sie dies an Ihr tatsächliches Format an.
         raw_epitope_info = str(row['Epitope Sequence']).replace(" ", "")
-
+        print("raw", raw_epitope_info)
         # Beispiel: wenn raw_epitope_info eine Liste von Ziffern "0" oder "1" ist
         # und deren Länge der tatsächlichen Sequenz entspricht
         for i, c in enumerate(raw_epitope_info):
