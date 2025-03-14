@@ -31,7 +31,7 @@ def validate_on_45_blind():
         full_sequence = str(row['Sequence'])
 
         # Epitope-Array mit -1 initialisieren
-        epitope_embed = [-1] * len(full_sequence)
+        epitope_embed = [0] * len(full_sequence)
 
         # Falls Epitope-Informationen 0/1-codiert sind, hier aus der Spalte entnehmen und eintragen
         # Beispiel: 'Epitope Sequence' enthält ein String-Array aus 0ern/1ern oder ähnlichem
