@@ -43,7 +43,7 @@ def validate_on_45_blind():
                     epitope_embed[i] = 1
 
         # Optional: Mindestanzahl an Epitope überprüfen
-        if epitope_embed.count(1) > 4:
+        if epitope_embed.count(1) > 0:
             # Sequenz abspeichern (wird später tokenisiert)
             sequence_list.append(full_sequence)
             # Liste der Epitope
