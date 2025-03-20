@@ -51,7 +51,7 @@ def validate_on_45_blind():
     # Die erfassten Sequenzen mithilfe des Tokenizers in Zahlen umwandeln
     encoded_sequences = encoder.texts_to_sequences(sequence_list)
     ### hier if länge >235
-    epitope_list, antigen_list = keep_sequences_up_to_a_length_of_235(encoded_sequences, epitope_list, sequence_list)
+    sequences, epitope_list = keep_sequences_up_to_a_length_of_235(encoded_sequences, epitope_list, sequence_list)
 
     # Debugging step to check lengths
     for idx, epitope in enumerate(epitope_list):
@@ -60,15 +60,14 @@ def validate_on_45_blind():
 
 
     # Alle Sequenzen auf Länge 235 polstern (Padding mit 0)
-    padded_sequences = sequence.pad_sequences(epitope_list, maxlen=fixed_length,
+    padded_sequences = sequence.pad_sequences(sequences, maxlen=fixed_length,
                                               padding='post', value=0)
 
 
     # Falls Sie trotzdem sequence.pad_sequences möchten, ginge das so:
-    padded_epitope_list = sequence.pad_sequences(antigen_list, maxlen=fixed_length,
+    padded_epitope_list = sequence.pad_sequences(epitope_list, maxlen=fixed_length,
                                                  padding='post', value=0)
 
-    print("Anzahl der Sequenzen: ",len(antigen_list))
     # Modell evaluieren – je nach Bedarf anpassen. Die Funktion evaluate_model
     # muss ggf. so geschrieben sein, dass sie die Listen verarbeiten kann.
     results = []
