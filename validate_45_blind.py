@@ -19,6 +19,7 @@ def validate_on_45_blind():
 
     # CSV-Datei einlesen
     df = pd.read_csv('./data/final_blind_test_set.csv')
+    print(df)
 
     # Feste Länge
 
