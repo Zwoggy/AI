@@ -21,6 +21,7 @@ def validate_on_45_blind():
     df = pd.read_csv('./data/final_blind_test_set.csv')
     print(df)
 
+    fixed_length = 235
     # Feste Länge
 
     sequence_list = []
@@ -53,21 +54,21 @@ def validate_on_45_blind():
     epitope_list, antigen_list = keep_sequences_up_to_a_length_of_235(encoded_sequences, epitope_list, sequence_list)
     print(epitope_list)
 
-    """
+
     # Alle Sequenzen auf Länge 235 polstern (Padding mit 0)
-    padded_sequences = sequence.pad_sequences(encoded_sequences, maxlen=fixed_length,
+    padded_sequences = sequence.pad_sequences(epitope_list, maxlen=fixed_length,
                                               padding='post', value=0)
 
 
     # Falls Sie trotzdem sequence.pad_sequences möchten, ginge das so:
-    padded_epitope_list = sequence.pad_sequences(epitope_list, maxlen=fixed_length,
+    padded_epitope_list = sequence.pad_sequences(antigen_list, maxlen=fixed_length,
                                                  padding='post', value=0)
-    """
+
     print("Anzahl der Sequenzen: ",len(antigen_list))
     # Modell evaluieren – je nach Bedarf anpassen. Die Funktion evaluate_model
     # muss ggf. so geschrieben sein, dass sie die Listen verarbeiten kann.
     results = []
-    for idx, (seq, epi) in enumerate(zip(antigen_list, epitope_list)):
+    for idx, (seq, epi) in enumerate(zip(padded_sequences, padded_epitope_list)):
         print("epi", epi)
         # Auswertung
         # PDB-ID oder ähnliches aus df entnehmen
