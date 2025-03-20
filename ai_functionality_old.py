@@ -1476,6 +1476,8 @@ def load_model_and_tokenizer():
 
 def evaluate_model(model, encoder, sequence, true_binary_epitope):
     """Vergleicht die Vorhersagen des Modells mit dem tatsächlichen Epitop-Binärstring."""
+    sequence = np.expand_dims(sequence, axis=0)
+
     predictions = use_model_and_predict_45_blind(sequence, model, encoder)
 
     # Da das Modell Wahrscheinlichkeiten ausgibt, runde auf 0 oder 1
