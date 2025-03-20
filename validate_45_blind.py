@@ -21,7 +21,6 @@ def validate_on_45_blind():
     df = pd.read_csv('./data/final_blind_test_set.csv')
 
     # Feste Länge
-    fixed_length = 235
 
     sequence_list = []
     epitope_list = []
@@ -50,7 +49,7 @@ def validate_on_45_blind():
     # Die erfassten Sequenzen mithilfe des Tokenizers in Zahlen umwandeln
     encoded_sequences = encoder.texts_to_sequences(sequence_list)
     ### hier if länge >235
-    epitope_list, antigen_list = keep_sequences_up_to_a_length_of_235(encoded_sequences, epitope_list)
+    epitope_list, antigen_list = keep_sequences_up_to_a_length_of_235(encoded_sequences, epitope_list, sequence_list)
     print(epitope_list)
 
     """
@@ -91,7 +90,7 @@ def validate_on_45_blind():
 
 
 
-def keep_sequences_up_to_a_length_of_235(sequences, epitope_list):
+def keep_sequences_up_to_a_length_of_235(sequences, epitope_list, sequence_list):
     """
     Beschränkt alle Sequenzen auf eine maximale Länge von 235 Zeichen.
 
@@ -113,14 +112,14 @@ def keep_sequences_up_to_a_length_of_235(sequences, epitope_list):
             new_sequences_list.append(sequence)
             new_epitope_list.append(epitope_list[i])
         else: # ist eine Sequenz länger, dann wird eine Subsequenz der Länge von 235 herausgeschnitten
-            new_sequence, new_epitope = prepare_sequence_part_of_length_235_with_most_epitopes(sequence, epitope_list[i])
+            new_sequence, new_epitope = prepare_sequence_part_of_length_235_with_most_epitopes(sequence, epitope_list[i], sequence_list[i])
             new_sequences_list.append(new_sequence)
             new_epitope_list.append(new_epitope)
 
     return new_sequences_list, new_epitope_list
 
 
-def prepare_sequence_part_of_length_235_with_most_epitopes(sequence, epitope):
+def prepare_sequence_part_of_length_235_with_most_epitopes(sequence, epitope, sequence_list):
     """
         Extrahiert einen Teilabschnitt der Sequenz mit einer maximalen Länge von 235 Zeichen,
         der die meisten Epitope enthält.
@@ -151,7 +150,7 @@ def prepare_sequence_part_of_length_235_with_most_epitopes(sequence, epitope):
 
         return partial_sequence, partial_epitope
     except:
-        print("In der folgenden Sequenz sind die Epitope nicht korrekt angegeben: ", sequence)
+        print("In der folgenden Sequenz sind die Epitope nicht korrekt angegeben: ", sequence, sequence_list)
         return None
 
 
