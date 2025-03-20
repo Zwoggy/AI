@@ -49,8 +49,8 @@ def validate_on_45_blind():
 
     # Die erfassten Sequenzen mithilfe des Tokenizers in Zahlen umwandeln
     encoded_sequences = encoder.texts_to_sequences(sequence_list)
-    epitope_list, antigen_list, length_of_longest_context = modify_with_context(encoded_sequences, epitope_list,
-                                                                                fixed_length)
+    ### hier if länge >235
+    epitope_list, antigen_list = keep_sequences_up_to_a_length_of_235(encoded_sequences, epitope_list)
     print(epitope_list)
 
     """
@@ -91,5 +91,61 @@ def validate_on_45_blind():
 
 
 
+def keep_sequences_up_to_a_length_of_235(sequences, epitope_list):
+    """
+    Beschränkt alle Sequenzen auf eine maximale Länge von 235 Zeichen.
+
+    Sequenzen, die bereits 235 oder weniger Zeichen haben, werden unverändert übernommen.
+    Für längere Sequenzen wird der Teil mit den meisten Epitopen ausgewählt und
+    auf 235 Zeichen gekürzt.
+
+    :param sequences: Liste von (Index, Sequenz)-Tupeln, wobei jede Sequenz eine Zeichenkette ist
+    :param epitope_list: Liste von Epitopen, die den Sequenzen zugeordnet sind
+    :return: Ein Tupel bestehend aus zwei Listen:
+             - new_sequences_list: Liste der modifizierten Sequenzen (alle maximal 235 Zeichen lang)
+             - new_epitope_list: Liste der entsprechend modifizierten Epitope
+    """
+
+    new_sequences_list = []
+    new_epitope_list = []
+    for i, sequence in sequences:
+        if len(sequence) <= 235: # ist eine Sequenz kleiner oder gleich der maximal gewollten Länge, dann wird diese so beibehalten um die maximale Menge an Informationen zu behalten
+            new_sequences_list.append(sequence)
+            new_epitope_list.append(epitope_list[i])
+        else: # ist eine Sequenz länger, dann wird eine Subsequenz der Länge von 235 herausgeschnitten
+            new_sequence, new_epitope = prepare_sequence_part_of_length_235_with_most_epitopes(sequence, epitope_list[i])
+            new_sequences_list.append(new_sequence)
+            new_epitope_list.append(new_epitope)
+
+    return new_sequences_list, new_epitope_list
+
+
+def prepare_sequence_part_of_length_235_with_most_epitopes(sequence, epitope):
+    """
+        Extrahiert einen Teilabschnitt der Sequenz mit einer maximalen Länge von 235 Zeichen,
+        der die meisten Epitope enthält.
+
+        Die Funktion findet den Startpunkt des ersten Epitops (erste '1' im Epitope-Array)
+        und wählt basierend darauf einen Teilabschnitt der Sequenz aus. Die Auswahl erfolgt
+        nach unterschiedlichen Strategien, abhängig davon, wie viele Epitope nach dem Startpunkt folgen.
+
+        :param sequence: Die vollständige Sequenz als Zeichenkette oder Liste
+        :param epitope: Eine binäre Liste, die die Position der Epitope markiert (1 für Epitop, 0 sonst)
+        :return: Ein Tupel bestehend aus:
+                 - partial_sequence: Eine Liste mit dem ausgewählten Sequenzteilstück
+                 - partial_epitope: Eine Liste mit dem entsprechenden Epitopteilstück
+        """
+
+    partial_sequence = []
+    partial_epitope = []
+    epitope_start = epitope.index(1)
+    if (len(epitope)-epitope_start)>235: # wenn die Subsequenz kürzer als 235 wäre, wird der Start nach Vorne geschoben bis die Länge 235 ist
+        partial_sequence.append(sequence[(epitope_start-(len(epitope)-epitope_start)):len(epitope)])
+        partial_epitope.append(epitope[(epitope_start-(len(epitope)-epitope_start)):len(epitope)])
+    else: # ansonsten wird genau dieser 235 lange Abschnitt der Sequenz als Subsequenz gespeichert
+        partial_sequence.append(sequence[epitope_start:epitope_start+235])
+        partial_epitope.append(epitope[epitope_start:epitope_start+235])
+
+    return partial_sequence, partial_epitope
 
 
