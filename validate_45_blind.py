@@ -108,7 +108,7 @@ def keep_sequences_up_to_a_length_of_235(sequences, epitope_list):
 
     new_sequences_list = []
     new_epitope_list = []
-    for i, sequence in sequences:
+    for i, sequence in enumerate(sequences):
         if len(sequence) <= 235: # ist eine Sequenz kleiner oder gleich der maximal gewollten Länge, dann wird diese so beibehalten um die maximale Menge an Informationen zu behalten
             new_sequences_list.append(sequence)
             new_epitope_list.append(epitope_list[i])
