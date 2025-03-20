@@ -138,7 +138,7 @@ def prepare_sequence_part_of_length_235_with_most_epitopes(sequence, epitope):
 
     partial_sequence = []
     partial_epitope = []
-    print("epitope: ", epitope)
+    print("epitope: ", type(epitope), epitope)
     epitope_start = epitope.index("1")
     if (len(epitope)-epitope_start)>235: # wenn die Subsequenz kürzer als 235 wäre, wird der Start nach Vorne geschoben bis die Länge 235 ist
         partial_sequence.append(sequence[(epitope_start-(len(epitope)-epitope_start)):len(epitope)])
