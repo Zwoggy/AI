@@ -151,7 +151,7 @@ def prepare_sequence_part_of_length_235_with_most_epitopes(sequence, epitope, se
         return partial_sequence, partial_epitope
     except:
         print("In der folgenden Sequenz sind die Epitope nicht korrekt angegeben: ", sequence, sequence_list)
-        return None
+        return sequence[:235], epitope[:235]
 
 
 
