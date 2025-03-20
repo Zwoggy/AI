@@ -52,7 +52,14 @@ def validate_on_45_blind():
     encoded_sequences = encoder.texts_to_sequences(sequence_list)
     ### hier if länge >235
     epitope_list, antigen_list = keep_sequences_up_to_a_length_of_235(encoded_sequences, epitope_list, sequence_list)
-    print(epitope_list)
+
+    # Ensure epitope_list contains lists of 0s and 1s (or binary values)
+    for idx, epitope in enumerate(epitope_list):
+        if isinstance(epitope, str):
+            epitope_list[idx] = list(map(int, epitope))  # Convert from string to list of integers if necessary
+        elif isinstance(epitope, list):
+            epitope_list[idx] = np.array(epitope)  # Ensure it's a numpy array or list for padding
+
 
 
     # Alle Sequenzen auf Länge 235 polstern (Padding mit 0)
