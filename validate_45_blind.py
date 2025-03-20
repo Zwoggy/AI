@@ -53,12 +53,9 @@ def validate_on_45_blind():
     ### hier if länge >235
     epitope_list, antigen_list = keep_sequences_up_to_a_length_of_235(encoded_sequences, epitope_list, sequence_list)
 
-    # Ensure epitope_list contains lists of 0s and 1s (or binary values)
+    # Debugging step to check lengths
     for idx, epitope in enumerate(epitope_list):
-        if isinstance(epitope, str):
-            epitope_list[idx] = list(map(int, epitope))  # Convert from string to list of integers if necessary
-        elif isinstance(epitope, list):
-            epitope_list[idx] = np.array(epitope)  # Ensure it's a numpy array or list for padding
+        print(f"Length of epitope at index {idx}: {len(epitope)}")
 
 
 
@@ -114,16 +111,16 @@ def keep_sequences_up_to_a_length_of_235(sequences, epitope_list, sequence_list)
              - new_epitope_list: Liste der entsprechend modifizierten Epitope
     """
 
-    new_sequences_list = []
-    new_epitope_list = []
+    new_sequences_list: list = []
+    new_epitope_list: list = []
     for i, sequence in enumerate(sequences):
         if len(sequence) <= 235: # ist eine Sequenz kleiner oder gleich der maximal gewollten Länge, dann wird diese so beibehalten um die maximale Menge an Informationen zu behalten
-            new_sequences_list.append(sequence)
-            new_epitope_list.append(epitope_list[i])
+            new_sequences_list.append([sequence])
+            new_epitope_list.append([epitope_list[i]])
         else: # ist eine Sequenz länger, dann wird eine Subsequenz der Länge von 235 herausgeschnitten
             new_sequence, new_epitope = prepare_sequence_part_of_length_235_with_most_epitopes(sequence, epitope_list[i], sequence_list[i])
-            new_sequences_list.append(new_sequence)
-            new_epitope_list.append(new_epitope)
+            new_sequences_list.append([new_sequence])
+            new_epitope_list.append([new_epitope])
 
     return new_sequences_list, new_epitope_list
 
