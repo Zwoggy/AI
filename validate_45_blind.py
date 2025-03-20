@@ -146,12 +146,16 @@ def prepare_sequence_part_of_length_235_with_most_epitopes(sequence, epitope, se
     print("epitope_count: ", epitope.count("1"))
     try:
         epitope_start = epitope.index("1")
-        if (len(epitope) - epitope_start) < 235:  # wenn die Subsequenz kürzer als 235 wäre, wird der Start nach Vorne geschoben bis die Länge 235 ist
-            partial_sequence.append(sequence[(epitope_start - (len(epitope) - epitope_start)):len(epitope)])
-            partial_epitope.append(epitope[(epitope_start - (len(epitope) - epitope_start)):len(epitope)])
-        else:  # ansonsten wird genau dieser 235 lange Abschnitt der Sequenz als Subsequenz gespeichert
-            partial_sequence.append(sequence[epitope_start:epitope_start + 235])
-            partial_epitope.append(epitope[epitope_start:epitope_start + 235])
+        if (len(epitope) - epitope_start) < 235:
+            # Berechne, wie viele Zeichen vor der ersten "1" notwendig sind, damit die Subsequenz insgesamt 235 Zeichen lang ist
+            start_offset = 235 - (len(epitope) - epitope_start)
+            # Extrahiere die Subsequenz so, dass sie 235 Zeichen umfasst
+            partial_sequence.append(sequence[epitope_start - start_offset: epitope_start + (235 - start_offset)])
+            partial_epitope.append(epitope[epitope_start - start_offset: epitope_start + (235 - start_offset)])
+        else:
+            # Wenn die Distanz groß genug ist, einfach die 235 Zeichen ab der ersten "1"
+            partial_sequence.append(sequence[epitope_start: epitope_start + 235])
+            partial_epitope.append(epitope[epitope_start: epitope_start + 235])
 
         return partial_sequence, partial_epitope
     except:
