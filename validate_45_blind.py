@@ -150,6 +150,7 @@ def prepare_sequence_part_of_length_235_with_most_epitopes(sequence, epitope, se
             # Berechne, wie viele Zeichen vor der ersten "1" notwendig sind, damit die Subsequenz insgesamt 235 Zeichen lang ist
             start_offset = 235 - (len(epitope) - epitope_start)
             # Extrahiere die Subsequenz so, dass sie 235 Zeichen umfasst
+            print("Epitoplänge der Berechnung: ", len(epitope[epitope_start - start_offset:]))
             partial_sequence.append(sequence[epitope_start - start_offset:])
             partial_epitope.append(epitope[epitope_start - start_offset:])
         else:
