@@ -63,8 +63,9 @@ def validate_on_45_blind():
     padded_sequences = sequence.pad_sequences(sequences, maxlen=fixed_length,
                                               padding='post', value=0)
 
+    epitope_list = [[int(char) for char in epitope] for epitope in epitope_list] # Für Padding vorbereiten, erwartet eine Liste von Integern
 
-    # Falls Sie trotzdem sequence.pad_sequences möchten, ginge das so:
+    #Alle Eitope auf die Länge 235 polstern (Padding mit 0)
     padded_epitope_list = sequence.pad_sequences(epitope_list, maxlen=fixed_length,
                                                  padding='post', value=0)
 
