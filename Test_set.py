@@ -43,7 +43,6 @@ def create_epitope_sequence(epitope_list, sequence):
     epitope_sequence = [0] * len(sequence)
 
 
-    start_indices = [i for i in range(1, len(epitope_list)) if sequence[int(epitope_list[i][0])] == epitope_list[i][1]]
     for i in range(1, len(epitope_list)):
         if sequence[int(epitope_list[i][0])] == epitope_list[i][1]:
             epitope_sequence[int(epitope_list[i][0])]=1
