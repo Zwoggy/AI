@@ -17,9 +17,10 @@ from validate_45_blind import validate_on_45_blind
 from tensorflow.keras.mixed_precision import set_global_policy
 from tensorflow.keras import mixed_precision
 
+from validate_BP3C50ID_external_test_set import validate_on_BP3C59ID_external_test_set
 
 
-def create_ai(filepath, save_file, output_file, train=False, safe=False,  validate=False, predict=False, old=False, gpu_split=False, big_dataset=True, use_structure=False):
+def create_ai(filepath, save_file, output_file, train=False, safe=False, validate_45_Blind=False, validate_BP3C=False, predict=False, old=False, gpu_split=False, big_dataset=True, use_structure=False):
 
     if old==False:
         from ai_functionality_new import TokenAndPositionEmbedding_for_ESM, TransformerBlock, TransformerDecoderTwo
@@ -270,8 +271,10 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False,  valida
 
     if predict:
         use_model_and_predict()
-    if validate:
+    if validate_45_Blind:
         validate_on_45_blind()
+    if validate_BP3C:
+        validate_on_BP3C59ID_external_test_set()
     amino_acid_counts_epitope_predicted, confusion_matrices = analyze_amino_acids_in_validation_data( model, validation_sequences=testx_list, validation_labels=testy_list, encoder=encoder)
 
 

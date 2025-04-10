@@ -11,7 +11,8 @@ if __name__ == '__main__':
                         help='Der Speicherort für die Ausgabe-Datei.')
     parser.add_argument('--train', action='store_true', help='Aktiviert das Training.')
     parser.add_argument('--save', action='store_true', help='Aktiviert das sichere Speichern.')
-    parser.add_argument('--validate', action='store_true', help='Aktiviert die Validierung.')
+    parser.add_argument('--validate_45_Blind', action='store_true', help='Aktiviert die Validierung.')
+    parser.add_argument('--validate_BP3C', action='store_true', help='Aktiviert die Validierung.')
     parser.add_argument('--predict', action='store_true', help='Aktiviert die Vorhersage.')
     parser.add_argument('--old', action='store_true', help='Verwende das alte Model.')
     parser.add_argument('--gpu_split', action='store_true', help='Teile das Model auf 4 GPUs auf.')
@@ -25,7 +26,8 @@ if __name__ == '__main__':
               save_file=args.save_file,
               train=args.train,
               safe=args.save,
-              validate=args.validate,
+              validate_45_Blind=args.validate_45_Blind,
+              validate_BP3C=args.validate_BP3C,
               predict=args.predict,
               old=args.old,
               gpu_split=args.gpu_split,
