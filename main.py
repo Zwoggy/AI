@@ -2,7 +2,7 @@ from Ai_exec import create_ai
 import argparse
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Run AI creation script with specific parameters. --train, --safe, --validate and --predict default to False and can be set to True.")
+    parser = argparse.ArgumentParser(description="Run AI creation script with specific parameters. --train, --safe, --validate_45_Blind, --validate_BP3C and --predict default to False and can be set to True.")
     parser.add_argument('--filepath', type=str, required=False, default='./data/Dataset.xlsx',
                         help='Der Pfad zur Datendatei.')
     parser.add_argument('--output_path', type=str, required=False, default='./output',
