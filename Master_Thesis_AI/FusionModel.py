@@ -12,46 +12,23 @@ from ai_functionality_old import TransformerBlock, TransformerDecoderTwo, TokenA
 
 class FusionModel(tf_keras.Model):
     def __init__(self, length_of_longest_context, voc_size, embed_dim, ff_dim, num_heads,
-                 num_transformer_encoder_blocks, num_decoder_blocks, rate=0.1, training=True):
+                 num_transformer_encoder_blocks, num_decoder_blocks, rate=0.3, training=True):
         super(FusionModel, self).__init__()
+        
+        ### Initialize variables
+        self.num_transformer_encoder_blocks = num_transformer_encoder_blocks
         self.length_of_longest_context = length_of_longest_context
         self.voc_size = voc_size
         self.training = training
-        self.num_transformer_encoder_blocks = num_transformer_encoder_blocks
         self.num_decoder_blocks = num_decoder_blocks
         self.embed_dim = embed_dim
         self.ff_dim = ff_dim
         self.num_heads = num_heads
         self.rate = rate
 
-        # Embedding Layer
-        self.embedding_layer = TokenAndPositionEmbedding(self.length_of_longest_context, self.voc_size, self.embed_dim)
-        # CNN Pfad
-        self.cnn = tf_keras.Sequential([
-            layers.Conv2D(32, 3, padding="same", activation="relu"),
-            layers.MaxPooling2D(pool_size=2),
-            layers.Conv2D(64, 3, padding="same", activation="relu"),
-            layers.GlobalAveragePooling2D(),
-            layers.Dense(embed_dim, activation="relu"),  # Align dimension
-        ])
-
-        # Transformer Blocks
-        self.transformer_blocks = [TransformerBlock(self.embed_dim, self.num_heads, self.ff_dim, self.rate)
-                                   for _ in range(num_transformer_encoder_blocks)]
-
-        # Fusion
-        self.fusion_dense = layers.Dense(embed_dim, activation="relu")
-        self.fusion_norm = layers.LayerNormalization()
-
-        # Decoder
-        self.decoder_layers = [TransformerDecoderTwo(embed_dim, ff_dim, num_heads)
-                               for _ in range(num_decoder_blocks)]
-
-        self.output_dense1 = layers.Dense(12, activation="sigmoid", name='Not_the_last_Sigmoid')
-        self.output_dense2 = layers.TimeDistributed(
-            layers.Dense(1, activation="sigmoid", name='Final_Sigmoid'))
-
-    def call(self, inputs, training=False):
+        
+    @tf.function
+    def call(self, inputs, training=False, mask=None):
         encoder_inputs, structure_input = inputs
         # Input and embedding
         encoder_embed_out = self.embedding_layer(encoder_inputs)
@@ -82,6 +59,51 @@ class FusionModel(tf_keras.Model):
         fusion_output = self.output_dense1(fusion_output)
         return self.output_dense2(fusion_output)
 
+    def build(self, input_shape):
+        # Embedding Layer
+        self.embedding_layer = TokenAndPositionEmbedding(self.length_of_longest_context, self.voc_size, self.embed_dim)
+        # CNN Pfad
+        self.cnn = tf_keras.Sequential([
+            layers.Conv2D(32, 3, padding="same", activation="relu"),
+            layers.MaxPooling2D(pool_size=2),
+            layers.Conv2D(64, 3, padding="same", activation="relu"),
+            layers.GlobalAveragePooling2D(),
+            layers.Dense(self.embed_dim, activation="relu"),  # Align dimension
+        ])
+
+        # Transformer Blocks
+        self.transformer_blocks = [TransformerBlock(self.embed_dim, self.num_heads, self.ff_dim, self.rate)
+                                   for _ in range(self.num_transformer_encoder_blocks)]
+
+        # Fusion
+        self.fusion_dense = layers.Dense(self.embed_dim, activation="relu")
+        self.fusion_norm = layers.LayerNormalization()
+
+        # Decoder
+        self.decoder_layers = [TransformerDecoderTwo(self.embed_dim, self.ff_dim, self.num_heads)
+                               for _ in range(self.num_decoder_blocks)]
+
+        self.output_dense1 = layers.Dense(12, activation="sigmoid", name='Not_the_last_Sigmoid')
+        self.output_dense2 = layers.TimeDistributed(
+            layers.Dense(1, activation="sigmoid", name='Final_Sigmoid'))
+
+    def get_config(self):
+        config = super(FusionModel, self).get_config()
+        config.update({
+            'embed_dim': self.embed_dim,
+            'num_heads': self.num_heads,
+            'ff_dim': self.ff_dim,
+            'rate': self.rate,
+            'length_of_longest_context': self.length_of_longest_context,
+            'voc_size': self.voc_size,
+            'num_transformer_encoder_blocks': self.num_transformer_encoder_blocks,
+            'num_decoder_blocks': self.num_decoder_blocks
+        })
+        return config
+
+    @classmethod
+    def from_config(cls, config):
+        return cls(**config)
 
 
 
