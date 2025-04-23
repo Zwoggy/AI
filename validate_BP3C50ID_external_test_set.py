@@ -44,7 +44,7 @@ def validate_on_BP3C59ID_external_test_set():
                                               padding='post', value=0)
 
     epitope_list = [[int(char) for char in epitope] for epitope in epitope_list] # Für Padding vorbereiten, erwartet eine Liste von Integern
-
+    print("epitope_list: ",epitope_list)
     #Alle Eitope auf die Länge 235 polstern (Padding mit 0)
     padded_epitope_list = sequence.pad_sequences(epitope_list, maxlen=fixed_length,
                                                  padding='post', value=0)
