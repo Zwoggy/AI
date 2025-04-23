@@ -96,6 +96,7 @@ def keep_sequences_up_to_a_length_of_235(sequences, epitope_list, sequence_list)
             new_sequences_list.append(sequence)
             new_epitope_list.append(epitope_list[i])
         else: # ist eine Sequenz länger, dann wird eine Subsequenz der Länge von 235 herausgeschnitten
+            print(i)
             new_sequence, new_epitope = prepare_sequence_part_of_length_235_with_most_epitopes(sequence, epitope_list[i], sequence_list[i])
             new_sequences_list.append(new_sequence)
             new_epitope_list.append(new_epitope)
