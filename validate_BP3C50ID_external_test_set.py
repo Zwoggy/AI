@@ -48,6 +48,7 @@ def validate_on_BP3C59ID_external_test_set():
     #Alle Eitope auf die Länge 235 polstern (Padding mit 0)
     padded_epitope_list = sequence.pad_sequences(epitope_list, maxlen=fixed_length,
                                                  padding='post', value=0)
+    print("padded_epitopes: ", padded_epitope_list)
 
     # Modell evaluieren – je nach Bedarf anpassen. Die Funktion evaluate_model
     # muss ggf. so geschrieben sein, dass sie die Listen verarbeiten kann.
