@@ -56,7 +56,7 @@ def validate_on_BP3C59ID_external_test_set():
         print("epi", epi)
         # Auswertung
         # PDB-ID oder ähnliches aus df entnehmen
-        pdb_id = df['PDB ID'].iloc[idx]
+        pdb_id = df['ID'].iloc[idx]
 
         # Beispielhafter Aufruf
         recall, precision, f1, auc = evaluate_model(model, encoder, seq, epi)
