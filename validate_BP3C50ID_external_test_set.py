@@ -31,7 +31,7 @@ def validate_on_BP3C59ID_external_test_set():
     encoded_sequences = df["Sequenz"]
     epitope_list = df["Epitop"]
     ### hier if länge >235
-    sequences, epitope_list = keep_sequences_up_to_a_length_of_235(encoded_sequences, epitope_list, sequence_list)
+    sequences, epitope_list = keep_sequences_up_to_a_length_of_235(encoded_sequences, epitope_list)
 
 
     with open('./AI/tokenizer.pickle', 'rb') as handle:
@@ -74,7 +74,7 @@ def validate_on_BP3C59ID_external_test_set():
 
 
 
-def keep_sequences_up_to_a_length_of_235(sequences, epitope_list, sequence_list):
+def keep_sequences_up_to_a_length_of_235(sequences, epitope_list):
     """
     Beschränkt alle Sequenzen auf eine maximale Länge von 235 Zeichen.
 
@@ -88,7 +88,7 @@ def keep_sequences_up_to_a_length_of_235(sequences, epitope_list, sequence_list)
              - new_sequences_list: Liste der modifizierten Sequenzen (alle maximal 235 Zeichen lang)
              - new_epitope_list: Liste der entsprechend modifizierten Epitope
     """
-    print(epitope_list, sequence_list)
+    print(epitope_list)
     new_sequences_list: list = []
     new_epitope_list: list = []
     for i, sequence in enumerate(sequences):
@@ -97,14 +97,14 @@ def keep_sequences_up_to_a_length_of_235(sequences, epitope_list, sequence_list)
             new_epitope_list.append(epitope_list[i])
         else: # ist eine Sequenz länger, dann wird eine Subsequenz der Länge von 235 herausgeschnitten
             print(i)
-            new_sequence, new_epitope = prepare_sequence_part_of_length_235_with_most_epitopes(sequence, epitope_list[i], sequence_list[i])
+            new_sequence, new_epitope = prepare_sequence_part_of_length_235_with_most_epitopes(sequence, epitope_list[i])
             new_sequences_list.append(new_sequence)
             new_epitope_list.append(new_epitope)
 
     return new_sequences_list, new_epitope_list
 
 
-def prepare_sequence_part_of_length_235_with_most_epitopes(sequence, epitope, sequence_list):
+def prepare_sequence_part_of_length_235_with_most_epitopes(sequence, epitope):
     """
         Extrahiert einen Teilabschnitt der Sequenz mit einer maximalen Länge von 235 Zeichen,
         der die meisten Epitope enthält.
@@ -142,7 +142,7 @@ def prepare_sequence_part_of_length_235_with_most_epitopes(sequence, epitope, se
 
         return partial_sequence, partial_epitope
     except:
-        print("In der folgenden Sequenz sind die Epitope nicht korrekt angegeben: ", sequence, sequence_list)
+        print("In der folgenden Sequenz sind die Epitope nicht korrekt angegeben: ", sequence)
         return sequence[:235], epitope[:235]
 
 
