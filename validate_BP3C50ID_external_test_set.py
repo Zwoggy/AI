@@ -88,7 +88,7 @@ def keep_sequences_up_to_a_length_of_235(sequences, epitope_list, sequence_list)
              - new_sequences_list: Liste der modifizierten Sequenzen (alle maximal 235 Zeichen lang)
              - new_epitope_list: Liste der entsprechend modifizierten Epitope
     """
-
+    print(epitope_list, sequence_list)
     new_sequences_list: list = []
     new_epitope_list: list = []
     for i, sequence in enumerate(sequences):
