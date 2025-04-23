@@ -32,7 +32,7 @@ def validate_on_BP3C59ID_external_test_set():
     epitope_list = df["Epitop"]
     ### hier if länge >235
     sequences, epitope_list = keep_sequences_up_to_a_length_of_235(encoded_sequences, epitope_list)
-
+    print("original_epitope_list: ", epitope_list)
 
     with open('./AI/tokenizer.pickle', 'rb') as handle:
         encoder = pickle.load(handle)
