@@ -129,6 +129,8 @@ def prepare_sequence_part_of_length_235_with_most_epitopes(sequence, epitope):
     print("epitope_count: ", epitope.count("1"))
     try:
         epitope_start = epitope.index("1")
+        print("epitope_start: ", epitope_start)
+
         if (len(epitope) - epitope_start) < 235:
             # Berechne, wie viele Zeichen vor der ersten "1" notwendig sind, damit die Subsequenz insgesamt 235 Zeichen lang ist
             start_offset = 235 - (len(epitope) - epitope_start)
