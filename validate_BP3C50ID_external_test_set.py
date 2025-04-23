@@ -150,4 +150,4 @@ def prepare_sequence_part_of_length_235_with_most_epitopes(sequence, epitope):
 
 
 def string_to_int_list(s):
-    return [int(x) for x in s.strip().split()]
+    return [int(x) for x in s.strip().replace('[', '').replace(']', '').split()]
