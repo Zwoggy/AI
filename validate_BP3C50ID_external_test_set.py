@@ -37,6 +37,8 @@ def validate_on_BP3C59ID_external_test_set():
     with open('./AI/tokenizer.pickle', 'rb') as handle:
         encoder = pickle.load(handle)
 
+    sequences = [string_to_int_list(seq_str) for seq_str in sequences]
+
     # Alle Sequenzen auf Länge 235 polstern (Padding mit 0)
     padded_sequences = sequence.pad_sequences(sequences, maxlen=fixed_length,
                                               padding='post', value=0)
@@ -147,3 +149,5 @@ def prepare_sequence_part_of_length_235_with_most_epitopes(sequence, epitope):
 
 
 
+def string_to_int_list(s):
+    return [int(x) for x in s.strip().split()]
