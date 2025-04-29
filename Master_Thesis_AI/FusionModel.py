@@ -12,8 +12,8 @@ from ai_functionality_old import TransformerBlock, TransformerDecoderTwo, TokenA
 
 class FusionModel(tf_keras.Model):
     def __init__(self, length_of_longest_context, voc_size, embed_dim, ff_dim, num_heads,
-                 num_transformer_encoder_blocks, num_decoder_blocks, rate=0.3, training=True):
-        super(FusionModel, self).__init__()
+                 num_transformer_encoder_blocks, num_decoder_blocks, rate=0.3, training=True, **kwargs):
+        super(FusionModel, self).__init__(**kwargs)
         
         ### Initialize variables
         self.num_transformer_encoder_blocks = num_transformer_encoder_blocks
