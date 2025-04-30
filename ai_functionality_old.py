@@ -722,20 +722,32 @@ def get_weighted_loss(weights):
 
 
 def get_weighted_loss_masked(weights):
+    weights = tf.constant(weights, dtype=tf.float32)  # shape: (seq_len, 2)
+
     def weighted_loss_masked(y_true, y_pred):
-        # Maske: 1 für echte Werte, 0 für Padding (z. B. wenn y_true == -1)
-        mask = tf.cast(tf.not_equal(y_true, -1), tf.float32)
+        # y_true: (batch, seq_len, 1), y_pred: (batch, seq_len, 1)
+        y_true = tf.squeeze(y_true, axis=-1)  # → (batch, seq_len)
+        y_pred = tf.squeeze(y_pred, axis=-1)
 
-        # Loss wie gehabt
-        loss = (weights[:, 0] ** (1 - y_true)) * (weights[:, 1] ** (y_true)) * K.binary_crossentropy(y_true, y_pred)
+        # Maske: 1 für echte Werte, 0 für Padding
+        mask = tf.cast(tf.not_equal(y_true, -1), tf.float32)  # (batch, seq_len)
 
-        # Maske anwenden
-        loss *= mask
+        # Hole Gewichte: shape (seq_len, 2) → (1, seq_len, 2) für Broadcast
+        w = tf.expand_dims(weights, axis=0)
 
-        # Normalisieren: mittlerer Verlust pro gültigem Token
-        return tf.reduce_sum(loss) / tf.reduce_sum(mask + K.epsilon())
+        # Erzeuge Gewichtsmatrix: (batch, seq_len)
+        weight_per_token = tf.where(tf.equal(y_true, 1), w[:, :, 1], w[:, :, 0])
+
+        # Berechne Binary Crossentropy
+        bce = tf.keras.backend.binary_crossentropy(y_true, y_pred)  # (batch, seq_len)
+
+        # Wende Gewichte und Maske an
+        loss = bce * weight_per_token * mask
+
+        return tf.reduce_sum(loss) / (tf.reduce_sum(mask) + tf_keras.backend.epsilon())
 
     return weighted_loss_masked
+
 
 def save_ai(model, path="./AI/EMS2_AI/AI", old=False):
     if old:
