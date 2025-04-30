@@ -6,8 +6,11 @@ import tensorflow as tf
 import tf_keras
 from tensorflow.keras import layers
 
-from ai_functionality_old import TransformerBlock, TransformerDecoderTwo, TokenAndPositionEmbedding, get_weighted_loss, \
+from ai_functionality_old import get_weighted_loss, \
     calculating_class_weights
+from src.TransformerDecoderTwo import TransformerDecoderTwo
+from src.TokenAndPositionEmbedding import TokenAndPositionEmbedding
+from src.TransformerBlock import TransformerBlock
 
 
 class FusionModel(tf_keras.Model):

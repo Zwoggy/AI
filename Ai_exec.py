@@ -24,7 +24,10 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
     if old==False:
         from ai_functionality_new import TokenAndPositionEmbedding_for_ESM, TransformerBlock, TransformerDecoderTwo
-    else: from ai_functionality_old import TransformerBlock, TransformerDecoderTwo, TokenAndPositionEmbedding
+    else:
+        from src.TransformerDecoderTwo import TransformerDecoderTwo
+        from src.TokenAndPositionEmbedding import TokenAndPositionEmbedding
+        from src.TransformerBlock import TransformerBlock
 
     if use_structure:
         embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder, structure_data = embedding_incl_structure(filepath, pdb_dir="./data/alphafold_structures_02", old=old)
@@ -163,7 +166,9 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
             if old:
                 embedding_layer = TokenAndPositionEmbedding(maxlen, voc_size, embed_dim)
+
                 encoder_embed_out = embedding_layer(encoder_inputs)
+                mask = embedding_layer.compute_mask(encoder_inputs)
                 x = encoder_embed_out
                 output_dimension = x.shape[2]
 
@@ -197,23 +202,23 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
             for i in range(num_transformer_blocks):
                 transformer_block = TransformerBlock(output_dimension, num_heads, ff_dim, rate)
-                x = transformer_block(x, training = training)
+                x = transformer_block(x, training = training, mask=mask)
 
             x = layers.Dropout(rate = rate)(x)
             encoder_outputs = layers.Dense(embed_dim, activation = "sigmoid")(x)
 
             decoder_outputs = TransformerDecoderTwo(embed_dim, ff_dim, num_heads)(encoder_outputs = encoder_outputs,
-                                                                                  training = training)
+                                                                                  training = training, mask=mask)
 
             for i in range(num_decoder_blocks):
                 transformer_decoder = TransformerDecoderTwo(embed_dim, ff_dim, num_heads)
-                decoder_outputs = transformer_decoder(decoder_outputs, training = training)
+                decoder_outputs = transformer_decoder(decoder_outputs, training = training, mask=mask)
 
             # decoder_outputs = layers.GlobalAveragePooling1D()(decoder_outputs)
             decoder_outputs = layers.Dropout(rate = rate)(decoder_outputs)
             decoder_outputs = layers.Dense(12, activation = "sigmoid", name = 'Not_the_last_Sigmoid')(decoder_outputs)
             decoder_outputs_final = layers.TimeDistributed(layers.Dense(1, activation = "sigmoid", name = 'Final_Sigmoid'))(
-                decoder_outputs)
+                decoder_outputs, mask=mask)
 
             model = tf_keras.Model(inputs = encoder_inputs, outputs = decoder_outputs_final)
 
