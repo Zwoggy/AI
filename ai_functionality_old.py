@@ -528,7 +528,7 @@ def modify_with_context(epitope_list, antigen_list, length_of_longest_sequence):
     # print(short_epitope)
     length_of_longest_context = 235
     new_epitope_list = tf_keras.preprocessing.sequence.pad_sequences(new_epitope_list, maxlen = length_of_longest_context,
-                                                                  padding = 'post', value = 0)
+                                                                  padding = 'post', value = -1)
     new_antigen_list = tf_keras.preprocessing.sequence.pad_sequences(new_antigen_list, maxlen = length_of_longest_context,
                                                                   padding = 'post', value = 0)
 
@@ -703,7 +703,7 @@ def get_weighted_loss(weights):
 def get_weighted_loss_masked(weights):
     def weighted_loss_masked(y_true, y_pred):
         # Maske: 1 für echte Werte, 0 für Padding (z. B. wenn y_true == -1)
-        mask = tf.cast(tf.not_equal(y_true, 0), tf.float32)
+        mask = tf.cast(tf.not_equal(y_true, -1), tf.float32)
 
         # Loss wie gehabt
         loss = (weights[:, 0] ** (1 - y_true)) * (weights[:, 1] ** (y_true)) * K.binary_crossentropy(y_true, y_pred)
