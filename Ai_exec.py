@@ -8,7 +8,7 @@ from tensorflow.keras import backend as K
 
 from ai_functionality_new import LayerGroup
 from ai_functionality_old import embedding, modify_with_context, calculating_class_weights, \
-    get_weighted_loss, save_ai, use_model_and_predict, new_embedding, modify_with_context_big_dataset, \
+    get_weighted_loss, get_weighted_loss_masked,  save_ai, use_model_and_predict, new_embedding, modify_with_context_big_dataset, \
     embedding_incl_structure
 
 import logging
@@ -216,13 +216,13 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
             # decoder_outputs = layers.GlobalAveragePooling1D()(decoder_outputs)
             decoder_outputs = layers.Dropout(rate = rate)(decoder_outputs)
-            decoder_outputs = layers.Dense(12, activation = "sigmoid", name = 'Not_the_last_Sigmoid')(decoder_outputs)
+            decoder_outputs = layers.Dense(12, activation = "sigmoid", name = 'Not_the_last_Sigmoid')(decoder_outputs, mask=mask)
             decoder_outputs_final = layers.TimeDistributed(layers.Dense(1, activation = "sigmoid", name = 'Final_Sigmoid'))(
                 decoder_outputs, mask=mask)
 
             model = tf_keras.Model(inputs = encoder_inputs, outputs = decoder_outputs_final)
 
-            model.compile(optimizer, loss = get_weighted_loss(new_weights),
+            model.compile(optimizer, loss = get_weighted_loss_masked(new_weights), ### used to be get_weighted_loss(new_weights)
                           weighted_metrics = ['accuracy', tf_keras.metrics.AUC(), tf_keras.metrics.Precision(),
                                               tf_keras.metrics.Recall()])
             # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])

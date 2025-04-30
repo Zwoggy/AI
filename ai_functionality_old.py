@@ -700,6 +700,22 @@ def get_weighted_loss(weights):
     return weighted_loss
 
 
+def get_weighted_loss_masked(weights):
+    def weighted_loss_masked(y_true, y_pred):
+        # Maske: 1 für echte Werte, 0 für Padding (z. B. wenn y_true == -1)
+        mask = tf.cast(tf.not_equal(y_true, -1), tf.float32)
+
+        # Loss wie gehabt
+        loss = (weights[:, 0] ** (1 - y_true)) * (weights[:, 1] ** (y_true)) * K.binary_crossentropy(y_true, y_pred)
+
+        # Maske anwenden
+        loss *= mask
+
+        # Normalisieren: mittlerer Verlust pro gültigem Token
+        return tf.reduce_sum(loss) / tf.reduce_sum(mask + K.epsilon())
+
+    return weighted_loss_masked
+
 def save_ai(model, path="./AI/EMS2_AI/AI", old=False):
     if old:
         model.save_weights(path + '_weights')

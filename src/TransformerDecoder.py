@@ -22,7 +22,7 @@ class TransformerDecoder(tf_keras.layers.Layer):
         causal_mask = self.get_causal_attention_mask(decoder_inputs)
         if mask is not None:
             padding_mask = tf.cast(mask[:, tf.newaxis, :], dtype = "int32")
-            padding_mask = tf.minimum(padding_mask, causal_mask)
+            #padding_mask = tf.minimum(padding_mask, causal_mask)
             #padding_mask = tf.cast(padding_mask, dtype = "int32")
         else:
             padding_mask = None
@@ -31,8 +31,8 @@ class TransformerDecoder(tf_keras.layers.Layer):
             query = decoder_inputs,
             value = decoder_inputs,
             key = decoder_inputs,
-            #attention_mask = padding_mask,
-            attention_mask = causal_mask,
+            attention_mask = padding_mask,
+            #attention_mask = causal_mask,
         )
 
         if training:
