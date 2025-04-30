@@ -14,7 +14,15 @@ class TransformerBlock(tf_keras.layers.Layer):
 
     @tf.function
     def call(self, inputs, training = True, mask = None):
-        attn_output = self.att(inputs, inputs, attention_mask = mask)
+        if mask is not None:
+            # Transform boolean mask to attention mask for MultiHeadAttention
+            # Shape: (batch_size, seq_len) → (batch_size, 1, 1, seq_len)
+            attention_mask = tf.cast(mask[:, tf.newaxis, tf.newaxis, :], dtype=tf.float32)
+
+        else:
+            attention_mask = None
+
+        attn_output = self.att(inputs, inputs, attention_mask = attention_mask)
         if training:
             attn_output = self.dropout1(attn_output, training = training)
         out1 = self.layernorm1(inputs + attn_output)
