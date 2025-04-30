@@ -13,6 +13,7 @@ from ai_functionality_old import embedding, modify_with_context, calculating_cla
 
 import logging
 
+from src.masked_metrics import masked_accuracy, masked_recall, masked_precision
 from validate_45_blind import validate_on_45_blind
 from tensorflow.keras.mixed_precision import set_global_policy
 from tensorflow.keras import mixed_precision
@@ -223,8 +224,9 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
             model = tf_keras.Model(inputs = encoder_inputs, outputs = decoder_outputs_final)
 
             model.compile(optimizer, loss = get_weighted_loss_masked(new_weights), ### used to be get_weighted_loss(new_weights)
-                          weighted_metrics = ['accuracy', tf_keras.metrics.AUC(), tf_keras.metrics.Precision(),
-                                              tf_keras.metrics.Recall()])
+                          metrics=[masked_accuracy, masked_precision, masked_recall, tf_keras.metrics.AUC()]
+                          #weighted_metrics = ['accuracy', tf_keras.metrics.AUC(), tf_keras.metrics.Precision(), tf_keras.metrics.Recall()]
+                        )
             # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
             print("training_data:", training_data[0]) # debug
             history = model.fit(x = training_data, y = epitope_list, batch_size = 16, epochs = 100,
