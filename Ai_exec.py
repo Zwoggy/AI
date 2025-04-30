@@ -216,7 +216,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
             # decoder_outputs = layers.GlobalAveragePooling1D()(decoder_outputs)
             decoder_outputs = layers.Dropout(rate = rate)(decoder_outputs)
-            decoder_outputs = layers.Dense(12, activation = "sigmoid", name = 'Not_the_last_Sigmoid')(decoder_outputs, mask=mask)
+            decoder_outputs = layers.Dense(12, activation = "sigmoid", name = 'Not_the_last_Sigmoid')(decoder_outputs)
             decoder_outputs_final = layers.TimeDistributed(layers.Dense(1, activation = "sigmoid", name = 'Final_Sigmoid'))(
                 decoder_outputs, mask=mask)
 
