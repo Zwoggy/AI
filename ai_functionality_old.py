@@ -613,7 +613,28 @@ def modify_with_context_big_dataset(epitope_list, antigen_list, length_of_longes
     return new_epitope_list, new_antigen_list, length_of_longest_context
 
 
+def calculating_class_weights(y_true):
+    from sklearn.utils.class_weight import compute_class_weight
+    number_dim = np.shape(y_true)[1]
+    weights = np.empty([number_dim, 2])
 
+    for i in range(number_dim):
+        # Entferne Padding (-1)
+        col = y_true[:, i]
+        col = col[col != -1]  # Nur echte Labels (0 oder 1)
+
+        if len(np.unique(col)) == 1:
+            # Wenn nur eine Klasse vorkommt, setze Standardgewicht
+            weights[i] = [1.0, 1.0]
+        else:
+            w = compute_class_weight('balanced', classes=np.array([0, 1]), y=col)
+            weights[i] = w
+
+    for i in range(len(weights)):
+        weights[i][1] = weights[i][1] / 0.5  # optionales Scaling
+
+    return weights
+"""
 def calculating_class_weights(y_true):
     from sklearn.utils.class_weight import compute_class_weight
     #print("y_true: ",y_true)
@@ -631,7 +652,7 @@ def calculating_class_weights(y_true):
     #print(weights)
 
     return weights
-
+"""
 
 def focal_loss(gamma=2.0, alpha=0.25):
     def focal_loss_fixed(y_true, y_pred):
