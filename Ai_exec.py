@@ -124,11 +124,11 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
     np.seterr(all = None, divide = None, over = 'warn', under = None, invalid = None)
 
-    num_transformer_blocks = 4 # used to be 2
-    num_decoder_blocks = 3 # used to be 1
+    num_transformer_blocks = 2 # used to be 2
+    num_decoder_blocks = 1 # used to be 1
     embed_dim = 320  # Embedding size for each token used to be 24
     num_heads = 40  # Number of attention heads; used to be 40
-    ff_dim = 1024  # Hidden layer size in feed forward network inside transformer; used to be 32
+    ff_dim = 512  # Hidden layer size in feed forward network inside transformer; used to be 32
     maxlen = length_of_longest_context
     rate = 0.1
     training = True
