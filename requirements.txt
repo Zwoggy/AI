@@ -78,14 +78,14 @@ setuptools==75.1.0
 six==1.16.0
 SQLAlchemy==2.0.32
 statistics==1.0.3.5
-#tb-nightly==2.18.0a20240919
+tb-nightly==2.18.0a20240919
 tensorboard==2.17.1
 tensorboard-data-server==0.7.2
 tensorflow[and-cuda] #==2.17.0
 termcolor==2.4.0
 tf_keras==2.17.0
 #tb-nightly
-tf_nightly #==2.19.0.dev20241001
+tf_nightly ==2.19.0.dev20241001
 threadpoolctl==3.5.0
 typing_extensions==4.12.2
 tzdata==2024.1
