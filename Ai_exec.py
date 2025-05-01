@@ -1,10 +1,12 @@
 import numpy as np
 import tf_keras
+import keras_nlp
 from tf_keras import optimizers as opt, layers
 from transformers import  TFEsmForTokenClassification
 import tensorflow as tf
 import tensorflow
 from tensorflow.keras import backend as K
+from tf_keras import Model
 
 from Master_Thesis_AI.utils.data_loading_generator import EpitopeDataGenerator
 from ai_functionality_new import LayerGroup
@@ -162,71 +164,13 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                 baseline = None,
                 restore_best_weights = True)
 
-            encoder_inputs = layers.Input(shape = (length_of_longest_context,), name = 'encoder_inputs')
+            i, model = create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, new_weights,
+                                        num_decoder_blocks, num_heads, num_transformer_blocks, old, optimizer, rate,
+                                        voc_size)
 
-
-            if old:
-                embedding_layer = TokenAndPositionEmbedding(maxlen, voc_size, embed_dim)
-
-                encoder_embed_out = embedding_layer(encoder_inputs)
-                mask = embedding_layer.compute_mask(encoder_inputs)
-                x = encoder_embed_out
-                output_dimension = x.shape[2]
-
-            else:
-
-                esm_model = TFEsmForTokenClassification.from_pretrained("facebook/esm2_t36_3B_UR50D")
-
-                # Eingabe vorbereiten
-                #encoder_inputs = layers.Input(shape=(length_of_longest_context,), name='encoder_inputs', dtype=tf.int32)
-
-
-                # Nur die Embeddings extrahieren
-                with tf.GradientTape() as tape:
-                    if old == False:
-                        if gpu_split:
-                            esm_embeddings = split_esm_on_4GPUs(encoder_inputs, esm_model)
-                            x = esm_embeddings
-                            output_dimension = x.shape[-1]  # without mean reduction
-
-                        else:
-                            outputs = esm_model(encoder_inputs, output_hidden_states=True)
-                            esm_embeddings = outputs.hidden_states[-1] #outputs.hidden_states[-1] war am Besten!
-                            # Embedding-Schicht in das Modell einfügen
-                            x = esm_embeddings
-
-                            output_dimension = x.shape[2]  #without mean reduction LATEST
-
-                #output_dimension = x.shape[0]
-
-
-
-            for i in range(num_transformer_blocks):
-                transformer_block = TransformerBlock(output_dimension, num_heads, ff_dim, rate)
-                x = transformer_block(x, training = training, mask=mask)
-
-            x = layers.Dropout(rate = rate)(x)
-            encoder_outputs = layers.Dense(embed_dim, activation = "sigmoid")(x)
-
-            decoder_outputs = TransformerDecoderTwo(embed_dim, ff_dim, num_heads)(encoder_outputs = encoder_outputs,
-                                                                                  training = training, mask=mask)
-
-            for i in range(num_decoder_blocks):
-                transformer_decoder = TransformerDecoderTwo(embed_dim, ff_dim, num_heads)
-                decoder_outputs = transformer_decoder(decoder_outputs, training = training, mask=mask)
-
-            # decoder_outputs = layers.GlobalAveragePooling1D()(decoder_outputs)
-            decoder_outputs = layers.Dropout(rate = rate)(decoder_outputs)
-            decoder_outputs = layers.Dense(12, activation = "relu", name = 'Not_the_last_Sigmoid')(decoder_outputs)
-            decoder_outputs_final = layers.TimeDistributed(layers.Dense(1, activation = "sigmoid", name = 'Final_Sigmoid'))(
-                decoder_outputs, mask=mask)
-
-            model = tf_keras.Model(inputs = encoder_inputs, outputs = decoder_outputs_final)
-
-            model.compile(optimizer, loss = get_weighted_loss_masked(new_weights), ### used to be get_weighted_loss(new_weights)
-                          metrics=[masked_accuracy, masked_precision, masked_recall, tf_keras.metrics.AUC()]
-                          #weighted_metrics = ['accuracy', tf_keras.metrics.AUC(), tf_keras.metrics.Precision(), tf_keras.metrics.Recall()]
-                        )
+            #i, model = create_model_old(embed_dim, ff_dim, gpu_split, i, length_of_longest_context, maxlen, new_weights,
+                                        #num_decoder_blocks, num_heads, num_transformer_blocks, old, optimizer,
+                                        #output_dimension, rate, training, voc_size)
             # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
             print("training_data:", training_data[0]) # debug
             history = model.fit(x = training_data, y = epitope_list, batch_size = 50, epochs = 100,
@@ -283,6 +227,108 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
     if validate_BP3C:
         validate_on_BP3C59ID_external_test_set()
     amino_acid_counts_epitope_predicted, confusion_matrices = analyze_amino_acids_in_validation_data( model, validation_sequences=testx_list, validation_labels=testy_list, encoder=encoder)
+
+
+def create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, new_weights, num_decoder_blocks,
+                     num_heads, num_transformer_blocks, old, optimizer, rate, voc_size):
+    encoder_inputs = layers.Input(shape=(length_of_longest_context,), name='encoder_inputs')
+    if old:
+        embedding_layer = TokenAndPositionEmbedding(maxlen, voc_size, embed_dim)
+        x = embedding_layer(encoder_inputs)
+        mask = embedding_layer.compute_mask(encoder_inputs)
+        output_dimension = x.shape[2]
+    else:
+        esm_model = TFEsmForTokenClassification.from_pretrained("facebook/esm2_t36_3B_UR50D")
+        outputs = esm_model(encoder_inputs, output_hidden_states=True)
+        x = outputs.hidden_states[-1]
+        mask = tf.cast(encoder_inputs != 0, tf.bool)  # falls Padding-ID = 0
+        output_dimension = x.shape[2]
+    # Encoder-Transformer (optional, wenn nicht direkt ESM2-Output genutzt wird)
+    for i in range(num_transformer_blocks):
+        x = keras_nlp.layers.TransformerEncoder(
+            intermediate_dim=ff_dim,
+            num_heads=num_heads,
+            dropout=rate,
+        )(x, padding_mask=mask)
+    encoder_outputs = layers.Dense(embed_dim, activation='sigmoid')(x)
+    # Decoder
+    decoder_outputs = encoder_outputs
+    for i in range(num_decoder_blocks):
+        decoder_outputs = keras_nlp.layers.TransformerDecoder(
+            intermediate_dim=ff_dim,
+            num_heads=num_heads,
+            dropout=rate
+        )(decoder_outputs, encoder_outputs, decoder_padding_mask=mask, encoder_padding_mask=mask)
+    decoder_outputs = layers.Dropout(rate)(decoder_outputs)
+    decoder_outputs = layers.Dense(12, activation='relu', name='Not_the_last_Sigmoid')(decoder_outputs)
+    decoder_outputs_final = layers.TimeDistributed(layers.Dense(1, activation='sigmoid', name='Final_Sigmoid'))(
+        decoder_outputs, mask=mask)
+    model = Model(inputs=encoder_inputs, outputs=decoder_outputs_final)
+    model.compile(
+        optimizer=optimizer,
+        loss=get_weighted_loss_masked(new_weights),
+        metrics=[masked_accuracy, masked_precision, masked_recall, tf.keras.metrics.AUC()]
+    )
+    return i, model
+
+
+def create_model_old(embed_dim, ff_dim, gpu_split, i, length_of_longest_context, maxlen, new_weights,
+                     num_decoder_blocks, num_heads, num_transformer_blocks, old, optimizer, output_dimension, rate,
+                     training, voc_size):
+    encoder_inputs = layers.Input(shape=(length_of_longest_context,), name='encoder_inputs')
+    if old:
+        embedding_layer = TokenAndPositionEmbedding(maxlen, voc_size, embed_dim)
+
+        encoder_embed_out = embedding_layer(encoder_inputs)
+        mask = embedding_layer.compute_mask(encoder_inputs)
+        x = encoder_embed_out
+        output_dimension = x.shape[2]
+
+    else:
+
+        esm_model = TFEsmForTokenClassification.from_pretrained("facebook/esm2_t36_3B_UR50D")
+
+        # Eingabe vorbereiten
+        # encoder_inputs = layers.Input(shape=(length_of_longest_context,), name='encoder_inputs', dtype=tf.int32)
+
+        # Nur die Embeddings extrahieren
+        with tf.GradientTape() as tape:
+            if old == False:
+                if gpu_split:
+                    esm_embeddings = split_esm_on_4GPUs(encoder_inputs, esm_model)
+                    x = esm_embeddings
+                    output_dimension = x.shape[-1]  # without mean reduction
+
+                else:
+                    outputs = esm_model(encoder_inputs, output_hidden_states=True)
+                    esm_embeddings = outputs.hidden_states[-1]  # outputs.hidden_states[-1] war am Besten!
+                    # Embedding-Schicht in das Modell einfügen
+                    x = esm_embeddings
+
+                    output_dimension = x.shape[2]  # without mean reduction LATEST
+
+        # output_dimension = x.shape[0]
+    for i in range(num_transformer_blocks):
+        transformer_block = TransformerBlock(output_dimension, num_heads, ff_dim, rate)
+        x = transformer_block(x, training=training, mask=mask)
+    x = layers.Dropout(rate=rate)(x)
+    encoder_outputs = layers.Dense(embed_dim, activation="sigmoid")(x)
+    decoder_outputs = TransformerDecoderTwo(embed_dim, ff_dim, num_heads)(encoder_outputs=encoder_outputs,
+                                                                          training=training, mask=mask)
+    for i in range(num_decoder_blocks):
+        transformer_decoder = TransformerDecoderTwo(embed_dim, ff_dim, num_heads)
+        decoder_outputs = transformer_decoder(decoder_outputs, training=training, mask=mask)
+    # decoder_outputs = layers.GlobalAveragePooling1D()(decoder_outputs)
+    decoder_outputs = layers.Dropout(rate=rate)(decoder_outputs)
+    decoder_outputs = layers.Dense(12, activation="relu", name='Not_the_last_Sigmoid')(decoder_outputs)
+    decoder_outputs_final = layers.TimeDistributed(layers.Dense(1, activation="sigmoid", name='Final_Sigmoid'))(
+        decoder_outputs, mask=mask)
+    model = tf_keras.Model(inputs=encoder_inputs, outputs=decoder_outputs_final)
+    model.compile(optimizer, loss=get_weighted_loss_masked(new_weights),  ### used to be get_weighted_loss(new_weights)
+                  metrics=[masked_accuracy, masked_precision, masked_recall, tf_keras.metrics.AUC()]
+                  # weighted_metrics = ['accuracy', tf_keras.metrics.AUC(), tf_keras.metrics.Precision(), tf_keras.metrics.Recall()]
+                  )
+    return i, model
 
 
 def get_training_data(antigen_list, structure_data):
