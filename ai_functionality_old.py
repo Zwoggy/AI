@@ -727,7 +727,7 @@ def get_weighted_loss_masked(weights):
         y_true = tf.squeeze(y_true, axis=-1)
         y_pred = tf.squeeze(y_pred, axis=-1)
 
-        mask = tf.cast(tf.not_equal(y_true, -1), tf.float32)
+        mask = tf.cast(tf.not_equal(y_true, -1), tf.float16)
 
         # Gewicht je nach Klasse wählen
         class_indices = tf.cast(tf.equal(y_true, 1), tf.int32)
