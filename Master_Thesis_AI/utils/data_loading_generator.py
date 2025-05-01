@@ -38,10 +38,11 @@ class EpitopeDataGenerator(Sequence):
             batch_inputs = np.squeeze(batch_inputs, axis=1)  # → (B, L, D)
 
         # Optional: Sample Weights
+        """
         if self.sample_weights is not None:
             batch_weights = self.sample_weights[batch_indices]
             return batch_inputs, batch_labels, batch_weights
-
+        """
         return batch_inputs, batch_labels
 
     def on_epoch_end(self):
