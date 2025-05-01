@@ -6,6 +6,7 @@ import tensorflow as tf
 import tensorflow
 from tensorflow.keras import backend as K
 
+from Master_Thesis_AI.utils.data_loading_generator import EpitopeDataGenerator
 from ai_functionality_new import LayerGroup
 from ai_functionality_old import embedding, modify_with_context, calculating_class_weights, \
     get_weighted_loss, get_weighted_loss_masked,  save_ai, use_model_and_predict, new_embedding, modify_with_context_big_dataset, \
@@ -139,11 +140,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
     testx_list = testx_list.astype(np.float16)
     testy_list = testy_list.astype(np.float16)
-    train_gen = EpitopeDataGenerator(training_data, epitope_list, epitope_list_for_weights, batch_size=50)
-    val_gen = EpitopeDataGenerator(testx_list, testy_list, testy_for_weights, batch_size=50, shuffle=False)
-    #set_global_policy('mixed_float16')
-    #policy = mixed_precision.Policy('mixed_float16')
-    #mixed_precision.set_global_policy(policy)
+    # train_gen = EpitopeDataGenerator(training_data, epitope_list, epitope_list_for_weights, batch_size=50)
+    # val_gen = EpitopeDataGenerator(testx_list, testy_list, testy_for_weights, batch_size=50, shuffle=False)
     tf.get_logger().setLevel(logging.ERROR)
     if train:
         K.clear_session()
