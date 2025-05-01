@@ -725,7 +725,13 @@ def get_weighted_loss(weights):
 class WeightedLossMasked(tf.keras.layers.Layer):
     def __init__(self, weights):
         super(WeightedLossMasked, self).__init__()
-        self.weights = tf.constant(weights, dtype=tf.float32)  # shape: (seq_len, 2)
+        # Use add_weight to create the weights as trainable variables
+        self.weights = self.add_weight(
+            name='weights',
+            shape=(weights.shape[0], 2),
+            dtype=tf.float32,
+            initializer=tf.constant_initializer(weights)
+        )
 
     def call(self, y_true, y_pred):
         # y_true: (batch, seq_len, 1), y_pred: (batch, seq_len, 1)
@@ -742,7 +748,7 @@ class WeightedLossMasked(tf.keras.layers.Layer):
         weight_per_token = tf.where(tf.equal(y_true, 1), w[:, :, 1], w[:, :, 0])
 
         # Calculate Binary Crossentropy
-        bce = tf_keras.backend.binary_crossentropy(y_true, y_pred)  # (batch, seq_len)
+        bce = tf.keras.backend.binary_crossentropy(y_true, y_pred)  # (batch, seq_len)
 
         # Apply weights and mask
         loss = bce * weight_per_token * mask
