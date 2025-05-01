@@ -720,46 +720,13 @@ def get_weighted_loss(weights):
 
     return weighted_loss
 
+
+
+
 def get_weighted_loss_masked(weights):
-    weights = tf.constant(weights, dtype=tf.float32)  # shape: (2,)
-
-    def weighted_loss_masked(y_true, y_pred):
-        # Entferne die letzte Dimension von y_true und y_pred
-        y_true = tf.squeeze(y_true, axis=-1)  # (batch, seq_len)
-        y_pred = tf.squeeze(y_pred, axis=-1)  # (batch, seq_len)
-
-        # Maske: 1 für echte Werte, 0 für Padding
-        mask = tf.cast(tf.not_equal(y_true, -1), tf.float32)  # (batch, seq_len)
-
-        # Broadcast der Gewichte auf die Form (batch_size, seq_len)
-        # Erweitere die Dimension, um den Broadcast zu ermöglichen
-        weights_expanded = tf.reshape(weights, (1, 1, 2))  # (1, 1, 2)
-        weights_broadcasted = tf.broadcast_to(weights_expanded, (tf.shape(y_true)[0], tf.shape(y_true)[1], 2))  # (batch_size, seq_len, 2)
-
-        # Gewicht je Token anwenden: 0 für Klasse 0, 1 für Klasse 1
-        weight_per_token = tf.gather(weights_broadcasted, y_true, axis=-1)  # (batch, seq_len)
-
-        # Berechne Binary Crossentropy
-        bce = tf.keras.backend.binary_crossentropy(y_true, y_pred)  # (batch, seq_len)
-
-        # Wende Gewichte und Maske an
-        loss = bce * weight_per_token * mask
-
-        # Normalisiere den Verlust
-        return tf.reduce_sum(loss) / (tf.reduce_sum(mask) + tf.keras.backend.epsilon())
-
-    return weighted_loss_masked
-
-
-
-
-
-
-
-def get_weighted_loss_masked_old(weights):
     weights = tf.constant(weights, dtype=tf.float32)  # shape: (seq_len, 2)
 
-    def weighted_loss_masked_old(y_true, y_pred):
+    def weighted_loss_masked(y_true, y_pred):
         # y_true: (batch, seq_len, 1), y_pred: (batch, seq_len, 1)
         y_true = tf.squeeze(y_true, axis=-1)  # → (batch, seq_len)
         y_pred = tf.squeeze(y_pred, axis=-1)
@@ -781,7 +748,7 @@ def get_weighted_loss_masked_old(weights):
 
         return tf.reduce_sum(loss) / (tf.reduce_sum(mask) + tf_keras.backend.epsilon())
 
-    return weighted_loss_masked_old
+    return weighted_loss_masked
 
 
 def save_ai(model, path="./AI/EMS2_AI/AI", old=False):
