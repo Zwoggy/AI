@@ -731,8 +731,12 @@ def get_weighted_loss_masked(weights):
         # Maske: 1 für echte Werte, 0 für Padding
         mask = tf.cast(tf.not_equal(y_true, -1), tf.float32)  # (batch, seq_len)
 
+        # Broadcast der Gewichte auf die Form (batch, seq_len)
+        weights_expanded = tf.expand_dims(weights, axis=0)  # (1, 2)
+        weights_broadcasted = tf.broadcast_to(weights_expanded, (tf.shape(y_true)[0], 2))  # (batch_size, 2)
+
         # Gewicht je Token anwenden: 0 für Klasse 0, 1 für Klasse 1
-        weight_per_token = tf.where(tf.equal(y_true, 1), weights[1], weights[0])  # (batch, seq_len)
+        weight_per_token = tf.gather(weights_broadcasted, y_true, axis=-1)  # (batch, seq_len)
 
         # Berechne Binary Crossentropy
         bce = tf.keras.backend.binary_crossentropy(y_true, y_pred)  # (batch, seq_len)
@@ -744,6 +748,7 @@ def get_weighted_loss_masked(weights):
         return tf.reduce_sum(loss) / (tf.reduce_sum(mask) + tf.keras.backend.epsilon())
 
     return weighted_loss_masked
+
 
 
 
