@@ -722,11 +722,41 @@ def get_weighted_loss(weights):
 
 
 
+class WeightedLossMasked(tf.keras.layers.Layer):
+    def __init__(self, weights):
+        super(WeightedLossMasked, self).__init__()
+        self.weights = tf.constant(weights, dtype=tf.float32)  # shape: (seq_len, 2)
 
+    def call(self, y_true, y_pred):
+        # y_true: (batch, seq_len, 1), y_pred: (batch, seq_len, 1)
+        y_true = tf.squeeze(y_true, axis=-1)  # → (batch, seq_len)
+        y_pred = tf.squeeze(y_pred, axis=-1)
+
+        # Mask: 1 for real values, 0 for padding
+        mask = tf.cast(tf.not_equal(y_true, -1), tf.float32)  # (batch, seq_len)
+
+        # Get weights: shape (seq_len, 2) → (1, seq_len, 2) for broadcast
+        w = tf.expand_dims(self.weights, axis=0)
+
+        # Generate weight matrix: (batch, seq_len)
+        weight_per_token = tf.where(tf.equal(y_true, 1), w[:, :, 1], w[:, :, 0])
+
+        # Calculate Binary Crossentropy
+        bce = tf_keras.backend.binary_crossentropy(y_true, y_pred)  # (batch, seq_len)
+
+        # Apply weights and mask
+        loss = bce * weight_per_token * mask
+
+        return tf.reduce_sum(loss) / (tf.reduce_sum(mask) + tf.keras.backend.epsilon())
+
+# Usage in model training:
 def get_weighted_loss_masked(weights):
+    return WeightedLossMasked(weights)
+
+def get_weighted_loss_masked_old(weights):
     weights = tf.constant(weights, dtype=tf.float32)  # shape: (seq_len, 2)
 
-    def weighted_loss_masked(y_true, y_pred):
+    def weighted_loss_masked_old(y_true, y_pred):
         # y_true: (batch, seq_len, 1), y_pred: (batch, seq_len, 1)
         y_true = tf.squeeze(y_true, axis=-1)  # → (batch, seq_len)
         y_pred = tf.squeeze(y_pred, axis=-1)
@@ -748,7 +778,7 @@ def get_weighted_loss_masked(weights):
 
         return tf.reduce_sum(loss) / (tf.reduce_sum(mask) + tf_keras.backend.epsilon())
 
-    return weighted_loss_masked
+    return weighted_loss_masked_old
 
 
 def save_ai(model, path="./AI/EMS2_AI/AI", old=False):
