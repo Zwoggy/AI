@@ -16,6 +16,7 @@ from ai_functionality_old import embedding, modify_with_context, calculating_cla
 
 import logging
 
+from src.TokenAndPositionEmbedding import TokenAndPositionEmbedding
 from src.masked_metrics import masked_accuracy, masked_recall, masked_precision
 from validate_45_blind import validate_on_45_blind
 from tensorflow.keras.mixed_precision import set_global_policy
