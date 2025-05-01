@@ -26,11 +26,13 @@ class EpitopeDataGenerator(Sequence):
         return int(np.ceil(len(self.inputs) / self.batch_size))
 
     def __getitem__(self, index):
-        # Gibt einen Batch zurück
         batch_indices = self.indices[index * self.batch_size:(index + 1) * self.batch_size]
-
         batch_inputs = self.inputs[batch_indices]
         batch_labels = self.labels[batch_indices]
+
+        # Entferne überflüssige Dimension (falls vorhanden)
+        if batch_inputs.ndim == 4 and batch_inputs.shape[1] == 1:
+            batch_inputs = batch_inputs[:, 0, :, :]  # (B, 1, L, D) → (B, L, D)
 
         if self.sample_weights is not None:
             batch_weights = self.sample_weights[batch_indices]
