@@ -11,9 +11,9 @@ from tf_keras import Model
 from Master_Thesis_AI.utils.data_loading_generator import EpitopeDataGenerator
 from ai_functionality_new import LayerGroup
 from ai_functionality_old import embedding, modify_with_context, calculating_class_weights, \
-    get_weighted_loss, get_weighted_loss_masked, save_ai, use_model_and_predict, new_embedding, \
+    get_weighted_loss, get_weighted_loss_masked_old, save_ai, use_model_and_predict, new_embedding, \
     modify_with_context_big_dataset, \
-    embedding_incl_structure, get_weighted_loss_masked_old, WeightedLossLayer
+    embedding_incl_structure, WeightedLossLayer
 
 import logging
 
