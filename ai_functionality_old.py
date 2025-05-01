@@ -722,42 +722,34 @@ def get_weighted_loss(weights):
 
 
 
-class WeightedLossMasked(tf.keras.layers.Layer):
-    def __init__(self, weights):
-        super(WeightedLossMasked, self).__init__()
-        # Use add_weight to create the weights as trainable variables
-        self.weights = self.add_weight(
-            name='weights',
-            shape=(weights.shape[0], 2),
-            dtype=tf.float32,
-            initializer=tf.constant_initializer(weights)
-        )
+def get_weighted_loss_masked(weights):
+    weights = tf.constant(weights, dtype=tf.float32)  # shape: (seq_len, 2)
 
-    def call(self, y_true, y_pred):
+    @tf.function
+    def weighted_loss_masked(y_true, y_pred):
         # y_true: (batch, seq_len, 1), y_pred: (batch, seq_len, 1)
         y_true = tf.squeeze(y_true, axis=-1)  # → (batch, seq_len)
         y_pred = tf.squeeze(y_pred, axis=-1)
 
-        # Mask: 1 for real values, 0 for padding
+        # Maske: 1 für echte Werte, 0 für Padding
         mask = tf.cast(tf.not_equal(y_true, -1), tf.float32)  # (batch, seq_len)
 
-        # Get weights: shape (seq_len, 2) → (1, seq_len, 2) for broadcast
-        w = tf.expand_dims(self.weights, axis=0)
+        # Hole Gewichte: shape (seq_len, 2) → (1, seq_len, 2) für Broadcast
+        w = tf.expand_dims(weights, axis=0)
 
-        # Generate weight matrix: (batch, seq_len)
+        # Erzeuge Gewichtsmatrix: (batch, seq_len)
         weight_per_token = tf.where(tf.equal(y_true, 1), w[:, :, 1], w[:, :, 0])
 
-        # Calculate Binary Crossentropy
+        # Berechne Binary Crossentropy
         bce = tf.keras.backend.binary_crossentropy(y_true, y_pred)  # (batch, seq_len)
 
-        # Apply weights and mask
+        # Wende Gewichte und Maske an
         loss = bce * weight_per_token * mask
 
         return tf.reduce_sum(loss) / (tf.reduce_sum(mask) + tf.keras.backend.epsilon())
 
-# Usage in model training:
-def get_weighted_loss_masked(weights):
-    return WeightedLossMasked(weights)
+    return weighted_loss_masked
+
 
 def get_weighted_loss_masked_old(weights):
     weights = tf.constant(weights, dtype=tf.float32)  # shape: (seq_len, 2)
