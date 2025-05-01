@@ -726,6 +726,8 @@ def get_weighted_loss(weights):
 @tf.function
 def get_weighted_loss_masked(weights):
     # Ensure that weights are passed as a tensor already
+    if weights.dtype != tf.float32:
+        weights = tf.cast(weights, dtype=tf.float32)  # shape: (seq_len, 2)
     weights = tf.convert_to_tensor(weights, dtype=tf.float32)  # shape: (seq_len, 2)
 
     @tf.function
