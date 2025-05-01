@@ -724,18 +724,20 @@ def get_weighted_loss_masked(weights):
     weights = tf.constant(weights, dtype=tf.float32)  # shape: (2,)
 
     def weighted_loss_masked(y_true, y_pred):
-        y_true = tf.squeeze(y_true, axis=-1)
+        y_true = tf.squeeze(y_true, axis=-1)  # (batch, seq_len)
         y_pred = tf.squeeze(y_pred, axis=-1)
 
-        mask = tf.cast(tf.not_equal(y_true, -1), tf.float16)
+        mask = tf.cast(tf.not_equal(y_true, -1), tf.float32)
 
-        # Gewicht je nach Klasse wählen
-        class_indices = tf.cast(tf.equal(y_true, 1), tf.int32)
-        weight_per_token = tf.gather(weights, class_indices)
+        # Index: 0 für Klasse 0, 1 für Klasse 1
+        class_indices = tf.cast(tf.equal(y_true, 1), tf.int32)  # (batch, seq_len)
 
-        bce = tf_keras.backend.binary_crossentropy(y_true, y_pred)
+        # Gather Gewicht für jede Position aus [w0, w1]
+        weight_per_token = tf.gather(weights, class_indices)  # (batch, seq_len)
 
-        loss = bce * weight_per_token * mask
+        bce = tf_keras.backend.binary_crossentropy(y_true, y_pred)  # (batch, seq_len)
+        loss = bce * weight_per_token * mask  # Elementweise Multiplikation
+
         return tf.reduce_sum(loss) / (tf.reduce_sum(mask) + tf_keras.backend.epsilon())
 
     return weighted_loss_masked
