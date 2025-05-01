@@ -268,7 +268,7 @@ def create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, ne
     model = Model(inputs=encoder_inputs, outputs=decoder_outputs_final)
     model.compile(
         optimizer=optimizer,
-        loss=get_weighted_loss_masked_old(new_weights),
+        loss=get_weighted_loss_masked(new_weights),
         metrics=[masked_accuracy, masked_precision, masked_recall, tf_keras.metrics.AUC()]
     )
     return i, model
