@@ -1,6 +1,6 @@
 import numpy as np
 import tf_keras
-import keras_nlp
+import keras_hub
 from tf_keras import optimizers as opt, layers
 from transformers import  TFEsmForTokenClassification
 import tensorflow as tf
@@ -246,7 +246,7 @@ def create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, ne
         output_dimension = x.shape[2]
     # Encoder-Transformer (optional, wenn nicht direkt ESM2-Output genutzt wird)
     for i in range(num_transformer_blocks):
-        x = keras_nlp.layers.TransformerEncoder(
+        x = keras_hub.layers.TransformerEncoder(
             intermediate_dim=ff_dim,
             num_heads=num_heads,
             dropout=rate,
@@ -255,7 +255,7 @@ def create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, ne
     # Decoder
     decoder_outputs = encoder_outputs
     for i in range(num_decoder_blocks):
-        decoder_outputs = keras_nlp.layers.TransformerDecoder(
+        decoder_outputs = keras_hub.layers.TransformerDecoder(
             intermediate_dim=ff_dim,
             num_heads=num_heads,
             dropout=rate
@@ -268,7 +268,7 @@ def create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, ne
     model.compile(
         optimizer=optimizer,
         loss=get_weighted_loss_masked(new_weights),
-        metrics=[masked_accuracy, masked_precision, masked_recall, tf.keras.metrics.AUC()]
+        metrics=[masked_accuracy, masked_precision, masked_recall, tf_keras.metrics.AUC()]
     )
     return i, model
 
