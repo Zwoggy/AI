@@ -729,6 +729,12 @@ class WeightedLossLayer(tf.keras.layers.Layer):
         super(WeightedLossLayer, self).__init__()
         self.weights = tf.convert_to_tensor(weights, dtype=tf.float32)
 
+    def build(self, input_shape):
+        # Hier kannst du Gewichtungen als trainierbare Parameter definieren, wenn gewünscht
+        # Für dieses Beispiel bleibt es unverändert, aber falls du es später anpassen möchtest, kannst du `add_weight` verwenden.
+        # self.weights = self.add_weight(name="weights", shape=(input_shape[1], 2), dtype=tf.float32, trainable=False)
+        pass
+
     def call(self, y_true, y_pred):
         # Perform reshaping or any operation inside here
         y_true = tf.squeeze(y_true, axis=-1)
