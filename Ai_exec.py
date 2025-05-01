@@ -67,9 +67,9 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
         testx_list = new_embedding(testx_list, encoder)
 
     epitope_list_for_weights = epitope_list
-    epitope_list_for_weights = np.array(epitope_list_for_weights, dtype = np.float32)
+    epitope_list_for_weights = np.array(epitope_list_for_weights, dtype = np.float16)
 
-    epitope_list = np.array(epitope_list, dtype = np.float32)
+    epitope_list = np.array(epitope_list, dtype = np.float16)
     if old==True:
         antigen_list = np.array(antigen_list, dtype = np.float32)
         antigen_list = np.reshape(antigen_list, (antigen_list.shape[0], antigen_list.shape[1], 1))
@@ -139,7 +139,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
     testx_list = testx_list.astype(np.float16)
     testy_list = testy_list.astype(np.float16)
-
+    train_gen = EpitopeDataGenerator(training_data, epitope_list, epitope_list_for_weights, batch_size=50)
+    val_gen = EpitopeDataGenerator(testx_list, testy_list, testy_for_weights, batch_size=50, shuffle=False)
     #set_global_policy('mixed_float16')
     #policy = mixed_precision.Policy('mixed_float16')
     #mixed_precision.set_global_policy(policy)
@@ -230,8 +231,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                         )
             # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
             print("training_data:", training_data[0]) # debug
-            history = model.fit(x = training_data, y = epitope_list, batch_size = 50, epochs = 100,
-                            validation_data = (testx_list, testy_list), callbacks = [callback], verbose=1)
+            history = model.fit(train_gen, batch_size = 50, epochs = 100,
+                            validation_data = val_gen, callbacks = [callback], verbose=1)
         # history = model.fit(x=antigen_list, y=epitope_list, batch_size=50, epochs=100, validation_data=(testx_list, testy_list, testy_for_weights), callbacks=[callback], sample_weight = epitope_list_for_weights)
 
         # plot_results(history)
