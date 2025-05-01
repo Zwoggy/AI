@@ -223,7 +223,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
             model = tf_keras.Model(inputs = encoder_inputs, outputs = decoder_outputs_final)
 
-            model.compile(optimizer, loss = "binary_crossentropy", ### used to be get_weighted_loss(new_weights)
+            model.compile(optimizer, loss = get_weighted_loss_masked(new_weights), ### used to be get_weighted_loss(new_weights)
                           metrics=[masked_accuracy, masked_precision, masked_recall, tf_keras.metrics.AUC()]
                           #weighted_metrics = ['accuracy', tf_keras.metrics.AUC(), tf_keras.metrics.Precision(), tf_keras.metrics.Recall()]
                         )
