@@ -750,10 +750,10 @@ def get_weighted_loss_masked(weights):
 
     return weighted_loss_masked
 
-
+@tf.function
 def get_weighted_loss_masked_old(weights):
     weights = tf.constant(weights, dtype=tf.float32)  # shape: (seq_len, 2)
-
+    @tf.function
     def weighted_loss_masked_old(y_true, y_pred):
         # y_true: (batch, seq_len, 1), y_pred: (batch, seq_len, 1)
         y_true = tf.squeeze(y_true, axis=-1)  # → (batch, seq_len)
