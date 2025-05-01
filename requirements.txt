@@ -78,7 +78,7 @@ setuptools==75.1.0
 six==1.16.0
 SQLAlchemy==2.0.32
 statistics==1.0.3.5
-tb-nightly==2.18.0a20240919
+#tb-nightly==2.18.0a20240919
 tensorboard==2.17.1
 tensorboard-data-server==0.7.2
 tensorflow[and-cuda] #==2.17.0
