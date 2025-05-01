@@ -724,23 +724,27 @@ def get_weighted_loss_masked(weights):
     weights = tf.constant(weights, dtype=tf.float32)  # shape: (2,)
 
     def weighted_loss_masked(y_true, y_pred):
+        # Entferne die letzte Dimension von y_true und y_pred
         y_true = tf.squeeze(y_true, axis=-1)  # (batch, seq_len)
-        y_pred = tf.squeeze(y_pred, axis=-1)
+        y_pred = tf.squeeze(y_pred, axis=-1)  # (batch, seq_len)
 
-        mask = tf.cast(tf.not_equal(y_true, -1), tf.float32)
+        # Maske: 1 für echte Werte, 0 für Padding
+        mask = tf.cast(tf.not_equal(y_true, -1), tf.float32)  # (batch, seq_len)
 
-        # Index: 0 für Klasse 0, 1 für Klasse 1
-        class_indices = tf.cast(tf.equal(y_true, 1), tf.int32)  # (batch, seq_len)
+        # Gewicht je Token: 0 für Klasse 0, 1 für Klasse 1
+        weight_per_token = tf.where(tf.equal(y_true, 1), weights[1], weights[0])  # (batch, seq_len)
 
-        # Gather Gewicht für jede Position aus [w0, w1]
-        weight_per_token = tf.gather(weights, class_indices)  # (batch, seq_len)
-
+        # Berechne Binary Crossentropy
         bce = tf.keras.backend.binary_crossentropy(y_true, y_pred)  # (batch, seq_len)
-        loss = bce * weight_per_token * mask  # Elementweise Multiplikation
 
+        # Wende Gewichte und Maske an
+        loss = bce * weight_per_token * mask
+
+        # Normalisiere den Verlust
         return tf.reduce_sum(loss) / (tf.reduce_sum(mask) + tf.keras.backend.epsilon())
 
     return weighted_loss_masked
+
 
 
 
