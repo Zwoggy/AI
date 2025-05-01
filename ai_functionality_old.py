@@ -723,7 +723,7 @@ def get_weighted_loss(weights):
 
 
 
-@tf.function
+
 def get_weighted_loss_masked(weights):
     # Ensure that weights are passed as a tensor already
     if weights.dtype != tf.float32:
