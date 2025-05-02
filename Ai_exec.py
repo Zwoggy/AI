@@ -237,7 +237,7 @@ def create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, ne
     encoder_inputs = layers.Input(shape=(length_of_longest_context,), name='encoder_inputs')
     # Instanziiere das Layer mit den Gewichtungen
     if old:
-        embedding_layer = keras_hub.layers.TokenAndPositionEmbedding(voc_size, maxlen, embed_dim)
+        embedding_layer = keras_hub.layers.TokenAndPositionEmbedding(voc_size, maxlen, embed_dim, mask_zero=True)
         #embedding_layer = TokenAndPositionEmbedding(maxlen, voc_size, embed_dim) ## tf_keras version
         x = embedding_layer(encoder_inputs)
         mask = embedding_layer.compute_mask(encoder_inputs)
