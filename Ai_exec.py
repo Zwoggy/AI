@@ -7,6 +7,7 @@ from transformers import  TFEsmForTokenClassification
 import tensorflow
 from tensorflow.keras import backend as K
 from tf_keras import Model
+import keras
 
 from Master_Thesis_AI.utils.data_loading_generator import EpitopeDataGenerator
 from ai_functionality_new import LayerGroup
@@ -233,7 +234,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
 def create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, new_weights, num_decoder_blocks,
                      num_heads, num_transformer_blocks, old, rate, voc_size):
-    optimizer = tf.keras.optimizers.AdamW(learning_rate=0.0001)
+    optimizer = keras.optimizers.AdamW(learning_rate=0.0001)
 
     encoder_inputs = layers.Input(shape=(length_of_longest_context,), name='encoder_inputs')
     # Instanziiere das Layer mit den Gewichtungen
