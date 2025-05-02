@@ -332,7 +332,7 @@ def create_model_old(embed_dim, ff_dim, gpu_split, i, length_of_longest_context,
     decoder_outputs = layers.Dense(12, activation="relu", name='Not_the_last_Sigmoid')(decoder_outputs)
     decoder_outputs_final = layers.TimeDistributed(layers.Dense(1, activation="sigmoid", name='Final_Sigmoid'))(
         decoder_outputs, mask=mask)
-    model = tf.keras.Model(inputs=encoder_inputs, outputs=decoder_outputs_final)
+    model = keras.Model(inputs=encoder_inputs, outputs=decoder_outputs_final)
     model.compile(optimizer, loss=get_weighted_loss_masked(new_weights),  ### used to be get_weighted_loss(new_weights)
                   metrics=[masked_accuracy, masked_precision, masked_recall, tf_keras.metrics.AUC()]
                   # weighted_metrics = ['accuracy', tf_keras.metrics.AUC(), tf_keras.metrics.Precision(), tf_keras.metrics.Recall()]
