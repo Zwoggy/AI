@@ -29,7 +29,7 @@ from validate_BP3C50ID_external_test_set import validate_on_BP3C59ID_external_te
 
 def create_ai(filepath, save_file, output_file, train=False, safe=False, validate_45_Blind=False, validate_BP3C=False, predict=False, old=False, gpu_split=False, big_dataset=True, use_structure=False):
     from tensorflow.python.framework.ops import disable_eager_execution
-    disable_eager_execution()
+    #disable_eager_execution()
     if old==False:
         from ai_functionality_new import TokenAndPositionEmbedding_for_ESM, TransformerBlock, TransformerDecoderTwo
     else:
