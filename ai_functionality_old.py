@@ -631,7 +631,7 @@ def calculating_class_weights(y_true):
             weights[i] = w
 
     for i in range(len(weights)):
-        weights[i][1] = weights[i][1] / 2.2  # optionales Scaling; used to be 2.2
+        weights[i][1] = weights[i][1] / 5.0  # optionales Scaling; used to be 2.2
 
     return weights
 """
