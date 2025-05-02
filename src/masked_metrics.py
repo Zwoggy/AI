@@ -42,3 +42,21 @@ def masked_auc(y_true, y_pred):
     auc = tf.keras.metrics.AUC()
     auc.update_state(y_true_masked, y_pred_masked)
     return auc.result()
+
+class MaskedAUC(tf.keras.metrics.AUC):
+    def __init__(self, name="masked_auc", **kwargs):
+        super(MaskedAUC, self).__init__(name=name, **kwargs)
+
+    def update_state(self, y_true, y_pred, sample_weight=None):
+        # Maske anwenden (ignoriere Padding-Tokens -1)
+        mask = tf.not_equal(y_true, -1)
+
+        # Nur gültige Werte beibehalten
+        y_true_masked = tf.boolean_mask(y_true, mask)
+        y_pred_masked = tf.boolean_mask(y_pred, mask)
+
+        # Berechne AUC mit den validen (nicht gepaddeten) Werten
+        super(MaskedAUC, self).update_state(y_true_masked, y_pred_masked, sample_weight=sample_weight)
+
+    def result(self):
+        return super(MaskedAUC, self).result()
