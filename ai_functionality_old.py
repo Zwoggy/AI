@@ -48,6 +48,7 @@ from keras_preprocessing.sequence import pad_sequences
 ### New imports for ESM-2
 from transformers import EsmTokenizer
 from tensorflow.keras import backend as K
+import keras
 
 random.seed(10)
 tf.random.set_seed(10)
@@ -740,7 +741,8 @@ def get_weighted_loss_masked_(weights):
 
         # Erzeuge Gewichtsmatrix: (batch, seq_len)
         weight_per_token = tf.where(tf.equal(y_true, 1), w[:, :, 1], w[:, :, 0])
-
+        tf.print("y_true (sample):", y_true[0, :10])
+        tf.print("y_pred (sample):", y_pred[0, :10])
         # Berechne Binary Crossentropy
         bce = tf.keras.backend.binary_crossentropy(y_true, y_pred)  # (batch, seq_len)
 
