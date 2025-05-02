@@ -156,8 +156,9 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
         # Erstellen Sie Ihr Modell innerhalb der Strategie
         with strategy.scope():
-            #optimizer = tf_keras.optimizers.Adam(learning_rate=0.0001)  # 0.001 for old_model # 0,0001 for New Model
+            #optimizer = tf_keras.optimizers.Adam(learning_rate=0.0001) # 0.001 for old_model # 0,0001 for New Model
             # with tpu_strategy.scope(): # creating the model in the TPUStrategy scope means we will train the model on the TPU
+
             early_stopping = tf_keras.callbacks.EarlyStopping(
                 monitor = 'val_loss',
                 min_delta = 0,
@@ -166,13 +167,6 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                 mode = 'auto',
                 baseline = None,
                 restore_best_weights = True)
-            lr_scheduler = tf_keras.callbacks.ReduceLROnPlateau(
-                monitor='loss',  # Monitor den Trainingsverlust oder eine andere Metrik
-                factor=0.5,  # Reduziere die Lernrate um den angegebenen Faktor
-                patience=3,  # Warte 3 Epochen, bevor du die Lernrate reduzierst
-                min_lr=1e-6,  # Minimale Lernrate
-                verbose=1  # Gebe eine Nachricht aus, wenn die Lernrate reduziert wird
-                )
 
             i, model = create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, new_weights,
                                         num_decoder_blocks, num_heads, num_transformer_blocks, old, rate,
@@ -184,7 +178,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
             # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
             print("training_data:", training_data[0], type(training_data)) # debug
             history = model.fit(x = training_data, y = epitope_list, batch_size = 50, epochs = 100,
-                            validation_data = (testx_list, testy_list), callbacks = [early_stopping, lr_scheduler], verbose=1)
+                            validation_data = (testx_list, testy_list), callbacks = [early_stopping], verbose=1)
         # history = model.fit(x=antigen_list, y=epitope_list, batch_size=50, epochs=100, validation_data=(testx_list, testy_list, testy_for_weights), callbacks=[callback], sample_weight = epitope_list_for_weights)
 
         # plot_results(history)
