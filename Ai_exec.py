@@ -268,7 +268,7 @@ def create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, ne
         )(decoder_outputs, encoder_outputs, decoder_padding_mask=mask, encoder_padding_mask=mask)
     decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
     decoder_outputs = keras.layers.Dense(12, activation='relu', name='Not_the_last_Sigmoid')(decoder_outputs)
-    decoder_outputs_final = keras.layers.TimeDistributed(layers.Dense(1, activation='sigmoid', name='Final_Sigmoid'))(
+    decoder_outputs_final = keras.layers.TimeDistributed(keras.layers.Dense(1, activation='sigmoid', name='Final_Sigmoid'))(
         decoder_outputs, mask=mask)
     model = Model(inputs=encoder_inputs, outputs=decoder_outputs_final)
     model.compile(
