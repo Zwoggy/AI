@@ -167,11 +167,11 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                 restore_best_weights = True)
 
             i, model = create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, new_weights,
-                                        num_decoder_blocks, num_heads, num_transformer_blocks, old, optimizer, rate,
+                                        num_decoder_blocks, num_heads, num_transformer_blocks, old, rate,
                                         voc_size)
 
             #i, model = create_model_old(embed_dim, ff_dim, gpu_split, i, length_of_longest_context, maxlen, new_weights,
-                                        #num_decoder_blocks, num_heads, num_transformer_blocks, old, optimizer,
+                                        #num_decoder_blocks, num_heads, num_transformer_blocks, old,
                                         #output_dimension, rate, training, voc_size)
             # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
             print("training_data:", training_data[0]) # debug
@@ -232,7 +232,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
 
 def create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, new_weights, num_decoder_blocks,
-                     num_heads, num_transformer_blocks, old, optimizer, rate, voc_size):
+                     num_heads, num_transformer_blocks, old, rate, voc_size):
     optimizer = tf.keras.optimizers.AdamW(learning_rate=0.0001)
 
     encoder_inputs = layers.Input(shape=(length_of_longest_context,), name='encoder_inputs')
@@ -279,7 +279,7 @@ def create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, ne
 
 
 def create_model_old(embed_dim, ff_dim, gpu_split, i, length_of_longest_context, maxlen, new_weights,
-                     num_decoder_blocks, num_heads, num_transformer_blocks, old, optimizer, output_dimension, rate,
+                     num_decoder_blocks, num_heads, num_transformer_blocks, old, output_dimension, rate,
                      training, voc_size):
     optimizer = tf_keras.optimizers.AdamW(learning_rate=0.0001)
 
