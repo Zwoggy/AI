@@ -13,7 +13,7 @@ from ai_functionality_new import LayerGroup
 from ai_functionality_old import embedding, modify_with_context, calculating_class_weights, \
     get_weighted_loss, get_weighted_loss_masked, save_ai, use_model_and_predict, new_embedding, \
     modify_with_context_big_dataset, \
-    embedding_incl_structure
+    embedding_incl_structure, get_weighted_loss_masked_
 
 import logging
 
@@ -237,7 +237,8 @@ def create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, ne
     encoder_inputs = layers.Input(shape=(length_of_longest_context,), name='encoder_inputs')
     # Instanziiere das Layer mit den Gewichtungen
     if old:
-        embedding_layer = TokenAndPositionEmbedding(maxlen, voc_size, embed_dim)
+        embedding_layer = keras_hub.layers.TokenAndPositionEmbedding(voc_size, maxlen, embed_dim)
+        #embedding_layer = TokenAndPositionEmbedding(maxlen, voc_size, embed_dim) ## tf_keras version
         x = embedding_layer(encoder_inputs)
         mask = embedding_layer.compute_mask(encoder_inputs)
         output_dimension = x.shape[2]
@@ -270,7 +271,7 @@ def create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, ne
     model = Model(inputs=encoder_inputs, outputs=decoder_outputs_final)
     model.compile(
         optimizer=optimizer,
-        loss=get_weighted_loss_masked(new_weights),
+        loss=get_weighted_loss_masked_(new_weights),
         metrics=[masked_accuracy, masked_precision, masked_recall, tf_keras.metrics.AUC()]
     )
     return i, model
