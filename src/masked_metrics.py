@@ -39,6 +39,6 @@ def masked_auc(y_true, y_pred):
     y_pred_masked = tf.boolean_mask(y_pred, mask)
 
     # Berechne AUC nur auf gültigen Daten
-    auc = keras.metrics.AUC()
+    auc = tf.keras.metrics.AUC()
     auc.update_state(y_true_masked, y_pred_masked)
     return auc.result()
