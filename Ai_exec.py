@@ -175,7 +175,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                                         #num_decoder_blocks, num_heads, num_transformer_blocks, old,
                                         #output_dimension, rate, training, voc_size)
             # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
-            print("training_data:", training_data[0]) # debug
+            print("training_data:", training_data[0], type(training_data)) # debug
             history = model.fit(x = training_data, y = epitope_list, batch_size = 50, epochs = 100,
                             validation_data = (testx_list, testy_list), callbacks = [callback], verbose=1)
         # history = model.fit(x=antigen_list, y=epitope_list, batch_size=50, epochs=100, validation_data=(testx_list, testy_list, testy_for_weights), callbacks=[callback], sample_weight = epitope_list_for_weights)
