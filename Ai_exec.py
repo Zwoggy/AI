@@ -276,7 +276,7 @@ def create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, ne
     model.compile(
         optimizer=optimizer,
         loss=get_weighted_loss_masked_(new_weights),
-        metrics=[masked_accuracy, masked_precision, masked_recall, tf_keras.metrics.AUC()]
+        metrics=[masked_accuracy, tf_keras.metrics.AUC(), masked_precision, masked_recall]
     )
     return i, model
 
