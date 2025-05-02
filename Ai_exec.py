@@ -19,7 +19,7 @@ from ai_functionality_old import embedding, modify_with_context, calculating_cla
 import logging
 
 from src.TokenAndPositionEmbedding import TokenAndPositionEmbedding
-from src.masked_metrics import masked_accuracy, masked_recall, masked_precision
+from src.masked_metrics import masked_accuracy, masked_recall, masked_precision, masked_auc
 from validate_45_blind import validate_on_45_blind
 from tensorflow.keras.mixed_precision import set_global_policy
 from tensorflow.keras import mixed_precision
@@ -276,7 +276,7 @@ def create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, ne
     model.compile(
         optimizer=optimizer,
         loss=get_weighted_loss_masked_(new_weights),
-        metrics=[masked_accuracy, keras.metrics.AUC(), masked_precision, masked_recall]
+        metrics=[masked_accuracy, masked_auc, masked_precision, masked_recall]
     )
     return i, model
 

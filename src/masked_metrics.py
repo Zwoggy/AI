@@ -4,6 +4,7 @@ Auth: Florian Zwicker
 """
 import tensorflow as tf
 from tensorflow.keras import backend as K
+import keras
 
 
 def masked_accuracy(y_true, y_pred):
@@ -26,3 +27,18 @@ def masked_recall(y_true, y_pred):
     possible_positives = tf.reduce_sum(y_true * mask)
     return true_positives / (possible_positives + K.epsilon())
 
+def masked_auc(y_true, y_pred):
+    y_true = tf.squeeze(y_true, axis=-1)
+    y_pred = tf.squeeze(y_pred, axis=-1)
+
+    # Maske bestimmen
+    mask = tf.not_equal(y_true, -1)
+
+    # Nur echte Werte
+    y_true_masked = tf.boolean_mask(y_true, mask)
+    y_pred_masked = tf.boolean_mask(y_pred, mask)
+
+    # Berechne AUC nur auf gültigen Daten
+    auc = keras.metrics.AUC()
+    auc.update_state(y_true_masked, y_pred_masked)
+    return auc.result()
