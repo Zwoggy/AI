@@ -1,9 +1,9 @@
 import numpy as np
+import tensorflow as tf
 import tf_keras
 import keras_hub
 from tf_keras import optimizers as opt, layers
 from transformers import  TFEsmForTokenClassification
-import tensorflow as tf
 import tensorflow
 from tensorflow.keras import backend as K
 from tf_keras import Model
@@ -156,7 +156,6 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
         # Erstellen Sie Ihr Modell innerhalb der Strategie
         with strategy.scope():
             #optimizer = tf_keras.optimizers.Adam(learning_rate=0.0001)  # 0.001 for old_model # 0,0001 for New Model
-            optimizer = tf_keras.optimizers.AdamW(learning_rate=0.0001)
             # with tpu_strategy.scope(): # creating the model in the TPUStrategy scope means we will train the model on the TPU
             callback = tf_keras.callbacks.EarlyStopping(
                 monitor = 'val_loss',
@@ -234,6 +233,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
 def create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, new_weights, num_decoder_blocks,
                      num_heads, num_transformer_blocks, old, optimizer, rate, voc_size):
+    optimizer = tf.keras.optimizers.AdamW(learning_rate=0.0001)
+
     encoder_inputs = layers.Input(shape=(length_of_longest_context,), name='encoder_inputs')
     # Instanziiere das Layer mit den Gewichtungen
     if old:
@@ -280,6 +281,8 @@ def create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, ne
 def create_model_old(embed_dim, ff_dim, gpu_split, i, length_of_longest_context, maxlen, new_weights,
                      num_decoder_blocks, num_heads, num_transformer_blocks, old, optimizer, output_dimension, rate,
                      training, voc_size):
+    optimizer = tf_keras.optimizers.AdamW(learning_rate=0.0001)
+
     encoder_inputs = layers.Input(shape=(length_of_longest_context,), name='encoder_inputs')
     if old:
         embedding_layer = TokenAndPositionEmbedding(maxlen, voc_size, embed_dim)
