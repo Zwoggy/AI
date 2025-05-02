@@ -253,7 +253,7 @@ def create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, ne
     # Encoder-Transformer (optional, wenn nicht direkt ESM2-Output genutzt wird)
     for i in range(num_transformer_blocks):
         x = keras_hub.layers.TransformerEncoder(
-            intermediate_dim=ff_dim,
+            intermediate_dim=output_dimension,
             num_heads=num_heads,
             dropout=rate,
         )(x, padding_mask=mask)
@@ -262,7 +262,7 @@ def create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, ne
     decoder_outputs = encoder_outputs
     for i in range(num_decoder_blocks):
         decoder_outputs = keras_hub.layers.TransformerDecoder(
-            intermediate_dim=ff_dim,
+            intermediate_dim=output_dimension,
             num_heads=num_heads,
             dropout=rate
         )(decoder_outputs, encoder_outputs, decoder_padding_mask=mask, encoder_padding_mask=mask)
@@ -332,7 +332,7 @@ def create_model_old(embed_dim, ff_dim, gpu_split, i, length_of_longest_context,
     decoder_outputs = layers.Dense(12, activation="relu", name='Not_the_last_Sigmoid')(decoder_outputs)
     decoder_outputs_final = layers.TimeDistributed(layers.Dense(1, activation="sigmoid", name='Final_Sigmoid'))(
         decoder_outputs, mask=mask)
-    model = tf_keras.Model(inputs=encoder_inputs, outputs=decoder_outputs_final)
+    model = tf.keras.Model(inputs=encoder_inputs, outputs=decoder_outputs_final)
     model.compile(optimizer, loss=get_weighted_loss_masked(new_weights),  ### used to be get_weighted_loss(new_weights)
                   metrics=[masked_accuracy, masked_precision, masked_recall, tf_keras.metrics.AUC()]
                   # weighted_metrics = ['accuracy', tf_keras.metrics.AUC(), tf_keras.metrics.Precision(), tf_keras.metrics.Recall()]
