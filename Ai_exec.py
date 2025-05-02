@@ -236,7 +236,7 @@ def create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, ne
                      num_heads, num_transformer_blocks, old, rate, voc_size):
     optimizer = keras.optimizers.AdamW(learning_rate=0.0001)
 
-    encoder_inputs = layers.Input(shape=(length_of_longest_context,), name='encoder_inputs')
+    encoder_inputs = keras.layers.Input(shape=(length_of_longest_context,), name='encoder_inputs')
     # Instanziiere das Layer mit den Gewichtungen
     if old:
         embedding_layer = keras_hub.layers.TokenAndPositionEmbedding(voc_size, maxlen, embed_dim, mask_zero=True)
@@ -257,7 +257,7 @@ def create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, ne
             num_heads=num_heads,
             dropout=rate,
         )(x, padding_mask=mask)
-    encoder_outputs = layers.Dense(embed_dim, activation='sigmoid')(x)
+    encoder_outputs = keras.layers.Dense(embed_dim, activation='sigmoid')(x)
     # Decoder
     decoder_outputs = encoder_outputs
     for i in range(num_decoder_blocks):
@@ -266,9 +266,9 @@ def create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, ne
             num_heads=num_heads,
             dropout=rate
         )(decoder_outputs, encoder_outputs, decoder_padding_mask=mask, encoder_padding_mask=mask)
-    decoder_outputs = layers.Dropout(rate)(decoder_outputs)
-    decoder_outputs = layers.Dense(12, activation='relu', name='Not_the_last_Sigmoid')(decoder_outputs)
-    decoder_outputs_final = layers.TimeDistributed(layers.Dense(1, activation='sigmoid', name='Final_Sigmoid'))(
+    decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
+    decoder_outputs = keras.layers.Dense(12, activation='relu', name='Not_the_last_Sigmoid')(decoder_outputs)
+    decoder_outputs_final = keras.layers.TimeDistributed(layers.Dense(1, activation='sigmoid', name='Final_Sigmoid'))(
         decoder_outputs, mask=mask)
     model = Model(inputs=encoder_inputs, outputs=decoder_outputs_final)
     model.compile(
