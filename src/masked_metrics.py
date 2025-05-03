@@ -60,3 +60,16 @@ class MaskedAUC(tf.keras.metrics.AUC):
 
     def result(self):
         return super(MaskedAUC, self).result()
+
+def masked_f1_score(y_true, y_pred):
+    mask = tf.cast(tf.not_equal(y_true, -1), tf.float32)
+    y_pred_bin = tf.cast(y_pred > 0.5, tf.float32)
+
+    tp = tf.reduce_sum(y_pred_bin * y_true * mask)
+    predicted_positives = tf.reduce_sum(y_pred_bin * mask)
+    possible_positives = tf.reduce_sum(y_true * mask)
+
+    precision = tp / (predicted_positives + K.epsilon())
+    recall = tp / (possible_positives + K.epsilon())
+
+    return 2 * (precision * recall) / (precision + recall + K.epsilon())

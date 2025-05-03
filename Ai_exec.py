@@ -19,7 +19,7 @@ from ai_functionality_old import embedding, modify_with_context, calculating_cla
 import logging
 
 from src.TokenAndPositionEmbedding import TokenAndPositionEmbedding
-from src.masked_metrics import masked_accuracy, masked_recall, masked_precision, masked_auc, MaskedAUC
+from src.masked_metrics import masked_accuracy, masked_recall, masked_precision, masked_auc, MaskedAUC, masked_f1_score
 from validate_45_blind import validate_on_45_blind
 from tensorflow.keras.mixed_precision import set_global_policy
 from tensorflow.keras import mixed_precision
@@ -161,11 +161,11 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
             # with tpu_strategy.scope(): # creating the model in the TPUStrategy scope means we will train the model on the TPU
 
             early_stopping = tf_keras.callbacks.EarlyStopping(
-                monitor = 'val_loss',
-                min_delta = 0,
+                monitor = 'val_masked_f1_score',
+                min_delta = 0.001,
                 patience = 10,
                 verbose = 0,
-                mode = 'auto',
+                mode = 'max',
                 baseline = None,
                 restore_best_weights = True)
 
@@ -288,7 +288,7 @@ def create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, ne
     model.compile(
         optimizer=optimizer,
         loss=get_weighted_loss_masked_(new_weights),
-        metrics=[masked_accuracy, MaskedAUC(), masked_precision, masked_recall]
+        metrics=[masked_accuracy, MaskedAUC(), masked_precision, masked_recall, masked_f1_score]
     )
     return i, model
 
