@@ -26,11 +26,14 @@ def extract_structure_data(input_dir, output_file):
                 structure = parser.get_structure(pdb_id, pdb_path)
                 model = structure[0]
                 ca_coords = []
+                sequence = ""
                 for chain in model:
                     for residue in chain:
                         if "CA" in residue:
                             ca = residue["CA"]
                             ca_coords.append(ca.get_coord())
+                        if is_aa(residue):  # Nur Aminosäuren (keine Wasserstoffe oder Liganden)
+                            sequence += seq1(residue.get_resname())  # Aminosäuresequenz hinzufügen
                 if len(ca_coords) == 0:
                     print(f"⚠️  Keine CA-Koordinaten in: {pdb_path}")
                     continue
@@ -38,6 +41,7 @@ def extract_structure_data(input_dir, output_file):
                 all_data.append({
                     "id": pdb_id,
                     "structure_array": ca_array,
+                    "sequence": sequence,  # Sequenz hinzufügen
                 })
                 num_valid += 1
             except Exception as e:
@@ -54,11 +58,14 @@ def extract_structure_data(input_dir, output_file):
                     structure = parser.get_structure(pdb_id, pdb_path)
                     model = structure[0]
                     ca_coords = []
+                    sequence = ""
                     for chain in model:
                         for residue in chain:
                             if "CA" in residue:
                                 ca = residue["CA"]
                                 ca_coords.append(ca.get_coord())
+                            if is_aa(residue):  # Nur Aminosäuren
+                                sequence += seq1(residue.get_resname())  # Aminosäuresequenz hinzufügen
                     if len(ca_coords) == 0:
                         print(f"⚠️  Keine CA-Koordinaten in: {pdb_path}")
                         continue
@@ -66,6 +73,7 @@ def extract_structure_data(input_dir, output_file):
                     all_data.append({
                         "id": pdb_id,
                         "structure_array": ca_array,
+                        "sequence": sequence,  # Sequenz hinzufügen
                     })
                     num_valid += 1
                 except Exception as e:
@@ -77,6 +85,7 @@ def extract_structure_data(input_dir, output_file):
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     with open(output_file, 'wb') as f:
         pickle.dump(all_data, f)
+
 
 
 
