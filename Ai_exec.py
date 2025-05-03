@@ -44,18 +44,28 @@ def get_structure_from_accession_id(accession_ids=None):
     pickle_file = "./data/alphafold_structures_conv2d.pkl"
     structure_map = load_structure_data(pickle_file)
 
+    # Liste zum Speichern der Strukturdaten
+    structures = []
+
     for accession_id in accession_ids:
-    # Zugriff auf eine Struktur anhand der ID
         pdb_id = str(accession_id)  # Ersetze durch eine gültige ID
 
         if pdb_id in structure_map:
+            # Zugriff auf die Struktur anhand der ID
             structure_data = structure_map[pdb_id]
+            structure_array = structure_data['structure_array']  # Hier wird der 'structure_array' Key verwendet
+            print(f"Strukturdaten für ID {pdb_id} gefunden.")
+            structures.append(structure_array)  # Struktur hinzufügen
         elif isinstance(pdb_id, str) and pdb_id.lower() == "nan":
             # Erstelle eine leere Struktur als Platzhalter
-            structure_data = np.array([])  # Leeres NumPy-Array als Platzhalter
+            structure_array = np.array([])  # Leeres NumPy-Array als Platzhalter
             print(f"⚠️ Leere Struktur für ID {pdb_id} als Platzhalter verwendet.")
+            structures.append(structure_array)
         else:
             print(f"Keine Strukturdaten für ID {pdb_id} gefunden.")
+            structures.append(None)  # Falls keine Struktur gefunden, None hinzufügen
+
+    return structures
 
 
 def create_ai(filepath, save_file, output_file, train=False, safe=False, validate_45_Blind=False, validate_BP3C=False, predict=False, old=False, gpu_split=False, big_dataset=True, use_structure=False, ba_ai=False):
