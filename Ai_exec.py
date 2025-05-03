@@ -140,7 +140,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
     num_heads = 40  # Number of attention heads; used to be 40
     ff_dim = 40  # Hidden layer size in feed forward network inside transformer; used to be 32
     maxlen = length_of_longest_context
-    rate = 0.05
+    rate = 0.1
     training = True
     output_dimension = embedding_dim
 
@@ -259,15 +259,15 @@ def create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, ne
             num_heads=num_heads,
             dropout=rate,
         )(x)
-    encoder_outputs = keras.layers.Dense(embed_dim, activation='sigmoid')(x)
+    #encoder_outputs = keras.layers.Dense(embed_dim, activation='sigmoid')(x)
     # Decoder
-    decoder_outputs = encoder_outputs
+    decoder_outputs = x
     for i in range(num_decoder_blocks):
         decoder_outputs = keras_hub.layers.TransformerDecoder(
             intermediate_dim=output_dimension,
             num_heads=num_heads,
             dropout=rate
-        )(decoder_outputs, encoder_outputs)
+        )(decoder_outputs, x)
     decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
     decoder_outputs = keras.layers.Dense(4, activation='relu', name='Not_the_last_Sigmoid')(decoder_outputs)
     decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
