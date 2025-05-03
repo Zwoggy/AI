@@ -41,7 +41,7 @@ def load_structure_data(pickle_file):
 
 
 def get_structure_from_accession_id(accession_ids=None):
-    pickle_file = "/data/alphafold_structures_conv2d.pkl"
+    pickle_file = "./data/alphafold_structures_conv2d.pkl"
     structure_map = load_structure_data(pickle_file)
 
     for accession_id in accession_ids:
