@@ -48,7 +48,11 @@ def get_structure_from_accession_id(accession_ids=None):
     # Zugriff auf eine Struktur anhand der ID
         pdb_id = str(accession_id)  # Ersetze durch eine gültige ID
         if pdb_id in structure_map:
-            pass
+            structure_data = structure_map[pdb_id]
+        elif isinstance(pdb_id, str) and pdb_id.lower() == "nan":
+            # Erstelle eine leere Struktur als Platzhalter
+            structure_data = np.array([])  # Leeres NumPy-Array als Platzhalter
+            print(f"⚠️ Leere Struktur für ID {pdb_id} als Platzhalter verwendet.")
         else:
             print(f"Keine Strukturdaten für ID {pdb_id} gefunden.")
 
