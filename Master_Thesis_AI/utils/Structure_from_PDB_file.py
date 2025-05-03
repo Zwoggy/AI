@@ -7,7 +7,7 @@ from Bio.PDB import PDBParser
 
 
 class Structure_dataset_creator():
-    def __init__(self, pdb_directory, output_directory):
+    def __init__(self, pdb_directory=None, output_directory=None):
         self.pdb_directory = pdb_directory
         self.output_directory = output_directory
 
@@ -32,4 +32,5 @@ class Structure_dataset_creator():
 
 
 if __name__=="__main__":
-    pass
+    get_structure = Structure_dataset_creator(pdb_directory=None, output_directory=None)
+    get_structure.get_structure_from_PDB_file()

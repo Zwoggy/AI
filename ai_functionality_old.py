@@ -133,6 +133,7 @@ def read_data(filepath):
 
     first_col: str = 'Epitope'
     epitope_embed_list: list = []
+    print("Hier die Anzahl aller einzigartigen Accessions",df["Accession"].nunique())
 
     for i, sequence in enumerate(df['Sequence']):
 

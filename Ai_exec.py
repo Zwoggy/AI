@@ -161,11 +161,11 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
             # with tpu_strategy.scope(): # creating the model in the TPUStrategy scope means we will train the model on the TPU
 
             early_stopping = tf_keras.callbacks.EarlyStopping(
-                monitor = 'val_masked_f1_score',
+                monitor = 'val_loss',
                 min_delta = 0.001,
                 patience = 10,
                 verbose = 0,
-                mode = 'max',
+                mode = 'auto',
                 baseline = None,
                 restore_best_weights = True)
 
@@ -178,7 +178,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                                         #output_dimension, rate, training, voc_size)
             # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
             print("training_data:", training_data[0], type(training_data)) # debug
-            history = model.fit(x = training_data, y = epitope_list, batch_size = 50, epochs = 100,
+            history = model.fit(x = training_data, y = epitope_list, batch_size = 50, epochs = 1,
                             validation_data = (testx_list, testy_list), callbacks = [early_stopping], verbose=1)
         # history = model.fit(x=antigen_list, y=epitope_list, batch_size=50, epochs=100, validation_data=(testx_list, testy_list, testy_for_weights), callbacks=[callback], sample_weight = epitope_list_for_weights)
 
@@ -261,8 +261,7 @@ def create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, ne
         )(x)
     encoder_outputs = keras.layers.Dense(embed_dim, activation='sigmoid')(x)
     # Decoder
-    #decoder_outputs = encoder_outputs
-    decoder_outputs = x
+    decoder_outputs = encoder_outputs
     for i in range(num_decoder_blocks):
         decoder_outputs = keras_hub.layers.TransformerDecoder(
             intermediate_dim=output_dimension,
