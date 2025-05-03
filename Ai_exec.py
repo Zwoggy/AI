@@ -47,12 +47,12 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
     # optimizersgd = opt.sgd_experimental.SGD(learning_rate=0.001, clipnorm=5)
 
-    antigen_list = embedded_docs[:-100]
-    epitope_list = epitope_embed_list[:-100]
+    antigen_list = embedded_docs[:-300]
+    epitope_list = epitope_embed_list[:-300]
     print("Größe des Trainingsdatensatzes: ", len(antigen_list))
 
-    testx_list = embedded_docs[-100:]
-    testy_list = epitope_embed_list[-100:]
+    testx_list = embedded_docs[-300:]
+    testy_list = epitope_embed_list[-300:]
 
     #antigen_list = one_hot_embed[:-300] # test for one_hot_endcoding
     #testx_list = one_hot_embed[-300:] # test for one_hot_endcoding
