@@ -53,8 +53,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
     testx_list = embedded_docs[-300:]
     testy_list = epitope_embed_list[-300:]
 
-    antigen_list = one_hot_embed[:-300] # test for one_hot_endcoding
-    testx_list = one_hot_embed[-300:] # test for one_hot_endcoding
+    #antigen_list = one_hot_embed[:-300] # test for one_hot_endcoding
+    #testx_list = one_hot_embed[-300:] # test for one_hot_endcoding
 
     antigen_list_full_sequence = antigen_list
     epitope_list_full_sequence = epitope_list
