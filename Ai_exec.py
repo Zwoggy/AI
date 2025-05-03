@@ -46,7 +46,7 @@ def get_structure_from_accession_id(accession_ids=None):
 
     # Liste zum Speichern der Strukturdaten
     for pdb_id in structure_map.keys():
-        print(pdb_id)
+        print(pdb_id.replace('_alphafold', ''))  # Entfernt "_alphafold"
     structures = []
     for accession_id in accession_ids:
         pdb_id = str(accession_id)  # Ersetze durch eine gültige ID
