@@ -53,16 +53,16 @@ def get_structure_from_accession_id(accession_ids=None):
             # Zugriff auf die Struktur anhand der ID
             structure_data = structure_map[pdb_id]
             structure_array = structure_data['structure_array']  # Hier wird der 'structure_array' Key verwendet
-            print(f"Strukturdaten für ID {pdb_id} gefunden.")
+            #print(f"Strukturdaten für ID {pdb_id} gefunden.")
             structures.append(structure_array)  # Struktur hinzufügen
         elif isinstance(pdb_id, str) and pdb_id.lower() == "nan":
             # Erstelle eine leere Struktur als Platzhalter
             structure_array = np.array([0], np.float16)  # Leeres NumPy-Array als Platzhalter
-            print(f"⚠️ Leere Struktur für ID {pdb_id} als Platzhalter verwendet.")
+            #print(f"⚠️ Leere Struktur für ID {pdb_id} als Platzhalter verwendet.")
             structures.append(structure_array)
         else:
             print(f"Keine Strukturdaten für ID {pdb_id} gefunden.")
-            structures.append(None)  # Falls keine Struktur gefunden, None hinzufügen
+            structures.append(np.array([0], np.float16))  # Falls keine Struktur gefunden, None hinzufügen
 
     return structures
 
@@ -79,7 +79,6 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
     if use_structure:
         embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder, structure_data = embedding_incl_structure(filepath, pdb_dir="./data/alphafold_structures_02", old=old)
-        print(structure_data)
     else:
         embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder, one_hot_embed, accession_ids = embedding(filepath, old=old)
 
