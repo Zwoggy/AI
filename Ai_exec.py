@@ -232,6 +232,20 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                 history = model.fit(x = training_data, y = epitope_list, batch_size = 50, epochs = 100,
                             validation_data = (testx_list, testy_list), callbacks = [early_stopping], verbose=1)
             else:
+                # Eingabedaten überprüfen
+                none_data = identify_none_inputs(
+                    training_data=training_data,
+                    antigen_list_structures=antigen_list_structures,
+                    epitope_list=epitope_list,
+                    testx_list=testx_list,
+                    test_x_list_structures=test_x_list_structures,
+                    testy_list=testy_list
+                )
+
+                # Wenn ein None-Wert gefunden wurde, eine detaillierte Fehlermeldung ausgeben
+                if none_data:
+                    print(f"⚠️ Diese Eingabedaten sind None: {', '.join(none_data)}")
+                    raise ValueError(f"Eingabedaten sind ungültig: {', '.join(none_data)}")
                 model = create_fusionmodel(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights,
                                          num_decoder_blocks, num_heads, num_transformer_blocks, old, rate,
                                          voc_size)
@@ -289,6 +303,17 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
     if validate_BP3C:
         validate_on_BP3C59ID_external_test_set()
     amino_acid_counts_epitope_predicted, confusion_matrices = analyze_amino_acids_in_validation_data( model, validation_sequences=testx_list, validation_labels=testy_list, encoder=encoder)
+
+
+# Überprüfen, ob eines der Eingabedaten None ist und welches
+def identify_none_inputs(**kwargs):
+    none_inputs = []
+    for name, value in kwargs.items():
+        if value is None:
+            none_inputs.append(name)
+    return none_inputs
+
+
 
 def create_fusionmodel(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights, num_decoder_blocks,
                      num_heads, num_transformer_blocks, old, rate, voc_size):
