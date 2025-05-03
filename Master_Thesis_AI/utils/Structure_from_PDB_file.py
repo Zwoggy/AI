@@ -52,10 +52,12 @@ def extract_structure_data(pdb_dir, output_file):
 
 if __name__=='__main__':
     # Beispielaufruf:
-    extract_structure_data(
-        pdb_dir="/home/fzwicker/Forschungsprojekt_02/fasta_data/alphafold_output/",
-        output_file="/home/fzwicker/Forschungsprojekt_02/git_project/data/alphafold_structures_conv2d.pkl"
-    )
+    mach=False
+    if mach:
+        extract_structure_data(
+            pdb_dir="/home/fzwicker/Forschungsprojekt_02/fasta_data/alphafold_output/",
+            output_file="/home/fzwicker/Forschungsprojekt_02/git_project/data/alphafold_structures_conv2d.pkl"
+        )
 
     with open("/home/fzwicker/Forschungsprojekt_02/git_project/data/alphafold_structures_conv2d.pkl", "rb") as f:
         data = pickle.load(f)
