@@ -136,9 +136,9 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
     num_transformer_blocks = 2 # used to be 2
     num_decoder_blocks = 2 # used to be 1
-    embed_dim = 24  # Embedding size for each token used to be 24
-    num_heads = 8  # Number of attention heads; used to be 40
-    ff_dim = 48  # Hidden layer size in feed forward network inside transformer; used to be 32
+    embed_dim = 40  # Embedding size for each token used to be 24
+    num_heads = 40  # Number of attention heads; used to be 40
+    ff_dim = 40  # Hidden layer size in feed forward network inside transformer; used to be 32
     maxlen = length_of_longest_context
     rate = 0.1
     training = True
