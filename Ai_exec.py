@@ -34,8 +34,8 @@ def load_structure_data(pickle_file):
     with open(pickle_file, 'rb') as f:
         data = pickle.load(f)
 
-    # Mappe die ID zu den Strukturdaten (z.B. Koordinaten und Sequenz)
-    structure_map = {entry['id']: entry for entry in data}
+        # Mappe die ID zu den Strukturdaten (z.B. Koordinaten und Sequenz), entferne "_alphafold"
+        structure_map = {entry['id'].replace('_alphafold', ''): entry for entry in data}
 
     return structure_map
 
@@ -45,8 +45,6 @@ def get_structure_from_accession_id(accession_ids=None):
     structure_map = load_structure_data(pickle_file)
 
     # Liste zum Speichern der Strukturdaten
-    for pdb_id in structure_map.keys():
-        print(pdb_id.replace('_alphafold', ''))  # Entfernt "_alphafold"
     structures = []
     for accession_id in accession_ids:
         pdb_id = str(accession_id)  # Ersetze durch eine gültige ID
