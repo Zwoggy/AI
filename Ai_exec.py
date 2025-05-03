@@ -45,20 +45,17 @@ def get_structure_from_accession_id(accession_ids=None):
     structure_map = load_structure_data(pickle_file)
 
     for accession_id in accession_ids:
-        print("accessoin_liste: ", accession_ids)
     # Zugriff auf eine Struktur anhand der ID
         pdb_id = str(accession_id)  # Ersetze durch eine gültige ID
-        print(pdb_id)
 
         if pdb_id in structure_map:
             structure_data = structure_map[pdb_id]
         elif isinstance(pdb_id, str) and pdb_id.lower() == "nan":
             # Erstelle eine leere Struktur als Platzhalter
             structure_data = np.array([])  # Leeres NumPy-Array als Platzhalter
-            #print(f"⚠️ Leere Struktur für ID {pdb_id} als Platzhalter verwendet.")
+            print(f"⚠️ Leere Struktur für ID {pdb_id} als Platzhalter verwendet.")
         else:
-            pass
-            #print(f"Keine Strukturdaten für ID {pdb_id} gefunden.")
+            print(f"Keine Strukturdaten für ID {pdb_id} gefunden.")
 
 
 def create_ai(filepath, save_file, output_file, train=False, safe=False, validate_45_Blind=False, validate_BP3C=False, predict=False, old=False, gpu_split=False, big_dataset=True, use_structure=False, ba_ai=False):
@@ -294,7 +291,7 @@ def create_fusionmodel(embed_dim, ff_dim, length_of_longest_context, maxlen, new
         embed_dim=embed_dim,
         ff_dim=ff_dim,
         num_heads=num_heads,
-        num_transformer_blocks=num_transformer_blocks,
+        num_transformer_encoder_blocks=num_transformer_blocks,
         num_decoder_blocks=num_decoder_blocks,
         rate=rate
     )
