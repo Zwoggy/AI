@@ -5,7 +5,6 @@ Auth: Florian Zwicker
 import os
 from Bio.PDB import PDBParser
 
-import Biopython as Bio
 import os
 import numpy as np
 from Bio.PDB import PDBParser, is_aa
