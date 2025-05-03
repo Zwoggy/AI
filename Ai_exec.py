@@ -45,8 +45,9 @@ def get_structure_from_accession_id(accession_ids=None):
     structure_map = load_structure_data(pickle_file)
 
     # Liste zum Speichern der Strukturdaten
+    for pdb_id in structure_map.keys():
+        print(pdb_id)
     structures = []
-    print(structure_map)
     for accession_id in accession_ids:
         pdb_id = str(accession_id)  # Ersetze durch eine gültige ID
 
