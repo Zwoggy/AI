@@ -6,31 +6,53 @@ import os
 from Bio.PDB import PDBParser
 
 
-class Structure_dataset_creator():
-    def __init__(self, pdb_directory=None, output_directory=None):
-        self.pdb_directory = pdb_directory
-        self.output_directory = output_directory
+import os
+import numpy as np
+from Bio.PDB import PDBParser, is_aa
+from Bio.SeqUtils import seq1
+import pickle
+
+def extract_structure_data(pdb_dir, output_file):
+    parser = PDBParser(QUIET=True)
+    data = []
+
+    for file in os.listdir(pdb_dir):
+        if not file.endswith('_alphafold.pdb'):
+            continue
+        pdb_id = file.split('_')[0]
+        filepath = os.path.join(pdb_dir, file)
+        structure = parser.get_structure(pdb_id, filepath)
+
+        coords = []
+        sequence = ""
+        for model in structure:
+            for chain in model:
+                for residue in chain:
+                    if is_aa(residue):
+                        ca = residue.get('CA')
+                        if ca:
+                            coords.append(ca.coord)
+                            sequence += seq1(residue.get_resname())
+        coords = np.array(coords)
+        if len(coords) < 2:
+            continue
+
+        dist_matrix = np.linalg.norm(coords[:, None, :] - coords[None, :, :], axis=-1)
+
+        data.append({
+            'id': pdb_id,
+            'sequence': sequence,
+            'structure_array': dist_matrix  # (L, L) - Conv2D-ready
+        })
+
+    with open(output_file, 'wb') as f:
+        pickle.dump(data, f)
 
 
-    def get_structure_from_PDB_file(self):
-        parser = PDBParser()
 
-        for file in os.listdir(self.pdb_directory):
-            if file.endswith(".pdb"):
-                structure_id = file.split("_")[0]
-                file_path = os.path.join(self.pdb_directory, file)
-
-                structure = parser.get_structure(id=structure_id, file=file_path)
-
-                for model in structure:
-                    for chain in model:
-                        for residue in chain:
-                            for atom in residue:
-                                print(atom.name, atom.coord)
-
-
-
-
-if __name__=="__main__":
-    get_structure = Structure_dataset_creator(pdb_directory=None, output_directory=None)
-    get_structure.get_structure_from_PDB_file()
+if __name__=='__main__':
+    # Beispielaufruf:
+    extract_structure_data(
+        pdb_dir="/home/fzwicker/Forschungsprojekt_02/fasta_data/alphafold_output/",
+        output_file="/home/fzwicker/Forschungsprojekt_02/data/alphafold_structures_conv2d.pkl"
+)
