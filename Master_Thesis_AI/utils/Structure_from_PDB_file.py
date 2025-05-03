@@ -17,6 +17,34 @@ def extract_structure_data(input_dir, output_file):
     num_files = 0
     num_valid = 0
 
+    # 1. Direkt im input_dir liegende .pdb-Dateien verarbeiten
+    for file in os.listdir(input_dir):
+        if file.endswith(".pdb"):
+            pdb_path = os.path.join(input_dir, file)
+            pdb_id = os.path.splitext(file)[0]
+            try:
+                structure = parser.get_structure(pdb_id, pdb_path)
+                model = structure[0]
+                ca_coords = []
+                for chain in model:
+                    for residue in chain:
+                        if "CA" in residue:
+                            ca = residue["CA"]
+                            ca_coords.append(ca.get_coord())
+                if len(ca_coords) == 0:
+                    print(f"⚠️  Keine CA-Koordinaten in: {pdb_path}")
+                    continue
+                ca_array = np.array(ca_coords)
+                all_data.append({
+                    "id": pdb_id,
+                    "structure_array": ca_array,
+                })
+                num_valid += 1
+            except Exception as e:
+                print(f"❌ Fehler bei Datei {pdb_path}: {e}")
+            num_files += 1
+
+    # 2. ranked_0.pdb-Dateien aus Unterverzeichnissen wie gehabt
     for root, dirs, files in os.walk(input_dir):
         for file in files:
             if file == "ranked_0.pdb":
