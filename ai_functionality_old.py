@@ -172,7 +172,7 @@ def read_data(filepath):
         if epitope_embed.count(1) > 4:
             epitope_embed_list.append(epitope_embed)
             sequence_as_aminoacids_list.append(sequence_as_sentence)
-            accession_id_list.append(accession_id)
+            accession_id_list.append(accession_id[i])
 
     return sequence_as_aminoacids_list, epitope_embed_list, accession_id_list
 
