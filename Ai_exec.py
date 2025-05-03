@@ -140,7 +140,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
     num_heads = 40  # Number of attention heads; used to be 40
     ff_dim = 40  # Hidden layer size in feed forward network inside transformer; used to be 32
     maxlen = length_of_longest_context
-    rate = 0.3
+    rate = 0.05
     training = True
     output_dimension = embedding_dim
 
