@@ -24,14 +24,15 @@ def extract_structure_data(pdb_dir, output_file):
 
         coords = []
         sequence = ""
+        ca_coords = []
         for model in structure:
             for chain in model:
                 for residue in chain:
-                    if is_aa(residue):
-                        ca = residue.get('CA')
-                        if ca:
-                            coords.append(ca.coord)
-                            sequence += seq1(residue.get_resname())
+                    if "CA" in residue:
+                        ca = residue["CA"]
+                        ca_coords.append(ca.get_coord())
+
+                        sequence += seq1(residue.get_resname())
         coords = np.array(coords)
         if len(coords) < 2:
             continue
