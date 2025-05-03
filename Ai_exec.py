@@ -144,8 +144,6 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
     training = True
     output_dimension = embedding_dim
 
-    some_class_weight = {0: 1.,
-                         1: 3.}
 
     testx_list = testx_list.astype(np.float16)
     testy_list = testy_list.astype(np.float16)
