@@ -57,6 +57,7 @@ def get_structure_from_accession_id(accession_ids=None):
             structure_data = np.array([])  # Leeres NumPy-Array als Platzhalter
             #print(f"⚠️ Leere Struktur für ID {pdb_id} als Platzhalter verwendet.")
         else:
+            pass
             #print(f"Keine Strukturdaten für ID {pdb_id} gefunden.")
 
 
