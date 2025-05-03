@@ -48,10 +48,7 @@ def get_structure_from_accession_id(accession_ids=None):
     # Zugriff auf eine Struktur anhand der ID
         pdb_id = str(accession_id)  # Ersetze durch eine gültige ID
         if pdb_id in structure_map:
-            structure_data = structure_map[pdb_id]
-            print(f"Strukturdaten für {pdb_id}:")
-            print("Koordinaten:", structure_data['structure_array'])
-            print("Sequenz:", structure_data['sequence'])
+            pass
         else:
             print(f"Keine Strukturdaten für ID {pdb_id} gefunden.")
 
@@ -78,6 +75,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
     antigen_list_accession_ids = accession_ids[:-300]
     antigen_list_structures = get_structure_from_accession_id(antigen_list_accession_ids)
+    print(antigen_list_structures)  # Überprüfe, ob antigen_list_structures korrekt geladen wurde
+
     antigen_list = embedded_docs[:-300]
     epitope_list = epitope_embed_list[:-300]
     print("Größe des Trainingsdatensatzes: ", len(antigen_list))
@@ -204,9 +203,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                 baseline = None,
                 restore_best_weights = True)
 
-            i, model = create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, new_weights,
-                                        num_decoder_blocks, num_heads, num_transformer_blocks, old, rate,
-                                        voc_size)
+
 
             #i, model = create_model_old(embed_dim, ff_dim, gpu_split, i, length_of_longest_context, maxlen, new_weights,
                                         #num_decoder_blocks, num_heads, num_transformer_blocks, old,
@@ -215,9 +212,15 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
             print("training_data:", training_data[0], type(training_data)) # debug
 
             if ba_ai:
+                i, model = create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, new_weights,
+                                    num_decoder_blocks, num_heads, num_transformer_blocks, old, rate,
+                                    voc_size)
                 history = model.fit(x = training_data, y = epitope_list, batch_size = 50, epochs = 100,
                             validation_data = (testx_list, testy_list), callbacks = [early_stopping], verbose=1)
             else:
+                model = create_fusionmodel(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights,
+                                         num_decoder_blocks, num_heads, num_transformer_blocks, old, rate,
+                                         voc_size)
                 history = model.fit(x=[training_data, antigen_list_structures], y=epitope_list, batch_size=50, epochs=100,
                                     validation_data=([testx_list, test_x_list_structures], testy_list), callbacks=[early_stopping], verbose=1)
         # history = model.fit(x=antigen_list, y=epitope_list, batch_size=50, epochs=100, validation_data=(testx_list, testy_list, testy_for_weights), callbacks=[callback], sample_weight = epitope_list_for_weights)
@@ -273,7 +276,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
         validate_on_BP3C59ID_external_test_set()
     amino_acid_counts_epitope_predicted, confusion_matrices = analyze_amino_acids_in_validation_data( model, validation_sequences=testx_list, validation_labels=testy_list, encoder=encoder)
 
-def create_fusionmodel(embed_dim, ff_dim, i, length_of_longest_context, maxlen, new_weights, num_decoder_blocks,
+def create_fusionmodel(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights, num_decoder_blocks,
                      num_heads, num_transformer_blocks, old, rate, voc_size):
 
     optimizer = tf.keras.optimizers.AdamW(learning_rate=0.001)
