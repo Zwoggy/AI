@@ -3,19 +3,17 @@ This Skripts sole purpose is to create a model that can be used to predict wheth
 Main Skript for the Master's Thesis.
 """
 import tensorflow as tf
-import tf_keras
+import keras
 from tensorflow.keras import layers
 
 from ai_functionality_old import get_weighted_loss, \
     calculating_class_weights
-from src.TransformerDecoderTwo import TransformerDecoderTwo
-from src.TokenAndPositionEmbedding import TokenAndPositionEmbedding
-from src.TransformerBlock import TransformerBlock
+import keras_hub
 
 
-class FusionModel(tf_keras.Model):
-    def __init__(self, length_of_longest_context, voc_size, embed_dim, ff_dim, num_heads,
-                 num_transformer_encoder_blocks, num_decoder_blocks, rate=0.3, training=True, **kwargs):
+class FusionModel(tf.keras.Model):
+    def __init__(self, length_of_longest_context=235, voc_size=24, embed_dim=40, ff_dim=40, num_heads=40,
+                 num_transformer_encoder_blocks=2, num_decoder_blocks=2, rate=0.1, training=True, **kwargs):
         super(FusionModel, self).__init__(**kwargs)
         
         ### Initialize variables
@@ -64,9 +62,9 @@ class FusionModel(tf_keras.Model):
 
     def build(self, input_shape):
         # Embedding Layer
-        self.embedding_layer = TokenAndPositionEmbedding(self.length_of_longest_context, self.voc_size, self.embed_dim)
+        self.embedding_layer =keras_hub.layers.TokenAndPositionEmbedding(self.voc_size, self.length_of_longest_context, self.embed_dim, mask_zero=True)
         # CNN Pfad
-        self.cnn = tf_keras.Sequential([
+        self.cnn = tf.keras.Sequential([
             layers.Conv2D(32, 3, padding="same", activation="relu"),
             layers.MaxPooling2D(pool_size=2),
             layers.Conv2D(64, 3, padding="same", activation="relu"),
@@ -75,7 +73,7 @@ class FusionModel(tf_keras.Model):
         ])
 
         # Transformer Blocks
-        self.transformer_blocks = [TransformerBlock(self.embed_dim, self.num_heads, self.ff_dim, self.rate)
+        self.transformer_blocks = [keras_hub.layers.TransformerEncoder(intermediate_dim=self.embed_dim, num_heads=self.num_heads, dropout=self.rate)
                                    for _ in range(self.num_transformer_encoder_blocks)]
 
         # Fusion
@@ -83,7 +81,7 @@ class FusionModel(tf_keras.Model):
         self.fusion_norm = layers.LayerNormalization()
 
         # Decoder
-        self.decoder_layers = [TransformerDecoderTwo(self.embed_dim, self.ff_dim, self.num_heads)
+        self.decoder_layers = [keras_hub.layers.TransformerDecoder(intermediate_dim=self.embed_dim, num_heads=self.num_heads, dropout=self.rate)
                                for _ in range(self.num_decoder_blocks)]
 
         self.output_dense1 = layers.Dense(12, activation="sigmoid", name='Not_the_last_Sigmoid')

@@ -133,7 +133,9 @@ def read_data(filepath):
 
     first_col: str = 'Epitope'
     epitope_embed_list: list = []
+    accession_id_list: list = []
     print("Hier die Anzahl aller einzigartigen Accessions",df["Accession"].nunique())
+    accession_id = df["Accession"].tolist()
 
     for i, sequence in enumerate(df['Sequence']):
 
@@ -170,8 +172,9 @@ def read_data(filepath):
         if epitope_embed.count(1) > 4:
             epitope_embed_list.append(epitope_embed)
             sequence_as_aminoacids_list.append(sequence_as_sentence)
+            accession_id_list.append(accession_id)
 
-    return sequence_as_aminoacids_list, epitope_embed_list
+    return sequence_as_aminoacids_list, epitope_embed_list, accession_id_list
 
 def embedding(filepath, old=False):
     """
@@ -200,7 +203,7 @@ def embedding(filepath, old=False):
             The tokenizer used for embedding the sequences.
     """
 
-    sequence_list, epitope_embed_list = read_data(filepath)
+    sequence_list, epitope_embed_list, accession_id = read_data(filepath)
 
     voc_size = 100
 
@@ -238,7 +241,7 @@ def embedding(filepath, old=False):
     # embedded_docs = np.array(embedded_docs)
 
 
-    return embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder, one_hot_embedded_docs
+    return embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder, one_hot_embedded_docs, accession_id
 
 
 def embedding_incl_structure(filepath, pdb_dir, old=False):

@@ -8,7 +8,9 @@ import tensorflow
 from tensorflow.keras import backend as K
 from tf_keras import Model
 import keras
+import pickle
 
+from Master_Thesis_AI.FusionModel import FusionModel
 from Master_Thesis_AI.utils.data_loading_generator import EpitopeDataGenerator
 from ai_functionality_new import LayerGroup
 from ai_functionality_old import embedding, modify_with_context, calculating_class_weights, \
@@ -27,7 +29,34 @@ from tensorflow.keras import mixed_precision
 from validate_BP3C50ID_external_test_set import validate_on_BP3C59ID_external_test_set
 
 
-def create_ai(filepath, save_file, output_file, train=False, safe=False, validate_45_Blind=False, validate_BP3C=False, predict=False, old=False, gpu_split=False, big_dataset=True, use_structure=False):
+def load_structure_data(pickle_file):
+    # Lade die Daten aus dem Pickle-File
+    with open(pickle_file, 'rb') as f:
+        data = pickle.load(f)
+
+    # Mappe die ID zu den Strukturdaten (z.B. Koordinaten und Sequenz)
+    structure_map = {entry['id']: entry for entry in data}
+
+    return structure_map
+
+
+def get_structure_from_accession_id(accession_ids=None):
+    pickle_file = "/home/fzwicker/Forschungsprojekt_02/git_project/data/alphafold_structures_conv2d.pkl"
+    structure_map = load_structure_data(pickle_file)
+
+    for accession_id in accession_ids:
+    # Zugriff auf eine Struktur anhand der ID
+        pdb_id = str(accession_id)  # Ersetze durch eine gültige ID
+        if pdb_id in structure_map:
+            structure_data = structure_map[pdb_id]
+            print(f"Strukturdaten für {pdb_id}:")
+            print("Koordinaten:", structure_data['structure_array'])
+            print("Sequenz:", structure_data['sequence'])
+        else:
+            print(f"Keine Strukturdaten für ID {pdb_id} gefunden.")
+
+
+def create_ai(filepath, save_file, output_file, train=False, safe=False, validate_45_Blind=False, validate_BP3C=False, predict=False, old=False, gpu_split=False, big_dataset=True, use_structure=False, ba_ai=False):
     from tensorflow.python.framework.ops import disable_eager_execution
     #disable_eager_execution()
     if old==False:
@@ -41,15 +70,20 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
         embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder, structure_data = embedding_incl_structure(filepath, pdb_dir="./data/alphafold_structures_02", old=old)
         print(structure_data)
     else:
-        embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder, one_hot_embed = embedding(filepath, old=old)
+        embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder, one_hot_embed, accession_ids = embedding(filepath, old=old)
 
 
 
     # optimizersgd = opt.sgd_experimental.SGD(learning_rate=0.001, clipnorm=5)
 
+    antigen_list_accession_ids = accession_ids[:-300]
+    antigen_list_structures = get_structure_from_accession_id(antigen_list_accession_ids)
     antigen_list = embedded_docs[:-300]
     epitope_list = epitope_embed_list[:-300]
     print("Größe des Trainingsdatensatzes: ", len(antigen_list))
+
+    testx_list_accession_ids = accession_ids[-300:]
+    test_x_list_structures = get_structure_from_accession_id(testx_list_accession_ids)
 
     testx_list = embedded_docs[-300:]
     testy_list = epitope_embed_list[-300:]
@@ -179,8 +213,13 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                                         #output_dimension, rate, training, voc_size)
             # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
             print("training_data:", training_data[0], type(training_data)) # debug
-            history = model.fit(x = training_data, y = epitope_list, batch_size = 50, epochs = 100,
+
+            if ba_ai:
+                history = model.fit(x = training_data, y = epitope_list, batch_size = 50, epochs = 100,
                             validation_data = (testx_list, testy_list), callbacks = [early_stopping], verbose=1)
+            else:
+                history = model.fit(x=[training_data, antigen_list_structures], y=epitope_list, batch_size=50, epochs=100,
+                                    validation_data=([testx_list, test_x_list_structures], testy_list), callbacks=[early_stopping], verbose=1)
         # history = model.fit(x=antigen_list, y=epitope_list, batch_size=50, epochs=100, validation_data=(testx_list, testy_list, testy_for_weights), callbacks=[callback], sample_weight = epitope_list_for_weights)
 
         # plot_results(history)
@@ -233,6 +272,36 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
     if validate_BP3C:
         validate_on_BP3C59ID_external_test_set()
     amino_acid_counts_epitope_predicted, confusion_matrices = analyze_amino_acids_in_validation_data( model, validation_sequences=testx_list, validation_labels=testy_list, encoder=encoder)
+
+def create_fusionmodel(embed_dim, ff_dim, i, length_of_longest_context, maxlen, new_weights, num_decoder_blocks,
+                     num_heads, num_transformer_blocks, old, rate, voc_size):
+
+    optimizer = tf.keras.optimizers.AdamW(learning_rate=0.001)
+    fusion_model = FusionModel(
+        length_of_longest_context=length_of_longest_context,
+        voc_size=voc_size,
+        embed_dim=embed_dim,
+        ff_dim=ff_dim,
+        num_heads=num_heads,
+        num_transformer_blocks=num_transformer_blocks,
+        num_decoder_blocks=num_decoder_blocks,
+        rate=rate
+    )
+
+    # build model
+    fusion_model.build(input_shape=[(None, maxlen)],)
+
+    # compile model
+    fusion_model.compile(
+        optimizer=optimizer,
+        loss=get_weighted_loss_masked(new_weights),
+        metrics=[MaskedAUC(),
+            masked_precision,
+            masked_recall,
+            masked_f1_score]
+    )
+    return fusion_model
+
 
 
 def create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, new_weights, num_decoder_blocks,
