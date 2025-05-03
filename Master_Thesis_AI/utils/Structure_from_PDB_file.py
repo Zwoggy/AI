@@ -54,5 +54,5 @@ if __name__=='__main__':
     # Beispielaufruf:
     extract_structure_data(
         pdb_dir="/home/fzwicker/Forschungsprojekt_02/fasta_data/alphafold_output/",
-        output_file="/home/fzwicker/Forschungsprojekt_02/data/alphafold_structures_conv2d.pkl"
+        output_file="/home/fzwicker/Forschungsprojekt_02/git_project/data/alphafold_structures_conv2d.pkl"
 )
