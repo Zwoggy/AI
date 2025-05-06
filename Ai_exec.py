@@ -260,8 +260,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                 model = create_fusionmodel(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights,
                                          num_decoder_blocks, num_heads, num_transformer_blocks, old, rate,
                                          voc_size)
-                history = model.fit(x=[training_data, antigen_list_structures], y=epitope_list, batch_size=50, epochs=100,
-                                    validation_data=([testx_list, testx_list_structures], testy_list), callbacks=[early_stopping], verbose=1)
+                history = model.fit(x=[training_data, [antigen_list_structures]], y=epitope_list, batch_size=50, epochs=100,
+                                    validation_data=([testx_list, [testx_list_structures]], testy_list), callbacks=[early_stopping], verbose=1)
         # history = model.fit(x=antigen_list, y=epitope_list, batch_size=50, epochs=100, validation_data=(testx_list, testy_list, testy_for_weights), callbacks=[callback], sample_weight = epitope_list_for_weights)
 
         # plot_results(history)
