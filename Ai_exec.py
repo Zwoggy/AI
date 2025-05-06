@@ -369,7 +369,11 @@ def create_fusiion_model_function(embed_dim, ff_dim, length_of_longest_context, 
 
     # Instanziiere das Layer mit den Gewichtungen
     if old:
-        embedding_layer = keras_hub.layers.TokenAndPositionEmbedding(voc_size, maxlen, embed_dim, mask_zero=True)
+        embedding_layer = keras_hub.layers.TokenAndPositionEmbedding(voc_size,
+                                                                     maxlen,
+                                                                     embed_dim,
+                                                                     #mask_zero=True
+                                                                     )
         #embedding_layer = TokenAndPositionEmbedding(maxlen, voc_size, embed_dim) ## tf_keras version
         x = embedding_layer(encoder_inputs)
         mask = embedding_layer.compute_mask(encoder_inputs)
