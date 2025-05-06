@@ -363,6 +363,8 @@ def create_fusiion_model_function(embed_dim, ff_dim, length_of_longest_context, 
 
     encoder_inputs = keras.layers.Input(shape=(length_of_longest_context,), name='encoder_inputs')
     cnn_inputs = keras.layers.Input(shape=(4700,), name='decoder_inputs')
+    reshaped = keras.layers.Reshape((100, 47, 1))(cnn_inputs)
+
     # Instanziiere das Layer mit den Gewichtungen
     if old:
         embedding_layer = keras_hub.layers.TokenAndPositionEmbedding(voc_size, maxlen, embed_dim, mask_zero=True)
@@ -400,7 +402,7 @@ def create_fusiion_model_function(embed_dim, ff_dim, length_of_longest_context, 
         keras.layers.Conv2D(64, 3, padding="same", activation="relu"),
         keras.layers.GlobalAveragePooling2D(),
         keras.layers.Dense(embed_dim, activation="relu"),  # Align dimension
-    ])(cnn_inputs)
+    ])(reshaped)
 
     y = keras.layers.RepeatVector(length_of_longest_context)(cnn_output)
 
