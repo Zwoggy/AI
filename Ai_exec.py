@@ -41,6 +41,14 @@ def load_structure_data(pickle_file):
     return structure_map
 
 
+def pad_or_truncate(array, max_len=4700):
+    if array.shape[0] > max_len:
+        return array[:max_len]
+    elif array.shape[0] < max_len:
+        padding = np.zeros((max_len - array.shape[0], array.shape[1]), dtype=array.dtype)
+        return np.vstack((array, padding))
+    return array
+
 def get_structure_from_accession_id(accession_ids=None):
     pickle_file = "./data/alphafold_structures_conv2d.pkl"
     structure_map = load_structure_data(pickle_file)
@@ -55,6 +63,7 @@ def get_structure_from_accession_id(accession_ids=None):
             structure_data = structure_map[pdb_id]
             structure_array = structure_data['structure_array']  # Hier wird der 'structure_array' Key verwendet
             #print(f"Strukturdaten für ID {pdb_id} gefunden.")
+            structure_array = pad_or_truncate(structure_array)
             structures.append(structure_array)  # Struktur hinzufügen
         elif isinstance(pdb_id, str) and pdb_id.lower() == "nan":
             # Erstelle eine leere Struktur als Platzhalter
@@ -63,9 +72,13 @@ def get_structure_from_accession_id(accession_ids=None):
             # Variante 2: Mit newaxis
             #structure_array = structure_array[:, np.newaxis]
             print(f"⚠️ Leere Struktur für ID {pdb_id} als Platzhalter verwendet.")
+            structure_array = pad_or_truncate(structure_array)
+
             structures.append(structure_array)
         else:
             structure_array = np.zeros((20, 3), dtype=np.float16)  # Leeres NumPy-Array als Platzhalter
+            structure_array = pad_or_truncate(structure_array)
+
 
             # Variante 2: Mit newaxis
             # structure_array = structure_array[:, np.newaxis]
