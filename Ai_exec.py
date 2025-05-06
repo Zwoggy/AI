@@ -362,8 +362,8 @@ def create_fusiion_model_function(embed_dim, ff_dim, length_of_longest_context, 
     optimizer = tf.keras.optimizers.AdamW(learning_rate=0.001)
 
     encoder_inputs = keras.layers.Input(shape=(length_of_longest_context,), name='encoder_inputs')
-    cnn_inputs = keras.layers.Input(shape=(4700,), name='decoder_inputs')
-    reshaped = keras.layers.Reshape((100, 47, 1))(cnn_inputs)
+    cnn_inputs = keras.layers.Input(shape=(4700, 3), name='decoder_inputs')
+    reshaped = keras.layers.Reshape((100, 47, 3))(cnn_inputs)
 
     # Instanziiere das Layer mit den Gewichtungen
     if old:
