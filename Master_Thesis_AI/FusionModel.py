@@ -32,7 +32,7 @@ class FusionModel(tf.keras.Model):
     def call(self, inputs, training=False, mask=None):
         encoder_inputs, structure_input = inputs
         # Input and embedding
-        encoder_embed_out = self.embedding_layer(encoder_inputs)
+        encoder_embed_out = self.embedding_layer(encoder_inputs, mask_zero=True)
         x = encoder_embed_out
         output_dimension = x.shape[2]
 
@@ -139,14 +139,3 @@ def create_model():
 
     # model.fit({"encoder_inputs": encoder_data, "structure_input": structure_data}, y_true, ...)
 
-
-
-
-
-
-
-
-
-
-if __name__=="__main__":
-    pass
