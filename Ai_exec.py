@@ -357,7 +357,7 @@ def create_fusionmodel(embed_dim, ff_dim, length_of_longest_context, maxlen, new
     )
     return fusion_model
 
-def create_fusiion_model_function(embed_dim, ff_dim, i, length_of_longest_context, maxlen, new_weights, num_decoder_blocks,
+def create_fusiion_model_function(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights, num_decoder_blocks,
                      num_heads, num_transformer_blocks, old, rate, voc_size):
     optimizer = tf.keras.optimizers.AdamW(learning_rate=0.001)
 
