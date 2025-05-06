@@ -29,7 +29,7 @@ class FusionModel(tf.keras.Model):
 
         
     @tf.function
-    def call(self, inputs, training=False, mask=None):
+    def call(self, inputs, training=True, mask=None):
         encoder_inputs, structure_input = inputs
         # Input and embedding
         encoder_embed_out = self.embedding_layer(encoder_inputs, mask_zero=True)
