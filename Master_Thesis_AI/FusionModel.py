@@ -33,11 +33,12 @@ class FusionModel(tf.keras.Model):
         encoder_inputs, structure_input = inputs
         # Input and embedding
         padding_mask = tf.cast(tf.math.equal(encoder_inputs, 0), dtype=tf.float16)
-        #padding_mask = tf.squeeze(padding_mask, axis=-1)  # Remove the last dimension
+        padding_mask = tf.squeeze(padding_mask, axis=-1)  # Remove the last dimension
 
         encoder_embed_out = self.embedding_layer(encoder_inputs)
         x = encoder_embed_out
         output_dimension = x.shape[2]
+        self.embed_dim = output_dimension
 
 
         for block in self.transformer_blocks:
@@ -65,7 +66,7 @@ class FusionModel(tf.keras.Model):
 
     def build(self, input_shape):
         # Embedding Layer
-        self.embedding_layer =keras_hub.layers.TokenAndPositionEmbedding(self.voc_size, self.length_of_longest_context, self.embed_dim, mask_zero=True)
+        self.embedding_layer =keras_hub.layers.TokenAndPositionEmbedding(self.voc_size, self.length_of_longest_context, self.embed_dim)
         # CNN Pfad
         self.cnn = tf.keras.Sequential([
             layers.Conv2D(32, 3, padding="same", activation="relu"),
