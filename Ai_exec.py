@@ -118,7 +118,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
     testx_list_accession_ids = accession_ids[-300:]
     testx_list_structures = get_structure_from_accession_id(testx_list_accession_ids)
-    textx_list_structures = np.array(testx_list_structures, dtype=np.float16)
+    testx_list_structures = np.array(testx_list_structures, dtype=np.float16)
 
 
     testx_list = embedded_docs[-300:]
