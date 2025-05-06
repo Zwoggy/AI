@@ -395,17 +395,17 @@ def create_fusiion_model_function(embed_dim, ff_dim, length_of_longest_context, 
 
     # CNN for structural Input
     cnn_output = tf.keras.Sequential([
-        layers.Conv2D(32, 3, padding="same", activation="relu"),
-        layers.MaxPooling2D(pool_size=2),
-        layers.Conv2D(64, 3, padding="same", activation="relu"),
-        layers.GlobalAveragePooling2D(),
-        layers.Dense(embed_dim, activation="relu"),  # Align dimension
+        keras.layers.Conv2D(32, 3, padding="same", activation="relu"),
+        keras.layers.MaxPooling2D(pool_size=2),
+        keras.layers.Conv2D(64, 3, padding="same", activation="relu"),
+        keras.layers.GlobalAveragePooling2D(),
+        keras.layers.Dense(embed_dim, activation="relu"),  # Align dimension
     ])(cnn_inputs)
 
-    y = layers.RepeatVector(length_of_longest_context)(cnn_output)
+    y = keras.layers.RepeatVector(length_of_longest_context)(cnn_output)
 
     # Fusion
-    fused = layers.Concatenate(axis=-1)([decoder_outputs, y])
+    fused = keras.layers.Concatenate(axis=-1)([decoder_outputs, y])
 
 
     # Fusion block to fuse structural and sequential information together
