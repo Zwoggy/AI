@@ -108,6 +108,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
     antigen_list_accession_ids = accession_ids[:-300]
     antigen_list_structures = get_structure_from_accession_id(antigen_list_accession_ids)
+    print(f"Strukturen geladen: {len(antigen_list_structures)}")
 
     antigen_list = embedded_docs[:-300]
     epitope_list = epitope_embed_list[:-300]
