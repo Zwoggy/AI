@@ -59,17 +59,19 @@ def get_structure_from_accession_id(accession_ids=None):
         elif isinstance(pdb_id, str) and pdb_id.lower() == "nan":
             # Erstelle eine leere Struktur als Platzhalter
             structure_array = np.array([[],[],[]], np.float16)  # Leeres NumPy-Array als Platzhalter
+            arr = np.empty((3, 0))
 
             # Variante 2: Mit newaxis
             #structure_array = structure_array[:, np.newaxis]
             #print(f"⚠️ Leere Struktur für ID {pdb_id} als Platzhalter verwendet.")
-            structures.append(structure_array)
+            structures.append(arr)
         else:
             structure_array = np.array([[],[],[]], np.float16)  # Leeres NumPy-Array als Platzhalter
+            arr = np.empty((3, 0))
 
             # Variante 2: Mit newaxis
-           # structure_array = structure_array[:, np.newaxis]
-            structures.append(structure_array)
+            # structure_array = structure_array[:, np.newaxis]
+            structures.append(arr)
             print(f"Keine Strukturdaten für ID {pdb_id} gefunden.")
 
     return structures
