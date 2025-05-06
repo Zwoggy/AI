@@ -329,6 +329,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 def create_fusionmodel(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights, num_decoder_blocks,
                      num_heads, num_transformer_blocks, old, rate, voc_size):
 
+    structure_input_length: int = 4700
     optimizer = tf.keras.optimizers.AdamW(learning_rate=0.001)
     fusion_model = FusionModel(
         length_of_longest_context=length_of_longest_context,
@@ -342,7 +343,8 @@ def create_fusionmodel(embed_dim, ff_dim, length_of_longest_context, maxlen, new
     )
 
     # build model
-    fusion_model.build(input_shape=[(None, maxlen)],)
+    fusion_model.build(input_shape=[(None, maxlen), (None, structure_input_length)])
+
 
     # compile model
     fusion_model.compile(

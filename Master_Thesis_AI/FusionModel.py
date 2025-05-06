@@ -33,6 +33,7 @@ class FusionModel(tf.keras.Model):
         encoder_inputs, structure_input = inputs
         # Input and embedding
         padding_mask = tf.cast(tf.math.equal(encoder_inputs, 0), dtype=tf.float16)
+        padding_mask = tf.squeeze(padding_mask, axis=-1)  # Remove the last dimension
 
         encoder_embed_out = self.embedding_layer(encoder_inputs)
         x = encoder_embed_out
