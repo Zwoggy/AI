@@ -108,6 +108,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
     antigen_list_accession_ids = accession_ids[:-300]
     antigen_list_structures = get_structure_from_accession_id(antigen_list_accession_ids)
+    antigen_list_structures = np.array(antigen_list_structures, dtype=np.float16)
+
     print(f"Strukturen geladen: {len(antigen_list_structures)}")
 
     antigen_list = embedded_docs[:-300]
@@ -116,6 +118,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
     testx_list_accession_ids = accession_ids[-300:]
     testx_list_structures = get_structure_from_accession_id(testx_list_accession_ids)
+    textx_list_structures = np.array(testx_list_structures, dtype=np.float16)
+
 
     testx_list = embedded_docs[-300:]
     testy_list = epitope_embed_list[-300:]
