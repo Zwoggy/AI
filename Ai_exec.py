@@ -267,6 +267,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                 print("training_data.shape: ", training_data.shape)
                 print("antigen_list.shape: ", antigen_list_structures.shape)
                 print("Epitope_list.shape: ", epitope_list.shape)
+                antigen_list_structures = tf.cast(antigen_list_structures, tf.float16)
+
                 history = model.fit(x=[training_data, antigen_list_structures], y=epitope_list, batch_size=50, epochs=100,
                                     validation_data=([testx_list, testx_list_structures], testy_list), callbacks=[early_stopping], verbose=1)
         # history = model.fit(x=antigen_list, y=epitope_list, batch_size=50, epochs=100, validation_data=(testx_list, testy_list, testy_for_weights), callbacks=[callback], sample_weight = epitope_list_for_weights)
