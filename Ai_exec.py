@@ -106,8 +106,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
     testx_list = embedded_docs[-300:]
     testy_list = epitope_embed_list[-300:]
 
-    antigen_list_structures_padded = pad_sequences(antigen_list_structures, padding='post', value=0.0, dtype='float16')
-    testx_list_structures_padded = pad_sequences(testx_list_structures, padding='post', value=0.0, dtype='float16')
+    antigen_list_structures_padded = pad_sequences(antigen_list_structures, padding='post', value=0.0, dtype='float16', maxlen=4700)
+    testx_list_structures_padded = pad_sequences(testx_list_structures, padding='post', value=0.0, dtype='float16', maxlen=4700)
 
     #antigen_list = one_hot_embed[:-300] # test for one_hot_endcoding
     #testx_list = one_hot_embed[-300:] # test for one_hot_endcoding
