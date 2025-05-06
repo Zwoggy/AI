@@ -118,6 +118,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
     testx_list = embedded_docs[-300:]
     testy_list = epitope_embed_list[-300:]
+    print(f"Anzahl accession_ids insgesamt: {len(accession_ids)}")
+    print(f"Anzahl für Trainingsdaten (ohne Testdaten): {len(antigen_list_accession_ids)}")
 
     #antigen_list_structures_padded = pad_sequences(antigen_list_structures, padding='post', value=0.0, dtype='float16', maxlen=4700)
     #testx_list_structures_padded = pad_sequences(testx_list_structures, padding='post', value=0.0, dtype='float16', maxlen=4700)
