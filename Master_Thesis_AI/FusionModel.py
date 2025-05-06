@@ -32,16 +32,18 @@ class FusionModel(tf.keras.Model):
     def call(self, inputs, training=True, mask=None):
         encoder_inputs, structure_input = inputs
         # Input and embedding
-        encoder_embed_out = self.embedding_layer(encoder_inputs, mask_zero=True)
+        padding_mask = tf.cast(tf.math.equal(encoder_inputs, 0), dtype=tf.float16)
+
+        encoder_embed_out = self.embedding_layer(encoder_inputs)
         x = encoder_embed_out
         output_dimension = x.shape[2]
 
 
         for block in self.transformer_blocks:
-            x = block(x, training=training)
+            x = block(x, training=training, padding_mask=padding_mask)
 
         for decoder in self.decoder_layers:
-            x = decoder(x, training=training)
+            x = decoder(x, training=training, padding_mask=padding_mask)
 
         # CNN Strukturpfad
         y = self.cnn(structure_input)
