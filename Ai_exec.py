@@ -63,7 +63,7 @@ def get_structure_from_accession_id(accession_ids=None):
 
             # Variante 2: Mit newaxis
             #structure_array = structure_array[:, np.newaxis]
-            #print(f"⚠️ Leere Struktur für ID {pdb_id} als Platzhalter verwendet.")
+            print(f"⚠️ Leere Struktur für ID {pdb_id} als Platzhalter verwendet.")
             structures.append(arr)
         else:
             structure_array = np.array([[],[],[]], np.float16)  # Leeres NumPy-Array als Platzhalter
