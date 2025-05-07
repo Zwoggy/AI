@@ -17,15 +17,11 @@ def create_fusion_model_function(embed_dim, ff_dim, length_of_longest_context, m
 
     # CNN for structural Input
     cnn_output = tf.keras.Sequential([
-        keras.layers.Conv2D(8, 3, padding="same", activation="relu"),
-        keras.layers.MaxPooling2D(pool_size=2),
         keras.layers.Conv2D(16, 3, padding="same", activation="relu"),
         keras.layers.MaxPooling2D(pool_size=2),
-        keras.layers.Conv2D(16, 3, padding="same", activation="relu"),
-        keras.layers.MaxPooling2D(pool_size=2),
-        keras.layers.Conv2D(8, 3, padding="same", activation="relu"),
-        keras.layers.GlobalAveragePooling2D(),
-        keras.layers.Dense(embed_dim, activation="relu"),  # Align dimension
+        keras.layers.Conv2D(23, 3, padding="same", activation="relu"),
+        keras.layers.GlobalMaxPooling2D(),
+        keras.layers.Dense(embed_dim, activation="sigmoid"),  # Align dimension
     ])(reshaped)
 
     y = keras.layers.RepeatVector(length_of_longest_context)(cnn_output)
