@@ -139,7 +139,7 @@ def read_data(filepath):
     print(accession_id)
 
     for i, sequence in enumerate(df['Sequence']):
-        if accession_id[i] == "nan":
+        if pd.isna(accession_id[i]):
             continue
 
         column = 3
