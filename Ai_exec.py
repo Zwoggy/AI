@@ -59,7 +59,7 @@ def get_structure_from_accession_id(accession_ids=None):
             structure_data = structure_map[pdb_id]
             structure_array = structure_data['structure_array']  # Hier wird der 'structure_array' Key verwendet
             #print(f"Strukturdaten für ID {pdb_id} gefunden.")
-            structure_array = pad_or_truncate(structure_array)
+            #structure_array = pad_or_truncate(structure_array)
             structures.append(structure_array)  # Struktur hinzufügen
         elif isinstance(pdb_id, str) and pdb_id.lower() == "nan":
             # Erstelle eine leere Struktur als Platzhalter
@@ -68,12 +68,12 @@ def get_structure_from_accession_id(accession_ids=None):
             # Variante 2: Mit newaxis
             #structure_array = structure_array[:, np.newaxis]
             print(f"⚠️ Leere Struktur für ID {pdb_id} als Platzhalter verwendet.")
-            structure_array = pad_or_truncate(structure_array)
+            #structure_array = pad_or_truncate(structure_array)
 
             structures.append(structure_array)
         else:
             structure_array = np.zeros((20, 3), dtype=np.float16)  # Leeres NumPy-Array als Platzhalter
-            structure_array = pad_or_truncate(structure_array)
+            #structure_array = pad_or_truncate(structure_array)
 
 
             # Variante 2: Mit newaxis
@@ -231,7 +231,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
             # with tpu_strategy.scope(): # creating the model in the TPUStrategy scope means we will train the model on the TPU
 
             early_stopping = tf_keras.callbacks.EarlyStopping(
-                monitor = 'val_masked_f1_score',
+                monitor = 'val_loss',
                 patience = 20,
                 min_delta=0.0001,
                 verbose = 0,
