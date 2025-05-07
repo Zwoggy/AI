@@ -232,8 +232,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
             early_stopping = tf_keras.callbacks.EarlyStopping(
                 monitor = 'val_loss',
-                min_delta = 0.001,
-                patience = 10,
+                patience = 20,
                 verbose = 0,
                 mode = 'auto',
                 baseline = None,
@@ -273,7 +272,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                                     batch_size=50,
                                     epochs=100,
                                     validation_data=([testx_list, testx_list_structures], testy_list),
-                                    #callbacks=[early_stopping],
+                                    callbacks=[early_stopping],
                                     verbose=1)
         # history = model.fit(x=antigen_list, y=epitope_list, batch_size=50, epochs=100, validation_data=(testx_list, testy_list, testy_for_weights), callbacks=[callback], sample_weight = epitope_list_for_weights)
 
