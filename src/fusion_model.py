@@ -51,6 +51,27 @@ def create_fusion_model_function(embed_dim, ff_dim, length_of_longest_context, m
         )(x, padding_mask=mask)
     encoder_outputs = keras.layers.Dense(embed_dim, activation='sigmoid')(x)
     # Decoder
+    decoder_outputs = encoder_outputs
+    for i in range(num_decoder_blocks):
+        decoder_outputs = keras_hub.layers.TransformerDecoder(
+            intermediate_dim=output_dimension,
+            num_heads=num_heads,
+            dropout=rate
+        )(decoder_outputs,
+          encoder_outputs,
+          encoder_padding_mask=mask,
+          decoder_padding_mask=mask
+          )
+
+    x = decoder_outputs
+    for i in range(num_transformer_blocks):
+        x = keras_hub.layers.TransformerEncoder(
+            intermediate_dim=output_dimension,
+            num_heads=num_heads,
+            dropout=rate,
+        )(x, padding_mask=mask)
+    encoder_outputs = keras.layers.Dense(embed_dim, activation='sigmoid')(x)
+    # Decoder
     decoder_outputs = y
     for i in range(num_decoder_blocks):
         decoder_outputs = keras_hub.layers.TransformerDecoder(
@@ -60,6 +81,7 @@ def create_fusion_model_function(embed_dim, ff_dim, length_of_longest_context, m
         )(decoder_outputs,
           encoder_outputs,
           encoder_padding_mask=mask,
+          decoder_padding_mask=mask
           )
 
 
