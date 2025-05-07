@@ -50,7 +50,7 @@ def create_fusion_model_function(embed_dim, ff_dim, length_of_longest_context, m
         )(decoder_outputs,
           encoder_outputs,
           #decoder_padding_mask=mask,
-          use_causal_mask=True
+          use_causal_mask=False
           )
 
     # CNN for structural Input
