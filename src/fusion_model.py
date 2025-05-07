@@ -47,7 +47,7 @@ def create_fusion_model_function(embed_dim, ff_dim, length_of_longest_context, m
             intermediate_dim=output_dimension,
             num_heads=num_heads,
             dropout=rate
-        )(decoder_outputs, encoder_outputs, padding_mask=mask)
+        )(decoder_outputs, encoder_outputs, decoder_padding_mask=mask)
 
     # CNN for structural Input
     cnn_output = tf.keras.Sequential([
