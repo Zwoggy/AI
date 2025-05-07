@@ -105,9 +105,9 @@ def create_fusion_model_function_02(embed_dim, ff_dim, length_of_longest_context
 
     # CNN for structural Input
     cnn_output = tf.keras.Sequential([
-        keras.layers.Conv1D(16, kernel_size=5, padding="same", activation="relu"),
+        keras.layers.Conv1D(8, kernel_size=5, padding="same", activation="relu"),
         #keras.layers.AveragePooling2D(pool_size=2),
-        keras.layers.Conv1D(32, kernel_size=5, padding="same", activation="relu"),
+        keras.layers.Conv1D(16, kernel_size=5, padding="same", activation="relu"),
         keras.layers.GlobalMaxPooling1D(),
         keras.layers.Dense(embed_dim, activation="sigmoid"),  # Align dimension
     ])(cnn_inputs)
