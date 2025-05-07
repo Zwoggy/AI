@@ -260,7 +260,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
             else:
                 print(type(antigen_list_structures), type(testx_list_structures), type(training_data), type(testx_list))
 
-                model = create_fusion_model_function(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights,
+                model = create_fusion_model_function_02(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights,
                                                      num_decoder_blocks, num_heads, num_transformer_blocks, old, rate,
                                                      voc_size)
                 print("training_data.shape: ", training_data.shape)
