@@ -65,7 +65,7 @@ def create_fusion_model_function(embed_dim, ff_dim, length_of_longest_context, m
     y = keras.layers.RepeatVector(length_of_longest_context)(cnn_output)
 
     # Fusion
-    fused = keras.layers.Concatenate(axis=-1)([decoder_outputs, y])
+    fused = keras.layers.Concatenate(axis=-1)([decoder_outputs, cnn_output])
 
 
     # Fusion block to fuse structural and sequential information together

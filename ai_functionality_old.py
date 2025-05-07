@@ -769,7 +769,7 @@ def get_weighted_loss_masked(weights):
         y_pred = tf.squeeze(y_pred, axis=-1)
 
         # Maske: 1 für echte Werte, 0 für Padding
-        mask = tf.cast(tf.not_equal(y_true, -1), tf.float32)  # (batch, seq_len)
+        mask = tf.cast(tf.not_equal(y_true, -1), tf.float32)  # (batch, seq_len); padding wert = -1
 
         # Hole Gewichte: shape (seq_len, 2) → (1, seq_len, 2) für Broadcast
         w = tf.expand_dims(weights, axis=0)
