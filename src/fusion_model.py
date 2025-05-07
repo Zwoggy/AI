@@ -146,7 +146,7 @@ def create_fusion_model_function_02(embed_dim, ff_dim, length_of_longest_context
         intermediate_dim=output_dimension,
         num_heads=num_heads,
         dropout=rate
-    )(cnn_output,
+    )(y,
       encoder_outputs,
       encoder_padding_mask=mask,
       decoder_padding_mask=mask
@@ -157,7 +157,7 @@ def create_fusion_model_function_02(embed_dim, ff_dim, length_of_longest_context
         num_heads=num_heads,
         dropout=rate
     )(decoder_outputs,
-      cnn_output,
+      y,
       )
 
 
