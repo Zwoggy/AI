@@ -154,7 +154,7 @@ def read_data(filepath):
             ### + " "
             sequence_as_sentence += char
 
-            epitope_embed.append(-1)
+            epitope_embed.append(0) # IMPORTANT! Used to be -1 as non-epitopes where marked -1
 
         while column < 234:
 
@@ -210,7 +210,7 @@ def embedding(filepath, old=False):
     length_of_longest_sequence = int(len(max(sequence_list, key = len)) / 2)
 
     epitope_embed_list = pad_sequences(epitope_embed_list, maxlen=length_of_longest_sequence,
-                                       padding='post', value=0)
+                                       padding='post', value=-1) # IMPORTANT used to be 0 as padding was 0
     encoder = text.Tokenizer(num_words = 1000, char_level = True,  oov_token="X")
     """
     with open('./AI/tokenizer.pickle', 'rb') as handle:
