@@ -17,7 +17,7 @@ from ai_functionality_old import embedding, modify_with_context, calculating_cla
 import logging
 
 from src.TokenAndPositionEmbedding import TokenAndPositionEmbedding
-from src.fusion_model import create_fusion_model_function
+from src.fusion_model import create_fusion_model_function, create_fusion_model_function_02
 from src.masked_metrics import masked_accuracy, masked_recall, masked_precision, MaskedAUC, masked_f1_score
 from validate_45_blind import validate_on_45_blind
 from tensorflow.keras.mixed_precision import set_global_policy
