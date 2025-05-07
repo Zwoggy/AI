@@ -136,6 +136,7 @@ def read_data(filepath):
     accession_id_list: list = []
     print("Hier die Anzahl aller einzigartigen Accessions",df["Accession"].nunique())
     accession_id = df["Accession"].tolist()
+    print(accession_id)
 
     for i, sequence in enumerate(df['Sequence']):
         if accession_id[i] == "nan":
