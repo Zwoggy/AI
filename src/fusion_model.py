@@ -105,12 +105,12 @@ def create_fusion_model_function_02(embed_dim, ff_dim, length_of_longest_context
 
     # CNN for structural Input
     cnn_output = tf.keras.Sequential([
-        keras.layers.Conv2D(16, kernel_size=(3, 3), padding="same", activation="relu"),
+        keras.layers.Conv1D(16, kernel_size=(3, 3), padding="same", activation="relu"),
         #keras.layers.AveragePooling2D(pool_size=2),
-        keras.layers.Conv2D(32, kernel_size=(3, 3), padding="same", activation="relu"),
-        keras.layers.GlobalMaxPooling2D(),
+        keras.layers.Conv1D(32, kernel_size=(3, 3), padding="same", activation="relu"),
+        keras.layers.GlobalMaxPooling1D(),
         keras.layers.Dense(embed_dim, activation="sigmoid"),  # Align dimension
-    ])(reshaped)
+    ])(cnn_inputs)
 
     y = keras.layers.RepeatVector(length_of_longest_context)(cnn_output)
     # Instanziiere das Layer mit den Gewichtungen
