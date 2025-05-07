@@ -231,8 +231,8 @@ def embedding(filepath, old=False):
     embedded_docs = pad_sequences(pre_embedded_docs, maxlen = length_of_longest_sequence,
                                                             padding = 'post', value = 0)
 
-    one_hot_matrix = encoder.texts_to_matrix(sequence_list, mode='binary')
-    one_hot_embedded_docs = pad_sequences(one_hot_matrix, maxlen=length_of_longest_sequence, padding='post', value=0)
+    #one_hot_matrix = encoder.texts_to_matrix(sequence_list, mode='binary')
+    #one_hot_embedded_docs = pad_sequences(one_hot_matrix, maxlen=length_of_longest_sequence, padding='post', value=0)
 
     # embedded_docs = np.array(embedded_docs)
 
@@ -638,7 +638,7 @@ def calculating_class_weights(y_true):
             weights[i] = w
 
     for i in range(len(weights)):
-        weights[i][1] = weights[i][1] / 0.5  # optional Scaling; used to be 2.2
+        weights[i][1] = weights[i][1] / 0.75  # optional Scaling; used to be 2.2
 
     return weights
 """
