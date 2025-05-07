@@ -15,6 +15,20 @@ def create_fusion_model_function(embed_dim, ff_dim, length_of_longest_context, m
     cnn_inputs = keras.layers.Input(shape=(4700, 3), name='decoder_inputs')
     reshaped = keras.layers.Reshape((100, 47, 3))(cnn_inputs)
 
+    # CNN for structural Input
+    cnn_output = tf.keras.Sequential([
+        keras.layers.Conv2D(8, 3, padding="same", activation="relu"),
+        keras.layers.MaxPooling2D(pool_size=2),
+        keras.layers.Conv2D(16, 3, padding="same", activation="relu"),
+        keras.layers.MaxPooling2D(pool_size=2),
+        keras.layers.Conv2D(16, 3, padding="same", activation="relu"),
+        keras.layers.MaxPooling2D(pool_size=2),
+        keras.layers.Conv2D(8, 3, padding="same", activation="relu"),
+        keras.layers.GlobalAveragePooling2D(),
+        keras.layers.Dense(embed_dim, activation="relu"),  # Align dimension
+    ])(reshaped)
+
+    y = keras.layers.RepeatVector(length_of_longest_context)(cnn_output)
     # Instanziiere das Layer mit den Gewichtungen
     if old:
         embedding_layer = keras_hub.layers.TokenAndPositionEmbedding(voc_size,
@@ -41,7 +55,7 @@ def create_fusion_model_function(embed_dim, ff_dim, length_of_longest_context, m
         )(x, padding_mask=mask)
     encoder_outputs = keras.layers.Dense(embed_dim, activation='sigmoid')(x)
     # Decoder
-    decoder_outputs = encoder_outputs
+    decoder_outputs = y
     for i in range(num_decoder_blocks):
         decoder_outputs = keras_hub.layers.TransformerDecoder(
             intermediate_dim=output_dimension,
@@ -52,32 +66,15 @@ def create_fusion_model_function(embed_dim, ff_dim, length_of_longest_context, m
           encoder_padding_mask=mask,
           )
 
-    # CNN for structural Input
-    cnn_output = tf.keras.Sequential([
-        keras.layers.Conv2D(8, 3, padding="same", activation="relu"),
-        keras.layers.MaxPooling2D(pool_size=2),
-        keras.layers.Conv2D(16, 3, padding="same", activation="relu"),
-        keras.layers.MaxPooling2D(pool_size=2),
-        keras.layers.Conv2D(16, 3, padding="same", activation="relu"),
-        keras.layers.MaxPooling2D(pool_size=2),
-        keras.layers.Conv2D(8, 3, padding="same", activation="relu"),
-        keras.layers.GlobalAveragePooling2D(),
-        keras.layers.Dense(embed_dim, activation="relu"),  # Align dimension
-    ])(reshaped)
 
-    y = keras.layers.RepeatVector(length_of_longest_context)(cnn_output)
 
     # Fusion
-    #fused = keras.layers.Concatenate(axis=-1)([decoder_outputs, y])
-    fused = keras_hub.layers.TransformerDecoder(
-        intermediate_dim=ff_dim,
-        num_heads=num_heads,
-        dropout=rate
-    )(decoder_outputs, y)
+    fused = keras.layers.Concatenate(axis=-1)([decoder_outputs, y])
+
 
     # Fusion block to fuse structural and sequential information together
-    #decoder_outputs = keras.layers.Dropout(rate)(fused)
-    decoder_outputs = keras.layers.Dense(12, activation='relu', name='Not_the_last_Sigmoid')(fused)
+    decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
+    decoder_outputs = keras.layers.Dense(12, activation='relu', name='Not_the_last_Sigmoid')(decoder_outputs)
 
     decoder_outputs = keras.layers.Lambda(lambda x: tf.identity(x))(decoder_outputs) # removes mask for timedistributed layer since it cant deal with a mask
 
