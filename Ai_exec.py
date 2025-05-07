@@ -233,6 +233,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
             early_stopping = tf_keras.callbacks.EarlyStopping(
                 monitor = 'val_loss',
                 patience = 20,
+                min_delta=0.0001,
                 verbose = 0,
                 mode = 'auto',
                 baseline = None,
