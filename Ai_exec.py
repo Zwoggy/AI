@@ -107,6 +107,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
     antigen_list = embedded_docs[:-300]
     epitope_list = epitope_embed_list[:-300]
+    print("Hier mal ein Test-Epitop: ", epitope_embed_list[0])
     print("Größe des Trainingsdatensatzes: ", len(antigen_list))
 
     testx_list_accession_ids = accession_ids[-300:]
