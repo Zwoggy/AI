@@ -138,6 +138,8 @@ def read_data(filepath):
     accession_id = df["Accession"].tolist()
 
     for i, sequence in enumerate(df['Sequence']):
+        if accession_id[i] == "nan":
+            continue
 
         column = 3
 

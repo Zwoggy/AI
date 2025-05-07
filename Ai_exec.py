@@ -231,7 +231,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
             # with tpu_strategy.scope(): # creating the model in the TPUStrategy scope means we will train the model on the TPU
 
             early_stopping = tf_keras.callbacks.EarlyStopping(
-                monitor = 'val_loss',
+                monitor = 'val_masked_f1_score',
                 patience = 20,
                 min_delta=0.0001,
                 verbose = 0,
