@@ -109,7 +109,7 @@ def create_fusion_model_function_02(embed_dim, ff_dim, length_of_longest_context
         #keras.layers.AveragePooling2D(pool_size=2),
         keras.layers.Conv1D(32, kernel_size=5, padding="same", activation="relu"),
         keras.layers.GlobalMaxPooling1D(),
-        keras.layers.Dense(1, activation="sigmoid"),  # Align dimension
+        keras.layers.Dense(embed_dim, activation="sigmoid"),  # Align dimension
     ])(cnn_inputs)
 
     y = keras.layers.RepeatVector(length_of_longest_context)(cnn_output)
