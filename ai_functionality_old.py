@@ -139,8 +139,10 @@ def read_data(filepath):
     print(accession_id)
 
     for i, sequence in enumerate(df['Sequence']):
-        if pd.isna(accession_id[i]):
+        """
+        if pd.isna(accession_id[i]): # use to eliminate sequences without ID and thus without structure.
             continue
+            """
 
         column = 3
 

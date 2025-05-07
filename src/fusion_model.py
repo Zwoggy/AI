@@ -68,12 +68,16 @@ def create_fusion_model_function(embed_dim, ff_dim, length_of_longest_context, m
     y = keras.layers.RepeatVector(length_of_longest_context)(cnn_output)
 
     # Fusion
-    fused = keras.layers.Concatenate(axis=-1)([decoder_outputs, y])
-
+    #fused = keras.layers.Concatenate(axis=-1)([decoder_outputs, y])
+    fused = keras_hub.layers.TransformerDecoder(
+        intermediate_dim=ff_dim,
+        num_heads=num_heads,
+        dropout=rate
+    )(decoder_outputs, y)
 
     # Fusion block to fuse structural and sequential information together
-    decoder_outputs = keras.layers.Dropout(rate)(fused)
-    decoder_outputs = keras.layers.Dense(12, activation='relu', name='Not_the_last_Sigmoid')(decoder_outputs)
+    #decoder_outputs = keras.layers.Dropout(rate)(fused)
+    decoder_outputs = keras.layers.Dense(12, activation='relu', name='Not_the_last_Sigmoid')(fused)
 
     decoder_outputs = keras.layers.Lambda(lambda x: tf.identity(x))(decoder_outputs) # removes mask for timedistributed layer since it cant deal with a mask
 
