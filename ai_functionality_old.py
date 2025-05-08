@@ -633,7 +633,7 @@ def calculating_class_weights(y_true):
     for i in range(number_dim):
         # Entferne Padding (-1)
         col = y_true[:, i]
-        col = col[col != -1]  # Nur echte Labels (0 oder 1)
+        #col = col[col != -1]  # Nur echte Labels (0 oder 1)
 
         if len(np.unique(col)) == 1:
             # Wenn nur eine Klasse vorkommt, setze Standardgewicht
