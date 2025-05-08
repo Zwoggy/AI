@@ -270,7 +270,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
                 history = model.fit(x=[training_data, antigen_list_structures],
                                     y=epitope_list,
-                                    batch_size=50,
+                                    batch_size=32,
                                     epochs=100,
                                     validation_data=([testx_list, testx_list_structures], testy_list),
                                     callbacks=[early_stopping],
