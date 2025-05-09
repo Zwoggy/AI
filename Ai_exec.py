@@ -143,7 +143,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
     else:
         epitope_list = epitope_list_full_sequence
         antigen_list = antigen_list_full_sequence
-        length_of_longest_context = max(len(str(x)) for x in antigen_list)
+        length_of_longest_context = int(len(max(antigen_list, key = len)))
         print("Lenght_of_longest_context: ",length_of_longest_context)
 
 
