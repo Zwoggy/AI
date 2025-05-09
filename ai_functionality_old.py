@@ -212,8 +212,8 @@ def embedding(filepath, old=False):
 
     voc_size = 100
 
-    # length_of_longest_sequence = int(len(max(sequence_list, key = len)) / 2)
-    length_of_longest_sequence = int(len(max(sequence_list, key = len)))
+    length_of_longest_sequence = int(len(max(sequence_list, key = len)) / 2)
+    #length_of_longest_sequence = int(len(max(sequence_list, key = len)))
 
     epitope_embed_list = pad_sequences(epitope_embed_list, maxlen=length_of_longest_sequence,
                                        padding='post', value=-1) # IMPORTANT used to be 0 as padding was 0
