@@ -271,6 +271,11 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                 print("antigen_list.shape: ", antigen_list_structures.shape)
                 print("Epitope_list.shape: ", epitope_list.shape)
                 antigen_list_structures = tf.cast(antigen_list_structures, tf.float16)
+                training_data = tf.cast(training_data, tf.float16)
+                epitope_list = tf.cast(epitope_list, tf.float16)
+                testx_list = tf.cast(testx_list, tf.float16)
+                testx_list_structures = tf.cast(testx_list_structures, tf.float16)
+                testy_list = tf.cast(testy_list, tf.float16)
 
                 history = model.fit(x=[training_data, antigen_list_structures],
                                     y=epitope_list,
