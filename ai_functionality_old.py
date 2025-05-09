@@ -552,6 +552,7 @@ def modify_with_max_epitope_density(epitope_list, antigen_list, window_size):
     """
     Finds the subsequence of a given window size that contains the most 1s in the epitope list.
     Returns the truncated antigen and epitope sequences, along with the new max length.
+
     """
     new_epitope_list = []
     new_antigen_list = []
