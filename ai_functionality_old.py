@@ -174,7 +174,7 @@ def read_data(filepath):
             column += 1
 
         # if (epitope_embed.count(1) > 4) and epitope_embed.count(1) < 18 :
-        if epitope_embed.count(1) > 7:
+        if epitope_embed.count(1) > 7: # used to be 4
             epitope_embed_list.append(epitope_embed)
             sequence_as_aminoacids_list.append(sequence_as_sentence)
             accession_id_list.append(accession_id[i])
