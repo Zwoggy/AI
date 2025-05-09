@@ -12,7 +12,7 @@ from ai_functionality_new import LayerGroup
 from ai_functionality_old import embedding, modify_with_context, calculating_class_weights, \
     get_weighted_loss_masked, save_ai, use_model_and_predict, new_embedding, \
     modify_with_context_big_dataset, \
-    embedding_incl_structure, get_weighted_loss_masked_
+    embedding_incl_structure, get_weighted_loss_masked_, modify_with_max_epitope_density
 
 import logging
 
@@ -146,8 +146,10 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
         testy_list, testx_list, length_of_longest_context_2 = modify_with_context(testy_list, testx_list,
                                                                               length_of_longest_sequence)
     else:
-        epitope_list = epitope_list_full_sequence
-        antigen_list = antigen_list_full_sequence
+
+        epitope_list, antigen_list, window_size = modify_with_max_epitope_density(epitope_list, antigen_list, window_size=length_of_longest_sequence)
+        #epitope_list = epitope_list_full_sequence
+        #antigen_list = antigen_list_full_sequence
         length_of_longest_context = length_of_longest_sequence
 
 

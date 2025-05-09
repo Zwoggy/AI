@@ -217,7 +217,7 @@ def embedding(filepath, old=False):
 
     epitope_embed_list = pad_sequences(epitope_embed_list, maxlen=length_of_longest_sequence,
                                        padding='post', value=-1) # IMPORTANT used to be 0 as padding was 0
-    encoder = text.Tokenizer(num_words = 1000, char_level = True,  oov_token="X")
+    encoder = text.Tokenizer(num_words = 30, char_level = True,  oov_token="X")
     """
     with open('./AI/tokenizer.pickle', 'rb') as handle:
         encoder = pickle.load(handle)
@@ -546,6 +546,46 @@ def modify_with_context(epitope_list, antigen_list, length_of_longest_sequence):
                                                                   padding = 'post', value = 0)
 
     return new_epitope_list, new_antigen_list, length_of_longest_context
+
+
+def modify_with_max_epitope_density(epitope_list, antigen_list, window_size):
+    """
+    Finds the subsequence of a given window size that contains the most 1s in the epitope list.
+    Returns the truncated antigen and epitope sequences, along with the new max length.
+    """
+    new_epitope_list = []
+    new_antigen_list = []
+
+    for epitope, antigen in zip(epitope_list, antigen_list):
+        max_count = -1
+        max_start = 0
+
+        # Ensure length is valid
+        if len(epitope) < window_size:
+            pad_len = window_size - len(epitope)
+            epitope += [0] * pad_len
+            antigen += ['X'] * pad_len  # or any padding character you prefer
+
+        # Slide the window
+        for i in range(len(epitope) - window_size + 1):
+            window = epitope[i:i + window_size]
+            count = sum(1 for x in window if x == 1)
+            if count > max_count:
+                max_count = count
+                max_start = i
+
+        # Extract the window with the highest number of 1s
+        selected_epitope = epitope[max_start:max_start + window_size]
+        selected_antigen = antigen[max_start:max_start + window_size]
+
+        new_epitope_list.append(selected_epitope)
+        new_antigen_list.append(selected_antigen)
+
+    # Padding to fixed length (optional)
+    new_epitope_list = pad_sequences(new_epitope_list, maxlen=window_size, padding='post', value=-1)
+    new_antigen_list = pad_sequences(new_antigen_list, maxlen=window_size, padding='post', value=0)
+
+    return new_epitope_list, new_antigen_list, window_size
 
 
 def modify_with_context_big_dataset(epitope_list, antigen_list, length_of_longest_sequence):
