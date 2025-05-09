@@ -37,7 +37,7 @@ def load_structure_data(pickle_file):
     return structure_map
 
 
-def pad_or_truncate(array, max_len=4700):
+def pad_or_truncate(array, max_len=4562):
     if array.shape[0] > max_len:
         return array[:max_len]
     elif array.shape[0] < max_len:
@@ -45,7 +45,7 @@ def pad_or_truncate(array, max_len=4700):
         return np.vstack((array, padding))
     return array
 
-def get_structure_from_accession_id(accession_ids=None):
+def get_structure_from_accession_id(accession_ids=None, max_len=4562):
     pickle_file = "./data/alphafold_structures_conv2d.pkl"
     structure_map = load_structure_data(pickle_file)
 
@@ -59,7 +59,7 @@ def get_structure_from_accession_id(accession_ids=None):
             structure_data = structure_map[pdb_id]
             structure_array = structure_data['structure_array']  # Hier wird der 'structure_array' Key verwendet
             #print(f"Strukturdaten für ID {pdb_id} gefunden.")
-            structure_array = pad_or_truncate(structure_array)
+            structure_array = pad_or_truncate(structure_array, max_len=max_len)
             structures.append(structure_array)  # Struktur hinzufügen
         elif isinstance(pdb_id, str) and pdb_id.lower() == "nan":
             # Erstelle eine leere Struktur als Platzhalter
@@ -68,12 +68,12 @@ def get_structure_from_accession_id(accession_ids=None):
             # Variante 2: Mit newaxis
             #structure_array = structure_array[:, np.newaxis]
             print(f"⚠️ Leere Struktur für ID {pdb_id} als Platzhalter verwendet.")
-            structure_array = pad_or_truncate(structure_array)
+            structure_array = pad_or_truncate(structure_array, max_len=max_len)
 
             structures.append(structure_array)
         else:
             structure_array = np.zeros((20, 3), dtype=np.float16)  # Leeres NumPy-Array als Platzhalter
-            structure_array = pad_or_truncate(structure_array)
+            structure_array = pad_or_truncate(structure_array, max_len=max_len)
 
 
             # Variante 2: Mit newaxis
@@ -100,7 +100,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
     # optimizersgd = opt.sgd_experimental.SGD(learning_rate=0.001, clipnorm=5)
 
     antigen_list_accession_ids = accession_ids[:-300]
-    antigen_list_structures = get_structure_from_accession_id(antigen_list_accession_ids)
+    antigen_list_structures = get_structure_from_accession_id(antigen_list_accession_ids, max_len=length_of_longest_sequence)
     antigen_list_structures = np.array(antigen_list_structures, dtype=np.float16)
 
     print(f"Strukturen geladen: {len(antigen_list_structures)}")
@@ -111,7 +111,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
     print("Größe des Trainingsdatensatzes: ", len(antigen_list))
 
     testx_list_accession_ids = accession_ids[-300:]
-    testx_list_structures = get_structure_from_accession_id(testx_list_accession_ids)
+    testx_list_structures = get_structure_from_accession_id(testx_list_accession_ids, max_len=length_of_longest_sequence )
     testx_list_structures = np.array(testx_list_structures, dtype=np.float16)
 
 
@@ -143,8 +143,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
     else:
         epitope_list = epitope_list_full_sequence
         antigen_list = antigen_list_full_sequence
-        length_of_longest_context = int(len(max(testx_list, key = len)))
-        print("Lenght_of_longest_context: ",length_of_longest_context)
+        length_of_longest_context = length_of_longest_sequence
 
 
     if old==False:
@@ -340,7 +339,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 def create_fusionmodel(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights, num_decoder_blocks,
                      num_heads, num_transformer_blocks, old, rate, voc_size):
 
-    structure_input_length: int = 4700
+    structure_input_length: int = length_of_longest_context
     optimizer = tf.keras.optimizers.AdamW(learning_rate=0.001)
     fusion_model = FusionModel(
         length_of_longest_context=length_of_longest_context,

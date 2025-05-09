@@ -12,17 +12,16 @@ def create_fusion_model_function(embed_dim, ff_dim, length_of_longest_context, m
     optimizer = tf.keras.optimizers.AdamW(learning_rate=0.001)
 
     encoder_inputs = keras.layers.Input(shape=(length_of_longest_context,), name='encoder_inputs')
-    cnn_inputs = keras.layers.Input(shape=(4700, 3), name='decoder_inputs')
-    reshaped = keras.layers.Reshape((100, 47, 3))(cnn_inputs)
+    cnn_inputs = keras.layers.Input(shape=(length_of_longest_context, 3), name='decoder_inputs')
 
     # CNN for structural Input
     cnn_output = tf.keras.Sequential([
-        keras.layers.Conv2D(16, kernel_size=(3, 3), padding="same", activation="relu"),
+        keras.layers.Conv1D(16, kernel_size=3, padding="same", activation="relu"),
         #keras.layers.AveragePooling2D(pool_size=2),
-        keras.layers.Conv2D(32, kernel_size=(3, 3), padding="same", activation="relu"),
-        keras.layers.GlobalMaxPooling2D(),
+        keras.layers.Conv1D(32, kernel_size=5, padding="same", activation="relu"),
+        keras.layers.GlobalMaxPooling1D(),
         keras.layers.Dense(embed_dim, activation="sigmoid"),  # Align dimension
-    ])(reshaped)
+    ])(cnn_inputs)
 
     y = keras.layers.RepeatVector(length_of_longest_context)(cnn_output)
     # Instanziiere das Layer mit den Gewichtungen
@@ -100,8 +99,7 @@ def create_fusion_model_function_02(embed_dim, ff_dim, length_of_longest_context
     optimizer = tf.keras.optimizers.AdamW(learning_rate=0.0001)
 
     encoder_inputs = keras.layers.Input(shape=(length_of_longest_context,), name='encoder_inputs')
-    cnn_inputs = keras.layers.Input(shape=(4700, 3), name='decoder_inputs')
-    reshaped = keras.layers.Reshape((100, 47, 3))(cnn_inputs)
+    cnn_inputs = keras.layers.Input(shape=(length_of_longest_context, 3), name='decoder_inputs')
 
     # CNN for structural Input
     cnn_output = tf.keras.Sequential([
