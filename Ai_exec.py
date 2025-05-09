@@ -83,7 +83,7 @@ def get_structure_from_accession_id(accession_ids=None):
     return structures
 
 
-def create_ai(filepath, save_file, output_file, train=False, safe=False, validate_45_Blind=False, validate_BP3C=False, predict=False, old=False, gpu_split=False, big_dataset=True, use_structure=False, ba_ai=False):
+def create_ai(filepath, save_file, output_file, train=False, safe=False, validate_45_Blind=False, validate_BP3C=False, predict=False, old=False, gpu_split=False, big_dataset=True, use_structure=False, ba_ai=False, full_length=False):
     #disable_eager_execution()
     if old==False:
         pass
@@ -135,11 +135,16 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
         testy_list, testx_list, length_of_longest_context_2 = modify_with_context_big_dataset(testy_list, testx_list,
                                                                                   length_of_longest_sequence)
 
-    else:
+    elif full_length==False:
         epitope_list, antigen_list, length_of_longest_context = modify_with_context(epitope_list, antigen_list,
                                                                                 length_of_longest_sequence)
         testy_list, testx_list, length_of_longest_context_2 = modify_with_context(testy_list, testx_list,
                                                                               length_of_longest_sequence)
+    else:
+        epitope_list = epitope_list_full_sequence
+        antigen_list = antigen_list_full_sequence
+        length_of_longest_context = max(antigen_list)
+        print("Lenght_of_longest_context: ",length_of_longest_context)
 
 
     if old==False:

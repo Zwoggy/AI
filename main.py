@@ -20,6 +20,8 @@ if __name__ == '__main__':
     parser.add_argument('--use_structure', action='store_true', help='Verwende die von Alphafold 2 vorhergesagten Strukturen.')
     parser.add_argument('--ba_ai', action='store_true',
                         help='Use the Bachelor Thesis AI model.')
+    parser.add_argument('--full_length', action='store_true',
+                        help='Use the maximum length for the input.')
     args = parser.parse_args()
 
     # Verwende den Standardpfad, wenn --filepath nicht angegeben ist
@@ -35,5 +37,6 @@ if __name__ == '__main__':
               gpu_split=args.gpu_split,
               big_dataset=args.big_dataset,
               use_structure=args.use_structure,
-              ba_ai=args.ba_ai)
+              ba_ai=args.ba_ai,
+              full_length=args.full_length)
 
