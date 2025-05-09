@@ -25,6 +25,9 @@ from tensorflow.keras import mixed_precision
 
 from validate_BP3C50ID_external_test_set import validate_on_BP3C59ID_external_test_set
 
+from tensorflow.keras import mixed_precision
+
+
 
 def load_structure_data(pickle_file):
     # Lade die Daten aus dem Pickle-File
@@ -85,6 +88,8 @@ def get_structure_from_accession_id(accession_ids=None, max_len=4562):
 
 def create_ai(filepath, save_file, output_file, train=False, safe=False, validate_45_Blind=False, validate_BP3C=False, predict=False, old=False, gpu_split=False, big_dataset=True, use_structure=False, ba_ai=False, full_length=False):
     #disable_eager_execution()
+    mixed_precision.set_global_policy('mixed_float16')
+
     if old==False:
         pass
     else:
