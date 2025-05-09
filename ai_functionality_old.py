@@ -641,7 +641,6 @@ def calculating_class_weights(y_true):
         else:
             w = compute_class_weight('balanced', classes=np.array([0, 1]), y=col)
             weights[i] = w
-            weights[i] = [1.0, 1.0]
 
 
     for i in range(len(weights)):
