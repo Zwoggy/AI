@@ -6,6 +6,9 @@ from transformers import  TFEsmForTokenClassification
 from tensorflow.keras import backend as K
 import keras
 import pickle
+import pandas as pd
+
+from sklearn.model_selection import KFold
 
 from Master_Thesis_AI.FusionModel import FusionModel
 from ai_functionality_new import LayerGroup
@@ -86,53 +89,64 @@ def get_structure_from_accession_id(accession_ids=None, max_len=4562):
     return structures
 
 
-def create_ai(filepath, save_file, output_file, train=False, safe=False, validate_45_Blind=False, validate_BP3C=False, predict=False, old=False, gpu_split=False, big_dataset=True, use_structure=False, ba_ai=False, full_length=False):
+def create_ai(filepath, save_file, output_file, train=False, safe=False, validate_45_Blind=False, validate_BP3C=False, predict=False, old=False, gpu_split=False, big_dataset=True, use_structure=False, ba_ai=False, full_length=False, old_data_set=False):
     #disable_eager_execution()
     mixed_precision.set_global_policy('mixed_float16')
 
-    if old==False:
-        pass
+    if old_data_set:
+        if old==False:
+            pass
+        else:
+            from src.TokenAndPositionEmbedding import TokenAndPositionEmbedding
+
+        if use_structure:
+            embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder, structure_data = embedding_incl_structure(filepath, pdb_dir="./data/alphafold_structures_02", old=old)
+        else:
+            embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder, accession_ids = embedding(filepath, old=old)
+
+
+
+        antigen_list_accession_ids = accession_ids[:-300]
+        antigen_list_structures = get_structure_from_accession_id(antigen_list_accession_ids, max_len=length_of_longest_sequence)
+        antigen_list_structures = np.array(antigen_list_structures, dtype=np.float16)
+
+        print(f"Strukturen geladen: {len(antigen_list_structures)}")
+
+        antigen_list = embedded_docs[:-300]
+        epitope_list = epitope_embed_list[:-300]
+        print("Hier mal ein Test-Epitop: ", epitope_embed_list[0])
+        print("Größe des Trainingsdatensatzes: ", len(antigen_list))
+
+        testx_list_accession_ids = accession_ids[-300:]
+        testx_list_structures = get_structure_from_accession_id(testx_list_accession_ids, max_len=length_of_longest_sequence )
+        testx_list_structures = np.array(testx_list_structures, dtype=np.float16)
+
+
+        testx_list = embedded_docs[-300:]
+        testy_list = epitope_embed_list[-300:]
+        print(f"Anzahl accession_ids insgesamt: {len(accession_ids)}")
+        print(f"Anzahl für Trainingsdaten (ohne Testdaten): {len(antigen_list_accession_ids)}")
+
+        #antigen_list_structures_padded = pad_sequences(antigen_list_structures, padding='post', value=0.0, dtype='float16', maxlen=4700)
+        #testx_list_structures_padded = pad_sequences(testx_list_structures, padding='post', value=0.0, dtype='float16', maxlen=4700)
+
+        #antigen_list = one_hot_embed[:-300] # test for one_hot_endcoding
+        #testx_list = one_hot_embed[-300:] # test for one_hot_endcoding
+
+        antigen_list_full_sequence = antigen_list
+        epitope_list_full_sequence = epitope_list
+
     else:
-        from src.TokenAndPositionEmbedding import TokenAndPositionEmbedding
+        filepath = "./data/BP3_Data/BP3_training_set_transformed.csv"
+        df_bp = pd.read_csv(filepath)
 
-    if use_structure:
-        embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder, structure_data = embedding_incl_structure(filepath, pdb_dir="./data/alphafold_structures_02", old=old)
-    else:
-        embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder, one_hot_embed, accession_ids = embedding(filepath, old=old)
-
-
-
-    # optimizersgd = opt.sgd_experimental.SGD(learning_rate=0.001, clipnorm=5)
-
-    antigen_list_accession_ids = accession_ids[:-300]
-    antigen_list_structures = get_structure_from_accession_id(antigen_list_accession_ids, max_len=length_of_longest_sequence)
-    antigen_list_structures = np.array(antigen_list_structures, dtype=np.float16)
-
-    print(f"Strukturen geladen: {len(antigen_list_structures)}")
-
-    antigen_list = embedded_docs[:-300]
-    epitope_list = epitope_embed_list[:-300]
-    print("Hier mal ein Test-Epitop: ", epitope_embed_list[0])
-    print("Größe des Trainingsdatensatzes: ", len(antigen_list))
-
-    testx_list_accession_ids = accession_ids[-300:]
-    testx_list_structures = get_structure_from_accession_id(testx_list_accession_ids, max_len=length_of_longest_sequence )
-    testx_list_structures = np.array(testx_list_structures, dtype=np.float16)
+        antigen_list = df_bp['Sequenz'].tolist()
+        epitope_list = df_bp['Epitop'].tolist()
+        antigen_array = np.array(antigen_list, dtype=object)
+        epitope_array = np.array(epitope_list, dtype=object)
 
 
-    testx_list = embedded_docs[-300:]
-    testy_list = epitope_embed_list[-300:]
-    print(f"Anzahl accession_ids insgesamt: {len(accession_ids)}")
-    print(f"Anzahl für Trainingsdaten (ohne Testdaten): {len(antigen_list_accession_ids)}")
 
-    #antigen_list_structures_padded = pad_sequences(antigen_list_structures, padding='post', value=0.0, dtype='float16', maxlen=4700)
-    #testx_list_structures_padded = pad_sequences(testx_list_structures, padding='post', value=0.0, dtype='float16', maxlen=4700)
-
-    #antigen_list = one_hot_embed[:-300] # test for one_hot_endcoding
-    #testx_list = one_hot_embed[-300:] # test for one_hot_endcoding
-
-    antigen_list_full_sequence = antigen_list
-    epitope_list_full_sequence = epitope_list
 
 
     if big_dataset:
@@ -258,6 +272,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
             # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
 
             if ba_ai:
+
                 i, model = create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, new_weights,
                                     num_decoder_blocks, num_heads, num_transformer_blocks, old, rate,
                                     voc_size)
@@ -268,8 +283,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                                     validation_data = (testx_list, testy_list),
                                     callbacks = [early_stopping],
                                     verbose=1)
-            else:
-                print(type(antigen_list_structures), type(testx_list_structures), type(training_data), type(testx_list))
+            elif use_structure:
+
 
                 model = create_fusion_model_function(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights,
                                                      num_decoder_blocks, num_heads, num_transformer_blocks, old, rate,
@@ -291,6 +306,31 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                                     validation_data=([testx_list, testx_list_structures], testy_list),
                                     callbacks=[early_stopping],
                                     verbose=1)
+
+            else:
+                kf = KFold(n_splits=5, shuffle=True, random_state=42)
+
+                for fold, (train_index, test_index) in enumerate(kf.split(antigen_array)):
+                    X_train, X_test = antigen_array[train_index], antigen_array[test_index]
+                    y_train, y_test = epitope_array[train_index], epitope_array[test_index]
+
+                    print(f"Fold {fold + 1}")
+                    print(f"Train size: {len(X_train)}, Test size: {len(X_test)}")
+                    # Hier kannst du dann mit dem Training starten
+                    print(type(antigen_list_structures), type(testx_list_structures), type(training_data),
+                          type(testx_list))
+
+                    i, model = create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, new_weights,
+                                                num_decoder_blocks, num_heads, num_transformer_blocks, old, rate,
+                                                voc_size)
+                    history = model.fit(x=X_train,
+                                        y=y_train,
+                                        batch_size=50,
+                                        epochs=100,
+                                        validation_data=(X_test, y_test),
+                                        callbacks=[early_stopping],
+                                        verbose=1)
+
         # history = model.fit(x=antigen_list, y=epitope_list, batch_size=50, epochs=100, validation_data=(testx_list, testy_list, testy_for_weights), callbacks=[callback], sample_weight = epitope_list_for_weights)
 
         # plot_results(history)

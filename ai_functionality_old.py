@@ -248,7 +248,7 @@ def embedding(filepath, old=False):
     # embedded_docs = np.array(embedded_docs)
 
 
-    return embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder, one_hot_embedded_docs, accession_id
+    return embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder, accession_id
 
 
 def embedding_incl_structure(filepath, pdb_dir, old=False):
