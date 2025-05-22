@@ -218,7 +218,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                     epitope_list_for_weights[i][y] = 0.5
         new_weights = calculating_class_weights(epitope_list)
     except:
-        epitope_list = np.reshape(epitope_array, (epitope_array.shape[0], 1))
+        epitope_list = np.array(epitope_array, dtype=np.float32)
+        epitope_list = np.reshape(epitope_list, (epitope_list.shape[0],epitope_list.shape[1], 1))
         new_weights = calculating_class_weights(epitope_list)
 
 
