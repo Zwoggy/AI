@@ -335,8 +335,6 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                     print(f"Fold {fold + 1}")
                     print(f"Train size: {len(X_train)}, Test size: {len(X_test)}")
                     # Hier kannst du dann mit dem Training starten
-                    print(type(antigen_list_structures), type(testx_list_structures), type(training_data),
-                          type(testx_list))
 
                     i, model = create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, new_weights,
                                                 num_decoder_blocks, num_heads, num_transformer_blocks, old, rate,
