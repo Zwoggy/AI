@@ -1,6 +1,7 @@
 import tensorflow as tf
 import tf_keras
 import keras_hub
+from sklearn.utils import compute_class_weight
 from tf_keras import layers
 from transformers import  TFEsmForTokenClassification
 from tensorflow.keras import backend as K
@@ -218,7 +219,11 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
         new_weights = calculating_class_weights(epitope_list)
     except:
         epitope_list = np.reshape(epitope_array, (epitope_array.shape[0], 1))
-        new_weights = calculating_class_weights(epitope_list)
+        # Entferne Padding (-1)
+        filtered = epitope_list[epitope_list != -1].reshape(-1)
+        classes = np.array([0, 1])
+        w = compute_class_weight(class_weight='balanced', classes=classes, y=filtered)
+        new_weights = dict(zip(classes, w))
 
     ###Classweights
 
@@ -385,7 +390,6 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
     if validate_BP3C:
         validate_on_BP3C59ID_external_test_set()
     amino_acid_counts_epitope_predicted, confusion_matrices = analyze_amino_acids_in_validation_data( model, validation_sequences=testx_list, validation_labels=testy_list, encoder=encoder)
-
 
 
 
