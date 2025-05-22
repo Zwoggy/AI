@@ -142,8 +142,17 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
         filepath = "./data/BP3_Data/BP3_training_set_transformed.csv"
         df_bp = pd.read_csv(filepath)
 
-        antigen_list = df_bp['Sequenz'].tolist()
-        epitope_list = df_bp['Epitop'].tolist()
+        #antigen_list = df_bp['Sequenz'].tolist()
+        #epitope_list = df_bp['Epitop'].tolist()
+
+        # String-Listen in echte Listen umwandeln
+        antigen_list = [ast.literal_eval(seq_str) for seq_str in df_bp['Sequenz']]
+        epitope_list = [ast.literal_eval(epi_str) for epi_str in df_bp['Epitop']]
+
+        # In NumPy-Arrays konvertieren
+        antigen_array = np.array(antigen_list, dtype=np.float16)
+        epitope_array = np.array(epitope_list, dtype=np.float16)
+
         antigen_array = np.array(antigen_list, dtype=np.float16)
         epitope_array = np.array(epitope_list, dtype=np.float16)
 
