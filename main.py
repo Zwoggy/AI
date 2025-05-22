@@ -22,6 +22,8 @@ if __name__ == '__main__':
                         help='Use the Bachelor Thesis AI model.')
     parser.add_argument('--full_length', action='store_true',
                         help='Use the maximum length for the input.')
+    parser.add_argument('--old_data_set', action='store_true',
+                        help='Use the ba_ai dataset.')
     args = parser.parse_args()
 
     # Verwende den Standardpfad, wenn --filepath nicht angegeben ist
@@ -38,5 +40,6 @@ if __name__ == '__main__':
               big_dataset=args.big_dataset,
               use_structure=args.use_structure,
               ba_ai=args.ba_ai,
-              full_length=args.full_length)
+              full_length=args.full_length,
+              old_data_set=args.old_data_set)
 
