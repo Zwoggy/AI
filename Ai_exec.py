@@ -255,9 +255,11 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
     training = True
     output_dimension = embedding_dim
 
-
-    testx_list = testx_list.astype(np.float16)
-    testy_list = testy_list.astype(np.float16)
+    try:
+        testx_list = testx_list.astype(np.float16)
+        testy_list = testy_list.astype(np.float16)
+    except:
+        pass
     # train_gen = EpitopeDataGenerator(training_data, epitope_list, epitope_list_for_weights, batch_size=50)
     # val_gen = EpitopeDataGenerator(testx_list, testy_list, testy_for_weights, batch_size=50, shuffle=False)
     tf.get_logger().setLevel(logging.ERROR)
