@@ -219,11 +219,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
         new_weights = calculating_class_weights(epitope_list)
     except:
         epitope_list = np.reshape(epitope_array, (epitope_array.shape[0], 1))
-        # Entferne Padding (-1)
-        filtered = epitope_list[epitope_list != -1].reshape(-1)
-        classes = np.array([0, 1])
-        w = compute_class_weight(class_weight='balanced', classes=classes, y=filtered)
-        new_weights = dict(zip(classes, w))
+        new_weights = calculating_class_weights(epitope_list)
+
 
     ###Classweights
 
