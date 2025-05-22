@@ -184,42 +184,43 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
             training_data = get_training_data(antigen_list)
         else:
             training_data = antigen_list
+
+
+
+        epitope_list_for_weights = np.reshape(epitope_list_for_weights,
+                                              (epitope_list_for_weights.shape[0], epitope_list_for_weights.shape[1]))
+        epitope_list = np.reshape(epitope_list, (epitope_list.shape[0], epitope_list.shape[1], 1))
+
+
+
+        testy_list_for_weights = np.array(testy_list, dtype = np.float32)
+        testy_list = np.array(testy_list, dtype = np.float32)
+
+        testy_for_weights = np.reshape(testy_list_for_weights,
+                                       (testy_list_for_weights.shape[0], testy_list_for_weights.shape[1]))
+        testy_list = np.reshape(testy_list, (testy_list.shape[0], testy_list.shape[1], 1))
+
+
+
+        for i, epitope in enumerate(testy_for_weights):
+            for y, char in enumerate(epitope):
+                if char == 0.:
+                    testy_for_weights[i][y] = 0.1
+                if char == 1.:
+                    testy_for_weights[i][y] = 0.5
+
+        for i, epitope in enumerate(epitope_list_for_weights):
+            for y, char in enumerate(epitope):
+                if char == 0.:
+                    epitope_list_for_weights[i][y] = 0.1
+                if char == 1.:
+                    epitope_list_for_weights[i][y] = 0.5
+        new_weights = calculating_class_weights(epitope_list)
     except:
-        pass
-
-
-    epitope_list_for_weights = np.reshape(epitope_list_for_weights,
-                                          (epitope_list_for_weights.shape[0], epitope_list_for_weights.shape[1]))
-    epitope_list = np.reshape(epitope_list, (epitope_list.shape[0], epitope_list.shape[1], 1))
-
-
-
-    testy_list_for_weights = np.array(testy_list, dtype = np.float32)
-    testy_list = np.array(testy_list, dtype = np.float32)
-
-    testy_for_weights = np.reshape(testy_list_for_weights,
-                                   (testy_list_for_weights.shape[0], testy_list_for_weights.shape[1]))
-    testy_list = np.reshape(testy_list, (testy_list.shape[0], testy_list.shape[1], 1))
-
-
-
-    for i, epitope in enumerate(testy_for_weights):
-        for y, char in enumerate(epitope):
-            if char == 0.:
-                testy_for_weights[i][y] = 0.1
-            if char == 1.:
-                testy_for_weights[i][y] = 0.5
-
-    for i, epitope in enumerate(epitope_list_for_weights):
-        for y, char in enumerate(epitope):
-            if char == 0.:
-                epitope_list_for_weights[i][y] = 0.1
-            if char == 1.:
-                epitope_list_for_weights[i][y] = 0.5
-
+        new_weights = calculating_class_weights(epitope_array)
 
     ###Classweights
-    new_weights = calculating_class_weights(epitope_list)
+
 
 
     # weights = class_weight.compute_sample_weight(class_weight='balanced', y=epitope_array)
