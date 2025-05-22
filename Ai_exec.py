@@ -344,7 +344,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                                                 voc_size)
                     history = model.fit(x=X_train,
                                         y=y_train,
-                                        batch_size=50,
+                                        batch_size=40,
                                         epochs=100,
                                         validation_data=(X_test, y_test),
                                         callbacks=[early_stopping],
