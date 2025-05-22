@@ -291,7 +291,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
             if ba_ai:
 
-                i, model = create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, new_weights,
+                model = create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights,
                                     num_decoder_blocks, num_heads, num_transformer_blocks, old, rate,
                                     voc_size)
                 history = model.fit(x = training_data,
@@ -336,7 +336,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                     print(f"Train size: {len(X_train)}, Test size: {len(X_test)}")
                     # Hier kannst du dann mit dem Training starten
 
-                    i, model = create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, new_weights,
+                    model = create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights,
                                                 num_decoder_blocks, num_heads, num_transformer_blocks, old, rate,
                                                 voc_size)
                     history = model.fit(x=X_train,
@@ -435,7 +435,7 @@ def create_fusionmodel(embed_dim, ff_dim, length_of_longest_context, maxlen, new
     return fusion_model
 
 
-def create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, new_weights, num_decoder_blocks,
+def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights, num_decoder_blocks,
                      num_heads, num_transformer_blocks, old, rate, voc_size):
     optimizer = tf.keras.optimizers.AdamW(learning_rate=0.001)
 
@@ -495,7 +495,7 @@ def create_model_new(embed_dim, ff_dim, i, length_of_longest_context, maxlen, ne
             masked_recall,
             masked_f1_score]
     )
-    return i, model
+    return model
 
 
 def create_model_old(embed_dim, ff_dim, gpu_split, i, length_of_longest_context, maxlen, new_weights,
