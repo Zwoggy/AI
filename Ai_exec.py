@@ -251,6 +251,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
         maxlen = length_of_longest_context
     except:
         maxlen = antigen_array.shape[1]
+        length_of_longest_context= maxlen
+
     rate = 0.1
     training = True
     output_dimension = embedding_dim
