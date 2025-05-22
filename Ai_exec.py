@@ -146,13 +146,10 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
         #epitope_list = df_bp['Epitop'].tolist()
 
         # String-Listen in echte Listen umwandeln
-        antigen_list = [ast.literal_eval(seq_str) for seq_str in df_bp['Sequenz']]
-        epitope_list = [ast.literal_eval(epi_str) for epi_str in df_bp['Epitop']]
+        antigen_list = [np.fromstring(seq_str.strip("[]"), sep=' ') for seq_str in df_bp['Sequenz']]
+        epitope_list = [np.fromstring(seq_str.strip("[]"), sep=' ') for seq_str in df_bp['Epitop']]
 
         # In NumPy-Arrays konvertieren
-        antigen_array = np.array(antigen_list, dtype=np.float16)
-        epitope_array = np.array(epitope_list, dtype=np.float16)
-
         antigen_array = np.array(antigen_list, dtype=np.float16)
         epitope_array = np.array(epitope_list, dtype=np.float16)
 
