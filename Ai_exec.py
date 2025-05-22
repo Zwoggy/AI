@@ -144,8 +144,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
         antigen_list = df_bp['Sequenz'].tolist()
         epitope_list = df_bp['Epitop'].tolist()
-        antigen_array = np.array(antigen_list, dtype=object)
-        epitope_array = np.array(epitope_list, dtype=object)
+        antigen_array = np.array(antigen_list, dtype=np.float16)
+        epitope_array = np.array(epitope_list, dtype=np.float16)
 
 
 
@@ -220,10 +220,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                     epitope_list_for_weights[i][y] = 0.5
         new_weights = calculating_class_weights(epitope_list)
     except:
-        epitope_array = [float(x) for x in epitope_array.replace('\n', ' ').split()]
-        epitope_list = np.array(epitope_array, dtype=np.float32)
-        #epitope_list = epitope_list.reshape((-1, 1))  # anpassen je nach tatsächlicher Struktur
-        epitope_list = np.reshape(epitope_list, (epitope_list.shape[0],epitope_list.shape[1], 1))
+
+        epitope_list = np.reshape(epitope_array, (epitope_array.shape[0],epitope_array.shape[1], 1))
         new_weights = calculating_class_weights(epitope_list)
 
 
