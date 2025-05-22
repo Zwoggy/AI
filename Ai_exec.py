@@ -299,7 +299,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                                     voc_size)
                 history = model.fit(x = training_data,
                                     y = epitope_list,
-                                    batch_size = 50,
+                                    batch_size = 40,
                                     epochs = 100,
                                     validation_data = (testx_list, testy_list),
                                     callbacks = [early_stopping],
