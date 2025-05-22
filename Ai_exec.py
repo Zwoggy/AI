@@ -89,10 +89,9 @@ def get_structure_from_accession_id(accession_ids=None, max_len=4562):
     return structures
 
 
-def create_ai(filepath, save_file, output_file, train=False, safe=False, validate_45_Blind=False, validate_BP3C=False, predict=False, old=False, gpu_split=False, big_dataset=True, use_structure=False, ba_ai=False, full_length=False, old_data_set=False):
+def create_ai(filepath, save_file, output_file, train=False, safe=False, validate_45_Blind=False, validate_BP3C=False, predict=False, old=False, gpu_split=False, big_dataset=False, use_structure=False, ba_ai=False, full_length=False, old_data_set=False):
     #disable_eager_execution()
     mixed_precision.set_global_policy('mixed_float16')
-    length_of_longest_sequence=235 # simply for assigning a value. Otherwise might crash if if old_data_set is false.
     if old_data_set:
         if old==False:
             pass
