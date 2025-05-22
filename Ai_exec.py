@@ -153,6 +153,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
         # In NumPy-Arrays konvertieren
         antigen_array = np.array(antigen_list, dtype=np.float16)
         epitope_array = np.array(epitope_list, dtype=np.float16)
+        epitope_array.reshape(epitope_array.shape[0], epitope_array.shape[1], 1)
 
 
 
