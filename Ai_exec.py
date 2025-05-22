@@ -147,44 +147,45 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
 
 
+    try:
+        if big_dataset:
+            epitope_list, antigen_list, length_of_longest_context = modify_with_context_big_dataset(epitope_list, antigen_list,  length_of_longest_sequence)
+            testy_list, testx_list, length_of_longest_context_2 = modify_with_context_big_dataset(testy_list, testx_list,
+                                                                                      length_of_longest_sequence)
 
-    if big_dataset:
-        epitope_list, antigen_list, length_of_longest_context = modify_with_context_big_dataset(epitope_list, antigen_list,  length_of_longest_sequence)
-        testy_list, testx_list, length_of_longest_context_2 = modify_with_context_big_dataset(testy_list, testx_list,
+        elif full_length==False:
+            epitope_list, antigen_list, length_of_longest_context = modify_with_context(epitope_list, antigen_list,
+                                                                                    length_of_longest_sequence)
+            testy_list, testx_list, length_of_longest_context_2 = modify_with_context(testy_list, testx_list,
                                                                                   length_of_longest_sequence)
+        else:
 
-    elif full_length==False:
-        epitope_list, antigen_list, length_of_longest_context = modify_with_context(epitope_list, antigen_list,
-                                                                                length_of_longest_sequence)
-        testy_list, testx_list, length_of_longest_context_2 = modify_with_context(testy_list, testx_list,
-                                                                              length_of_longest_sequence)
-    else:
-
-        epitope_list, antigen_list, window_size = modify_with_max_epitope_density(epitope_list, antigen_list, window_size=length_of_longest_sequence)
-        #epitope_list = epitope_list_full_sequence
-        #antigen_list = antigen_list_full_sequence
-        length_of_longest_context = length_of_longest_sequence
+            epitope_list, antigen_list, window_size = modify_with_max_epitope_density(epitope_list, antigen_list, window_size=length_of_longest_sequence)
+            #epitope_list = epitope_list_full_sequence
+            #antigen_list = antigen_list_full_sequence
+            length_of_longest_context = length_of_longest_sequence
 
 
-    if old==False:
-        antigen_list = new_embedding(antigen_list, encoder)
-        testx_list = new_embedding(testx_list, encoder)
+        if old==False:
+            antigen_list = new_embedding(antigen_list, encoder)
+            testx_list = new_embedding(testx_list, encoder)
 
-    epitope_list_for_weights = epitope_list
-    epitope_list_for_weights = np.array(epitope_list_for_weights, dtype = np.float16)
+        epitope_list_for_weights = epitope_list
+        epitope_list_for_weights = np.array(epitope_list_for_weights, dtype = np.float16)
 
-    epitope_list = np.array(epitope_list, dtype = np.float16)
-    if old==True:
-        antigen_list = np.array(antigen_list, dtype = np.float32)
-        antigen_list = np.reshape(antigen_list, (antigen_list.shape[0], antigen_list.shape[1], 1))
-        testx_list = np.array(testx_list, dtype = np.float32)
-        testx_list = np.reshape(testx_list, (testx_list.shape[0], testx_list.shape[1], 1))
+        epitope_list = np.array(epitope_list, dtype = np.float16)
+        if old==True:
+            antigen_list = np.array(antigen_list, dtype = np.float32)
+            antigen_list = np.reshape(antigen_list, (antigen_list.shape[0], antigen_list.shape[1], 1))
+            testx_list = np.array(testx_list, dtype = np.float32)
+            testx_list = np.reshape(testx_list, (testx_list.shape[0], testx_list.shape[1], 1))
 
-    if use_structure:
-        training_data = get_training_data(antigen_list)
-    else:
-        training_data = antigen_list
-
+        if use_structure:
+            training_data = get_training_data(antigen_list)
+        else:
+            training_data = antigen_list
+    except:
+        pass
 
 
     epitope_list_for_weights = np.reshape(epitope_list_for_weights,
