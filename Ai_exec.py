@@ -335,7 +335,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                 for fold, (train_index, test_index) in enumerate(kf.split(antigen_array)):
                     X_train, X_test = antigen_array[train_index], antigen_array[test_index]
                     y_train, y_test = epitope_array[train_index], epitope_array[test_index]
-
+                    y_train = tf.expand_dims(y_train, axis=-1)
+                    y_test = tf.expand_dims(y_test, axis=-1)
                     print(f"Fold {fold + 1}")
                     print(f"Train size: {len(X_train)}, Test size: {len(X_test)}")
                     # Hier kannst du dann mit dem Training starten
