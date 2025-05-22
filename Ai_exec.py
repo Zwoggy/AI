@@ -139,6 +139,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
         epitope_list_full_sequence = epitope_list
 
     else:
+        voc_size=100
         filepath = "./data/BP3_Data/BP3_training_set_transformed.csv"
         df_bp = pd.read_csv(filepath)
 
