@@ -23,6 +23,8 @@ from ai_functionality_old import embedding, modify_with_context, calculating_cla
 import logging
 
 from src.TokenAndPositionEmbedding import TokenAndPositionEmbedding
+from src.TransformerBlock import TransformerBlock
+from src.TransformerDecoderTwo import TransformerDecoderTwo
 from src.fusion_model import create_fusion_model_function, create_fusion_model_function_02
 from src.masked_metrics import masked_accuracy, masked_recall, masked_precision, MaskedAUC, masked_f1_score
 from validate_45_blind import validate_on_45_blind
@@ -295,7 +297,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
             if ba_ai:
 
-                model = create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights,
+                model = create_model_old(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights,
                                     num_decoder_blocks, num_heads, num_transformer_blocks, old, rate,
                                     voc_size)
                 history = model.fit(x = training_data,
@@ -475,7 +477,7 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
             dropout=rate
         )(decoder_outputs, encoder_outputs)
     decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
-    decoder_outputs = keras.layers.Dense(4, activation='relu', name='Not_the_last_Sigmoid')(decoder_outputs)
+    decoder_outputs = keras.layers.Dense(12, activation='relu', name='Not_the_last_Sigmoid')(decoder_outputs)
     decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
 
     decoder_outputs = keras.layers.Dense(8, activation='relu', name='Not_the_last_Sigmoid_02')(decoder_outputs)
