@@ -8,14 +8,17 @@ from ai_functionality_old import load_model_and_tokenizer, modify_with_context, 
 
 
 
-def validate_on_BP3C59ID_external_test_set():
+def validate_on_BP3C59ID_external_test_set(old_model=False, model=None):
     import pandas as pd
     import numpy as np
     from keras_preprocessing import text, sequence
 
 
     # Laden des Modells und Tokenizers (eigene Funktion anpassen)
-    model, _ = load_model_and_tokenizer()
+    if old_model:
+        model, _ = load_model_and_tokenizer()
+    else:
+        model = model
 
     # CSV-Datei einlesen
     df = pd.read_csv('./data/BP3C50ID/BP3C50ID_embedded_and_epitopes.csv')
