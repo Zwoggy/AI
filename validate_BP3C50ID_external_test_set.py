@@ -54,6 +54,7 @@ def validate_on_BP3C59ID_external_test_set():
     # muss ggf. so geschrieben sein, dass sie die Listen verarbeiten kann.
     results = []
     for idx, (seq, epi) in enumerate(zip(padded_sequences, padded_epitope_list)):
+
         print("epi", epi)
         # Auswertung
         # PDB-ID oder ähnliches aus df entnehmen
@@ -72,8 +73,8 @@ def validate_on_BP3C59ID_external_test_set():
 
     # Ergebnisse in CSV speichern
     results_df = pd.DataFrame(results)
-    results_df.to_csv('./data/evaluation_results_BP3C50ID_embedded_and_epitopes.csv', index=False)
-    print("Evaluation abgeschlossen und in 'evaluation_results_BP3C50ID_embedded_and_epitopes.csv' gespeichert.")
+    results_df.to_csv('./data/evaluation_results_BP3C50ID_embedded_and_epitopes_14_06_2025.csv', index=False)
+    print("Evaluation abgeschlossen und in 'evaluation_results_BP3C50ID_embedded_and_epitopes_14_06_2025.csv' gespeichert.")
 
 
 

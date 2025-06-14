@@ -3,6 +3,7 @@ import tf_keras
 import keras_hub
 from sklearn.utils import compute_class_weight
 from tf_keras import layers
+from tf_keras.src.callbacks import ModelCheckpoint
 from transformers import  TFEsmForTokenClassification
 from tensorflow.keras import backend as K
 import keras
@@ -290,23 +291,48 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
 
 
+
+
             #i, model = create_model_old(embed_dim, ff_dim, gpu_split, i, length_of_longest_context, maxlen, new_weights,
                                         #num_decoder_blocks, num_heads, num_transformer_blocks, old,
                                         #output_dimension, rate, training, voc_size)
             # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
 
             if ba_ai:
+                kf = KFold(n_splits=5, shuffle=True, random_state=42)
+                for fold, (train_index, test_index) in enumerate(kf.split(antigen_array)):
+                    X_train, X_test = antigen_array[train_index], antigen_array[test_index]
+                    y_train, y_test = epitope_array[train_index], epitope_array[test_index]
+                    y_train = tf.expand_dims(y_train, axis=-1)
+                    y_test = tf.expand_dims(y_test, axis=-1)
+                    print(f"Fold {fold + 1}")
+                    print(f"Train size: {len(X_train)}, Test size: {len(X_test)}")
+                    # Hier kannst du dann mit dem Training starten
 
-                model = create_model_old(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights,
-                                    num_decoder_blocks, num_heads, num_transformer_blocks, old, rate,
-                                    voc_size)
-                history = model.fit(x = training_data,
-                                    y = epitope_list,
-                                    batch_size = 40,
-                                    epochs = 100,
-                                    validation_data = (testx_list, testy_list),
-                                    callbacks = [early_stopping],
-                                    verbose=1)
+                    # to save the best model
+                    checkpoint_filepath = f"best_model_fold_{fold + 1}.h5"
+                    checkpoint_callback = ModelCheckpoint(
+                        filepath=checkpoint_filepath,
+                        monitor='val_loss',  # oder 'val_accuracy', je nach Metrik
+                        save_best_only=True,
+                        save_weights_only=False,
+                        mode='min',  # 'min' für Verlust, 'max' für Accuracy
+                        verbose=1
+                    )
+
+                    model = create_model_old(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights,
+                                        num_decoder_blocks, num_heads, num_transformer_blocks, old, rate,
+                                        voc_size)
+                    history = model.fit(x = X_train,
+                                        y = y_train,
+                                        batch_size = 16,
+                                        epochs = 100,
+                                        validation_data = (X_test, y_test),
+                                        callbacks = [early_stopping, checkpoint_callback],
+                                        verbose=1)
+
+
+
             elif use_structure:
 
 
