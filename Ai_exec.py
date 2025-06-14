@@ -310,7 +310,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                     # Hier kannst du dann mit dem Training starten
 
                     # to save the best model
-                    checkpoint_filepath = f"best_model_fold_{fold + 1}.h5"
+                    checkpoint_filepath = f"best_model_fold_{fold + 1}.keras"
                     checkpoint_callback = ModelCheckpoint(
                         filepath=checkpoint_filepath,
                         monitor='val_loss',  # oder 'val_accuracy', je nach Metrik
