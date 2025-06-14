@@ -320,7 +320,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                         verbose=1
                     )
 
-                    model = create_model_old(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights,
+                    model = create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights,
                                         num_decoder_blocks, num_heads, num_transformer_blocks, old, rate,
                                         voc_size)
                     history = model.fit(x = X_train,
