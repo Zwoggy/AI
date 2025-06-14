@@ -387,7 +387,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 #
 
         tf_keras.utils.plot_model(model, expand_nested = True, show_shapes = True,
-                                  to_file = './multi_model' + str(i) + '.png')
+                                  to_file = './multi_model' + str("_test_") + '.png') #str("_test_") used to be str("i")
         if safe:
             save_ai(model, save_file, old=old)
         # load_model_and_do_stuff(testx_list, testy_list, model)
