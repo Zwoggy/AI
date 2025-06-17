@@ -314,7 +314,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                     # Hier kannst du dann mit dem Training starten
 
                     # to save the best model
-                    checkpoint_filepath = f"best_model_fold_{fold + 1}.keras"
+                    checkpoint_filepath = f"./best_model_fold_{fold + 1}.keras"
                     checkpoint_callback = ModelCheckpoint(
                         filepath=checkpoint_filepath,
                         monitor='val_loss',  # oder 'val_accuracy', je nach Metrik
@@ -379,7 +379,17 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                     y_test = tf.expand_dims(y_test, axis=-1)
                     print(f"Fold {fold + 1}")
                     print(f"Train size: {len(X_train)}, Test size: {len(X_test)}")
-                    # Hier kannst du dann mit dem Training starten
+
+                    # to save the best model
+                    checkpoint_filepath = f"./best_model_fold_{fold + 1}.keras"
+                    checkpoint_callback = ModelCheckpoint(
+                        filepath=checkpoint_filepath,
+                        monitor='val_loss',  # oder 'val_accuracy', je nach Metrik
+                        save_best_only=True,
+                        save_weights_only=False,
+                        mode='min',  # 'min' für Verlust, 'max' für Accuracy
+                        verbose=1
+                    )
 
                     model = create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights,
                                                 num_decoder_blocks, num_heads, num_transformer_blocks, old, rate,
