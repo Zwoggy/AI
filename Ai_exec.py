@@ -497,6 +497,7 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
 
 
 def plot_save_model_trianing_history(fold, history_dict):
+    #to save
     with open(f"./training_histories/history_fold_{fold + 1}.json", "w") as f:
         json.dump(history_dict, f)
     # Plot each metric
