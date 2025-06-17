@@ -497,7 +497,7 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
 
 
 def plot_save_model_trianing_history(fold, history_dict):
-    with open(f"training_histories/history_fold_{fold + 1}.json", "w") as f:
+    with open(f"./training_histories/history_fold_{fold + 1}.json", "w") as f:
         json.dump(history_dict, f)
     # Plot each metric
     for metric in history_dict:
@@ -515,7 +515,7 @@ def plot_save_model_trianing_history(fold, history_dict):
         plt.legend()
         plt.grid(True)
         plt.tight_layout()
-        plt.savefig(f"training_plots/fold_{fold + 1}_{metric}.png")
+        plt.savefig(f"./training_plots/fold_{fold + 1}_{metric}.png")
         plt.close()
 
 
