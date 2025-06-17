@@ -13,6 +13,7 @@ import ast
 from tensorflow.keras.models import load_model
 import json
 import matplotlib.pyplot as plt
+from datetime import datetime
 
 
 from sklearn.model_selection import KFold
@@ -312,9 +313,10 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                     print(f"Fold {fold + 1}")
                     print(f"Train size: {len(X_train)}, Test size: {len(X_test)}")
                     # Hier kannst du dann mit dem Training starten
+                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
                     # to save the best model
-                    checkpoint_filepath = f"./best_model_fold_{fold + 1}.keras"
+                    checkpoint_filepath = f"./{timestamp}_best_model_fold_{fold + 1}.keras"
                     checkpoint_callback = ModelCheckpoint(
                         filepath=checkpoint_filepath,
                         monitor='val_loss',  # oder 'val_accuracy', je nach Metrik
@@ -336,11 +338,11 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                                         verbose=1)
 
                     history_dict = history.history
-                    plot_save_model_trianing_history(fold, history_dict)
-                    load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights, results_per_fold,
-                                            y_test, y_train)
+                    plot_save_model_trianing_history(fold, history_dict, timestamp)
+                    results_per_fold.append(load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights, results_per_fold,
+                                            y_test, y_train))
 
-                save_history_and_plot(results_per_fold)
+                save_history_and_plot(results_per_fold, timestamp)
 
 
 
@@ -461,7 +463,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
     amino_acid_counts_epitope_predicted, confusion_matrices = analyze_amino_acids_in_validation_data( model, validation_sequences=testx_list, validation_labels=testy_list, encoder=encoder)
 
 
-def save_history_and_plot(results_per_fold):
+def save_history_and_plot(results_per_fold, timestamp):
     # Flatten into one row per fold per dataset (train/test)
     flat_results = []
     for fold_result in results_per_fold:
@@ -471,7 +473,7 @@ def save_history_and_plot(results_per_fold):
             entry.update(fold_result[split])
             flat_results.append(entry)
     df_results = pd.DataFrame(flat_results)
-    df_results.to_csv("./kfold_model_metrics.csv", index=False)
+    df_results.to_csv(f"./{timestamp}_kfold_model_metrics.csv", index=False)
     print("Saved KFold results to 'kfold_model_metrics.csv'")
 
 
@@ -494,11 +496,12 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
         "train": dict(zip(metric_names, train_metrics)),
         "test": dict(zip(metric_names, test_metrics))
     })
+    return results_per_fold
 
 
-def plot_save_model_trianing_history(fold, history_dict):
+def plot_save_model_trianing_history(fold, history_dict, timestamp):
     #to save
-    with open(f"./training_histories/history_fold_{fold + 1}.json", "w") as f:
+    with open(f"./training_histories/_{timestamp}_history_fold_{fold + 1}.json", "w") as f:
         json.dump(history_dict, f)
     # Plot each metric
     for metric in history_dict:
@@ -516,7 +519,7 @@ def plot_save_model_trianing_history(fold, history_dict):
         plt.legend()
         plt.grid(True)
         plt.tight_layout()
-        plt.savefig(f"./training_plots/fold_{fold + 1}_{metric}.png")
+        plt.savefig(f"./training_plots/_{timestamp}_fold_{fold + 1}_{metric}.png")
         plt.close()
 
 
