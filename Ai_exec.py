@@ -10,6 +10,9 @@ import keras
 import pickle
 import pandas as pd
 import ast
+from tensorflow.keras.models import load_model
+import json
+import matplotlib.pyplot as plt
 
 
 from sklearn.model_selection import KFold
@@ -299,6 +302,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
             # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
 
             if ba_ai:
+                results_per_fold = []
                 kf = KFold(n_splits=5, shuffle=True, random_state=42)
                 for fold, (train_index, test_index) in enumerate(kf.split(antigen_array)):
                     X_train, X_test = antigen_array[train_index], antigen_array[test_index]
@@ -331,6 +335,13 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                                         callbacks = [early_stopping, checkpoint_callback],
                                         verbose=1)
 
+                    history_dict = history.history
+                    plot_save_model_trianing_history(fold, history_dict)
+                    load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights, results_per_fold,
+                                            y_test, y_train)
+
+                save_history_and_plot(results_per_fold)
+
 
 
             elif use_structure:
@@ -359,6 +370,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
             else:
                 kf = KFold(n_splits=5, shuffle=True, random_state=42)
+                results_per_fold = []
 
                 for fold, (train_index, test_index) in enumerate(kf.split(antigen_array)):
                     X_train, X_test = antigen_array[train_index], antigen_array[test_index]
@@ -379,6 +391,11 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                                         validation_data=(X_test, y_test),
                                         callbacks=[early_stopping],
                                         verbose=1)
+
+                    load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights, results_per_fold,
+                                            y_test, y_train)
+
+                save_history_and_plot(results_per_fold)
 
         # history = model.fit(x=antigen_list, y=epitope_list, batch_size=50, epochs=100, validation_data=(testx_list, testy_list, testy_for_weights), callbacks=[callback], sample_weight = epitope_list_for_weights)
 
@@ -434,6 +451,62 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
     amino_acid_counts_epitope_predicted, confusion_matrices = analyze_amino_acids_in_validation_data( model, validation_sequences=testx_list, validation_labels=testy_list, encoder=encoder)
 
 
+def save_history_and_plot(results_per_fold):
+    # Flatten into one row per fold per dataset (train/test)
+    flat_results = []
+    for fold_result in results_per_fold:
+        fold = fold_result["fold"]
+        for split in ["train", "test"]:
+            entry = {"fold": fold, "split": split}
+            entry.update(fold_result[split])
+            flat_results.append(entry)
+    df_results = pd.DataFrame(flat_results)
+    df_results.to_csv("./kfold_model_metrics.csv", index=False)
+    print("Saved KFold results to 'kfold_model_metrics.csv'")
+
+
+def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights, results_per_fold, y_test, y_train):
+    # Load best model and evaluate on both sets
+    best_model = load_model(checkpoint_filepath,
+                            custom_objects={
+                                "MaskedAUC": MaskedAUC,
+                                "masked_precision": masked_precision,
+                                "masked_recall": masked_recall,
+                                "masked_f1_score": masked_f1_score,
+                                "get_weighted_loss_masked_": get_weighted_loss_masked_(new_weights)
+                            })
+    train_metrics = best_model.evaluate(X_train, y_train, verbose=0)
+    test_metrics = best_model.evaluate(X_test, y_test, verbose=0)
+    # Collect the metric names
+    metric_names = best_model.metrics_names
+    results_per_fold.append({
+        "fold": fold + 1,
+        "train": dict(zip(metric_names, train_metrics)),
+        "test": dict(zip(metric_names, test_metrics))
+    })
+
+
+def plot_save_model_trianing_history(fold, history_dict):
+    with open(f"training_histories/history_fold_{fold + 1}.json", "w") as f:
+        json.dump(history_dict, f)
+    # Plot each metric
+    for metric in history_dict:
+        if metric.startswith("val_"):
+            continue  # We'll plot val_* in same figure
+
+        val_metric = "val_" + metric
+        plt.figure()
+        plt.plot(history_dict[metric], label=f"Train {metric}")
+        if val_metric in history_dict:
+            plt.plot(history_dict[val_metric], label=f"Val {metric}")
+        plt.title(f"Fold {fold + 1} - {metric}")
+        plt.xlabel("Epochs")
+        plt.ylabel(metric)
+        plt.legend()
+        plt.grid(True)
+        plt.tight_layout()
+        plt.savefig(f"training_plots/fold_{fold + 1}_{metric}.png")
+        plt.close()
 
 
 def create_fusionmodel(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights, num_decoder_blocks,
@@ -529,6 +602,8 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
             masked_f1_score]
     )
     return model
+
+
 
 
 def create_model_old(embed_dim, ff_dim, gpu_split, i, length_of_longest_context, maxlen, new_weights,
