@@ -15,6 +15,8 @@ import json
 import matplotlib.pyplot as plt
 from datetime import datetime
 
+from keras.config import enable_unsafe_deserialization
+enable_unsafe_deserialization()
 
 from sklearn.model_selection import KFold
 
