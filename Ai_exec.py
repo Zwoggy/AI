@@ -483,6 +483,7 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
                             compile=False,
                             safe_mode = False,
                             custom_objects={
+                                "tf": tf,
                                 "MaskedAUC": MaskedAUC,
                                 "masked_precision": masked_precision,
                                 "masked_recall": masked_recall,
