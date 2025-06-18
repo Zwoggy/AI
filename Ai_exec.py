@@ -27,6 +27,7 @@ from ai_functionality_old import embedding, modify_with_context, calculating_cla
 
 import logging
 
+from src.RemoveMask import RemoveMask
 from src.TokenAndPositionEmbedding import TokenAndPositionEmbedding
 from src.TransformerBlock import TransformerBlock
 from src.TransformerDecoderTwo import TransformerDecoderTwo
