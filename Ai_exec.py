@@ -485,8 +485,8 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
                                 "MaskedAUC": MaskedAUC,
                                 "masked_precision": masked_precision,
                                 "masked_recall": masked_recall,
-                                "masked_f1_score": masked_f1_score,
-                                "get_weighted_loss_masked_": get_weighted_loss_masked_(new_weights)
+                                "masked_f1_score": masked_f1_score
+                                #,"get_weighted_loss_masked_": get_weighted_loss_masked_(new_weights)
                             })
     train_metrics = best_model.evaluate(X_train, y_train, verbose=0)
     test_metrics = best_model.evaluate(X_test, y_test, verbose=0)
