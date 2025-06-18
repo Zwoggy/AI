@@ -15,10 +15,6 @@ import json
 import matplotlib.pyplot as plt
 from datetime import datetime
 
-#### ONLY WHEN LOADING OWN .keras OR .h5 MODELS!!!
-from keras import enable_unsafe_deserialization
-
-enable_unsafe_deserialization()
 
 from sklearn.model_selection import KFold
 
@@ -484,6 +480,7 @@ def save_history_and_plot(results_per_fold, timestamp):
 def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights, results_per_fold, y_test, y_train):
     # Load best model and evaluate on both sets
     best_model = load_model(checkpoint_filepath,
+                            safe_mode = False,
                             custom_objects={
                                 "MaskedAUC": MaskedAUC,
                                 "masked_precision": masked_precision,
