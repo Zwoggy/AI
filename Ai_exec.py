@@ -16,7 +16,8 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 
 #### ONLY WHEN LOADING OWN .keras OR .h5 MODELS!!!
-from keras.config import enable_unsafe_deserialization
+from keras import enable_unsafe_deserialization
+
 enable_unsafe_deserialization()
 
 from sklearn.model_selection import KFold
