@@ -779,7 +779,7 @@ def get_weighted_loss(weights):
 
 
 
-
+@keras.saving.register_keras_serializable()
 def get_weighted_loss_masked_(weights):
     weights = tf.constant(weights, dtype=tf.float32)  # shape: (seq_len, 2)
 
