@@ -488,6 +488,12 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
                                 "masked_f1_score": masked_f1_score
                                 #,"get_weighted_loss_masked_": get_weighted_loss_masked_(new_weights)
                             })
+    # Modell nach dem Laden neu kompilieren (z. B. mit aktuellem Loss)
+    best_model.compile(
+        optimizer=tf.keras.optimizers.AdamW(learning_rate=0.001),
+        #loss=get_weighted_loss_masked_(new_weights),
+        metrics=[MaskedAUC(), masked_precision, masked_recall, masked_f1_score]
+    )
     train_metrics = best_model.evaluate(X_train, y_train, verbose=0)
     test_metrics = best_model.evaluate(X_test, y_test, verbose=0)
     # Collect the metric names
