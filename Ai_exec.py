@@ -610,8 +610,8 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
 
     decoder_outputs = keras.layers.Dense(4, activation='relu', name='Not_the_last_Sigmoid_04')(decoder_outputs)
 
-    decoder_outputs = keras.layers.Lambda(lambda x: tf.identity(x),
-    output_shape=lambda s: s )(decoder_outputs) # removes mask for timedistributed layer since it cant deal with a mask
+    decoder_outputs = RemoveMask()(decoder_outputs)
+
 
     decoder_outputs_final = keras.layers.TimeDistributed(keras.layers.Dense(1, activation='sigmoid', name='Final_Sigmoid'))(
         decoder_outputs)
