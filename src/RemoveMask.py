@@ -1,5 +1,6 @@
 import tensorflow as tf
 
+@tf.function
 class RemoveMask(tf.keras.layers.Layer):
     def call(self, inputs):
         return inputs  # tf.identity optional
