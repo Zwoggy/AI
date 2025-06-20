@@ -340,9 +340,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
                     history_dict = history.history
                     plot_save_model_trianing_history(fold, history_dict, timestamp)
-                    fold_result = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights, results_per_fold,
+                    results_per_fold = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights, results_per_fold,
                                             y_test, y_train)
-                    results_per_fold.append(fold_result)
                 save_history_and_plot(results_per_fold, timestamp)
 
 
