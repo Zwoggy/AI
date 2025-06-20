@@ -464,17 +464,31 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
 
 def save_history_and_plot(results_per_fold, timestamp):
-    # Flatten into one row per fold per dataset (train/test)
-    flat_results = []
-    for fold_result in results_per_fold:
-        fold = fold_result["fold"]
-        for split in ["train", "test"]:
-            entry = {"fold": fold, "split": split}
-            entry.update(fold_result[split])
-            flat_results.append(entry)
-    df_results = pd.DataFrame(flat_results)
-    df_results.to_csv(f"./{timestamp}_kfold_model_metrics.csv", index=False)
-    print("Saved KFold results to 'kfold_model_metrics.csv'")
+    import csv
+
+    # Header mit genau den gewünschten Metriken
+    header = ["fold", "split", "auc", "f1", "precision", "recall"]
+
+    with open(f"k_fold_model_metrics_{timestamp}.csv", "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(header)
+
+        for result in results_per_fold:
+            fold = result["fold"]
+            for split in ["train", "test"]:
+                metrics_dict = result[split]
+
+                # Hole die Metrikwerte anhand der richtigen Namen
+                row = [
+                    fold,
+                    split,
+                    float(metrics_dict.get("masked_auc", 0.0)),
+                    float(metrics_dict.get("masked_f1_score", 0.0)),
+                    float(metrics_dict.get("masked_precision", 0.0)),
+                    float(metrics_dict.get("masked_recall", 0.0)),
+                ]
+                writer.writerow(row)
+    print("model saved in" + f"k_fold_model_metrics_{timestamp}.csv")
 
 
 def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights, results_per_fold, y_test, y_train):
