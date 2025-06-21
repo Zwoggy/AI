@@ -341,14 +341,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                     history_dict = history.history
                     print(f"🔍 Fold {fold + 1} — History Keys:", list(history_dict.keys()))
                     plot_save_model_trianing_history(fold, history_dict, timestamp)
-                    history_dict = history.history
-                    train_metrics, test_metrics = extract_final_metrics_from_history(history_dict)
-
-                    results_per_fold.append({
-                        "fold": fold + 1,
-                        "train": train_metrics,
-                        "test": test_metrics
-                    })
+                    results_per_fold = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights, results_per_fold,
+                                            y_test, y_train)
                 save_history_and_plot(results_per_fold, timestamp)
 
 
@@ -411,14 +405,9 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                                         callbacks=[early_stopping],
                                         verbose=1)
 
-                    history_dict = history.history
-                    train_metrics, test_metrics = extract_final_metrics_from_history(history_dict)
-
-                    results_per_fold.append({
-                        "fold": fold + 1,
-                        "train": train_metrics,
-                        "test": test_metrics
-                    })
+                    fold_result = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights, results_per_fold,
+                                            y_test, y_train)
+                    results_per_fold.append(fold_result)
                 save_history_and_plot(results_per_fold)
 
         # history = model.fit(x=antigen_list, y=epitope_list, batch_size=50, epochs=100, validation_data=(testx_list, testy_list, testy_for_weights), callbacks=[callback], sample_weight = epitope_list_for_weights)
@@ -503,21 +492,6 @@ def save_history_and_plot(results_per_fold, timestamp):
     print("model saved in" + f"k_fold_model_metrics_{timestamp}.csv")
 
 
-
-def extract_final_metrics_from_history(history_dict):
-    return {
-        "auc": history_dict["masked_auc"][-1],
-        "f1": history_dict["masked_f1_score"][-1],
-        "precision": history_dict["masked_precision"][-1],
-        "recall": history_dict["masked_recall"][-1],
-    }, {
-        "auc": history_dict["val_masked_auc"][-1],
-        "f1": history_dict["val_masked_f1_score"][-1],
-        "precision": history_dict["val_masked_precision"][-1],
-        "recall": history_dict["val_masked_recall"][-1],
-    }
-
-
 def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights, results_per_fold, y_test, y_train):
     # Load best model and evaluate on both sets
     best_model = load_model(checkpoint_filepath,
@@ -537,6 +511,8 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
         loss=get_weighted_loss_masked_(new_weights),
         metrics=[MaskedAUC(), masked_precision, masked_recall, masked_f1_score]
     )
+    print("Loaded metrics:", best_model.metrics_names)
+
     train_metrics = best_model.evaluate(X_train, y_train, verbose=0)
     test_metrics = best_model.evaluate(X_test, y_test, verbose=0)
     # Collect the metric names
