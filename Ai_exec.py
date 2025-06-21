@@ -405,6 +405,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                                         callbacks=[early_stopping],
                                         verbose=1)
 
+                    history_dict = history.history
                     train_metrics, test_metrics = extract_final_metrics_from_history(history_dict)
 
                     results_per_fold.append({
