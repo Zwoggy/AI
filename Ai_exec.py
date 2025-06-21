@@ -341,8 +341,14 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                     history_dict = history.history
                     print(f"🔍 Fold {fold + 1} — History Keys:", list(history_dict.keys()))
                     plot_save_model_trianing_history(fold, history_dict, timestamp)
-                    results_per_fold = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights, results_per_fold,
-                                            y_test, y_train)
+                    history_dict = history.history
+                    train_metrics, test_metrics = extract_final_metrics_from_history(history_dict)
+
+                    results_per_fold.append({
+                        "fold": fold + 1,
+                        "train": train_metrics,
+                        "test": test_metrics
+                    })
                 save_history_and_plot(results_per_fold, timestamp)
 
 
