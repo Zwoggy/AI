@@ -6,7 +6,7 @@ import tensorflow as tf
 from tensorflow.keras import backend as K
 import keras
 
-#@tf.function
+@tf.function
 def masked_accuracy(y_true, y_pred):
     mask = tf.cast(tf.not_equal(y_true, -1), tf.float32)
     if tf.rank(mask) + 1 == tf.rank(y_pred):
@@ -15,7 +15,7 @@ def masked_accuracy(y_true, y_pred):
     correct = tf.cast(tf.equal(y_true, y_pred_bin), tf.float32)
     return tf.reduce_sum(correct * mask) / tf.reduce_sum(mask + K.epsilon())
 
-#@tf.function
+@tf.function
 def masked_precision(y_true, y_pred):
     mask = tf.cast(tf.not_equal(y_true, -1), tf.float32)
     if tf.rank(mask) + 1 == tf.rank(y_pred):
@@ -25,7 +25,7 @@ def masked_precision(y_true, y_pred):
     predicted_positives = tf.reduce_sum(y_pred_bin * mask)
     return true_positives / (predicted_positives + K.epsilon())
 
-#@tf.function
+@tf.function
 def masked_recall(y_true, y_pred):
     mask = tf.cast(tf.not_equal(y_true, -1), tf.float32)
     if tf.rank(mask) + 1 == tf.rank(y_pred):
@@ -35,7 +35,7 @@ def masked_recall(y_true, y_pred):
     possible_positives = tf.reduce_sum(y_true * mask)
     return true_positives / (possible_positives + K.epsilon())
 
-#@tf.function
+@tf.function
 def masked_auc(y_true, y_pred):
     y_true = tf.squeeze(y_true, axis=-1)
     y_pred = tf.squeeze(y_pred, axis=-1)
@@ -72,7 +72,7 @@ class MaskedAUC(tf.keras.metrics.AUC):
     def result(self):
         return super(MaskedAUC, self).result()
 
-#@tf.function
+@tf.function
 def masked_f1_score(y_true, y_pred):
     mask = tf.cast(tf.not_equal(y_true, -1), tf.float32)
     if tf.rank(mask) + 1 == tf.rank(y_pred):
