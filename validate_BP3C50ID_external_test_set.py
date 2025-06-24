@@ -76,8 +76,8 @@ def validate_on_BP3C59ID_external_test_set(old_model=False, model=None):
 
     # Ergebnisse in CSV speichern
     results_df = pd.DataFrame(results)
-    results_df.to_csv('./data/evaluation_results_BP3C50ID_embedded_and_epitopes_14_06_2025.csv', index=False)
-    print("Evaluation abgeschlossen und in 'evaluation_results_BP3C50ID_embedded_and_epitopes_14_06_2025.csv' gespeichert.")
+    results_df.to_csv('./data/evaluation_results_BP3C50ID_embedded_and_epitopes_24_06_2025.csv', index=False)
+    print("Evaluation abgeschlossen und in 'evaluation_results_BP3C50ID_embedded_and_epitopes_24_06_2025.csv' gespeichert.")
 
 
 
