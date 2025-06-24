@@ -499,16 +499,15 @@ def save_history_and_plot(results_per_fold, timestamp):
 def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights, results_per_fold, y_test, y_train):
     # Load best model and evaluate on both sets
     best_model = load_model(checkpoint_filepath,
-                            compile=False,
+                            compile=True,
                             safe_mode = False,
                             custom_objects={
-                                "tf": tf
-                                #,
-                                #"MaskedAUC": MaskedAUC,
-                                #"masked_precision": masked_precision_metric,
-                                #"masked_recall": masked_recall_metric,
-                                #"masked_f1_score": masked_f1_score_metric
-                                #,"get_weighted_loss_masked_": get_weighted_loss_masked_(new_weights)
+                                "tf": tf,
+                                "MaskedAUC": MaskedAUC,
+                                "masked_precision": masked_precision_metric,
+                                "masked_recall": masked_recall_metric,
+                                "masked_f1_score": masked_f1_score_metric
+                                ,"get_weighted_loss_masked_": get_weighted_loss_masked_(new_weights)
                             })
     # Modell nach dem Laden neu kompilieren
     best_model.compile(
