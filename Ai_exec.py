@@ -342,7 +342,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                     history_dict = history.history
                     print(f"🔍 Fold {fold + 1} — History Keys:", list(history_dict.keys()))
                     print(history_dict)
-                    compile_metrics = history.history.get('compile_metrics')
+                    compile_metrics = history.history.get('val_')
                     print("compile_metrics:", compile_metrics)
                     plot_save_model_trianing_history(fold, history_dict, timestamp)
                     results_per_fold = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights, results_per_fold,
@@ -515,10 +515,11 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
         loss=get_weighted_loss_masked_(new_weights),
         metrics=[MaskedAUC(name="masked_auc"), masked_precision_metric, masked_recall_metric, masked_f1_score_metric]
     )
-    print("Loaded metrics:", best_model.metrics_names)
 
     train_metrics = best_model.evaluate(X_train, y_train, verbose=0)
     test_metrics = best_model.evaluate(X_test, y_test, verbose=0)
+    print("Loaded metrics:", best_model.metrics_names)
+
     # Collect the metric names
     metric_names = best_model.metrics_names
     results_per_fold.append({
