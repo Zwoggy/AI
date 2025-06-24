@@ -87,3 +87,9 @@ def masked_f1_score(y_true, y_pred):
     recall = tp / (possible_positives + K.epsilon())
 
     return 2 * (precision * recall) / (precision + recall + K.epsilon())
+
+
+# use these for evaluation after loading a model. Have to be implemented for the whole pipeline to work
+masked_precision_metric = tf.keras.metrics.MeanMetricWrapper(masked_precision, name="masked_precision")
+masked_recall_metric = tf.keras.metrics.MeanMetricWrapper(masked_recall, name="masked_recall")
+masked_f1_score_metric = tf.keras.metrics.MeanMetricWrapper(masked_f1_score, name="masked_f1_score")

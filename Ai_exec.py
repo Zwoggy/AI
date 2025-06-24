@@ -32,7 +32,8 @@ from src.TokenAndPositionEmbedding import TokenAndPositionEmbedding
 from src.TransformerBlock import TransformerBlock
 from src.TransformerDecoderTwo import TransformerDecoderTwo
 from src.fusion_model import create_fusion_model_function, create_fusion_model_function_02
-from src.masked_metrics import masked_accuracy, masked_recall, masked_precision, MaskedAUC, masked_f1_score
+from src.masked_metrics import masked_accuracy, masked_recall, masked_precision, MaskedAUC, masked_f1_score, \
+    masked_precision_metric, masked_recall_metric, masked_f1_score_metric
 from validate_45_blind import validate_on_45_blind
 from tensorflow.keras.mixed_precision import set_global_policy
 from tensorflow.keras import mixed_precision
@@ -501,16 +502,16 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
                             custom_objects={
                                 "tf": tf,
                                 "MaskedAUC": MaskedAUC,
-                                "masked_precision": masked_precision,
-                                "masked_recall": masked_recall,
-                                "masked_f1_score": masked_f1_score
+                                "masked_precision": masked_precision_metric,
+                                "masked_recall": masked_recall_metric,
+                                "masked_f1_score": masked_f1_score_metric
                                 #,"get_weighted_loss_masked_": get_weighted_loss_masked_(new_weights)
                             })
     # Modell nach dem Laden neu kompilieren
     best_model.compile(
         optimizer=tf.keras.optimizers.AdamW(learning_rate=0.001),
         loss=get_weighted_loss_masked_(new_weights),
-        metrics=[MaskedAUC(), masked_precision, masked_recall, masked_f1_score]
+        metrics=[MaskedAUC(name="masked_auc"), masked_precision_metric, masked_recall_metric, masked_f1_score_metric]
     )
     print("Loaded metrics:", best_model.metrics_names)
 
@@ -640,9 +641,9 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
         loss=get_weighted_loss_masked_(new_weights),
         metrics=[#masked_accuracy,
             MaskedAUC(),
-            masked_precision,
-            masked_recall,
-            masked_f1_score]
+            masked_precision_metric,
+            masked_recall_metric,
+            masked_f1_score_metric]
     )
     return model
 
