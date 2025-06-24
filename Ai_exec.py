@@ -513,7 +513,12 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
     best_model.compile(
         optimizer=tf.keras.optimizers.AdamW(learning_rate=0.001),
         loss=get_weighted_loss_masked_(new_weights),
-        metrics=[MaskedAUC(name="masked_auc"), masked_precision_metric, masked_recall_metric, masked_f1_score_metric]
+        metrics=[
+            MaskedAUC(name="masked_auc"),
+            tf.keras.metrics.MeanMetricWrapper(masked_precision, name="masked_precision"),
+            tf.keras.metrics.MeanMetricWrapper(masked_recall, name="masked_recall"),
+            tf.keras.metrics.MeanMetricWrapper(masked_f1_score, name="masked_f1_score")
+        ]
     )
 
     train_metrics = best_model.evaluate(X_train, y_train, verbose=0)
