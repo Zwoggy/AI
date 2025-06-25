@@ -334,7 +334,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                     history = model.fit(x = X_train,
                                         y = y_train,
                                         batch_size = 16,
-                                        epochs = 5,
+                                        epochs = 1,
                                         validation_data = (X_test, y_test),
                                         callbacks = [early_stopping, checkpoint_callback],
                                         verbose=1)
@@ -342,8 +342,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                     history_dict = history.history
                     print(f"🔍 Fold {fold + 1} — History Keys:", list(history_dict.keys()))
                     print(history_dict)
-                    compile_metrics = history.history.get('val_')
-                    print("compile_metrics:", compile_metrics)
+
                     plot_save_model_trianing_history(fold, history_dict, timestamp)
                     results_per_fold = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights, results_per_fold,
                                             y_test, y_train)
@@ -523,12 +522,11 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
     )
 
     train_metrics = best_model.evaluate(X_train, y_train, verbose=2, return_dict=True)
-    test_metrics = best_model.evaluate(X_test, y_test, verbose=2, return_dict=False)
-    print("Loaded metrics:", best_model.metrics_names)
-    print("train metrics: ", train_metrics)
-    print("no dict test metrics: ", test_metrics)
+    test_metrics = best_model.evaluate(X_test, y_test, verbose=2, return_dict=True)
+
+    print(train_metrics, test_metrics)
     # Collect the metric names
-    metric_names = best_model.metrics_names
+    metric_names = ["loss", "masked_auc", "masked_recall", "masked_precision", "masked_f1_score"]
     results_per_fold.append({
         "fold": fold + 1,
         "train": dict(zip(metric_names, train_metrics)),
