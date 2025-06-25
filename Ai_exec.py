@@ -502,12 +502,13 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
                             compile=False,
                             safe_mode = False,
                             custom_objects={
-                                "tf": tf,
-                                "MaskedAUC": MaskedAUC,
-                                "masked_precision": masked_precision_metric,
-                                "masked_recall": masked_recall_metric,
-                                "masked_f1_score": masked_f1_score_metric
-                                ,"get_weighted_loss_masked_": get_weighted_loss_masked_(new_weights)
+                                "tf": tf
+                                #,
+                                #"MaskedAUC": MaskedAUC,
+                                #"masked_precision": masked_precision_metric,
+                                #"masked_recall": masked_recall_metric,
+                                #"masked_f1_score": masked_f1_score_metric
+                                #,"get_weighted_loss_masked_": get_weighted_loss_masked_(new_weights)
                             })
     # Modell nach dem Laden neu kompilieren
     best_model.compile(
