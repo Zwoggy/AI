@@ -334,7 +334,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                     history = model.fit(x = X_train,
                                         y = y_train,
                                         batch_size = 16,
-                                        epochs = 1,
+                                        epochs = 100,
                                         validation_data = (X_test, y_test),
                                         callbacks = [early_stopping, checkpoint_callback],
                                         verbose=1)
