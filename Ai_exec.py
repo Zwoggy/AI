@@ -522,10 +522,10 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
         ]
     )
 
-    train_metrics = best_model.evaluate(X_train, y_train, verbose=1)
-    test_metrics = best_model.evaluate(X_test, y_test, verbose=1)
+    train_metrics = best_model.evaluate(X_train, y_train, verbose=1, return_dict=True)
+    test_metrics = best_model.evaluate(X_test, y_test, verbose=1, return_dict=True)
     print("Loaded metrics:", best_model.metrics_names)
-
+    print("train metrics: " + train_metrics)
     # Collect the metric names
     metric_names = best_model.metrics_names
     results_per_fold.append({
