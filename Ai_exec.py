@@ -499,7 +499,7 @@ def save_history_and_plot(results_per_fold, timestamp):
 def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights, results_per_fold, y_test, y_train):
     # Load best model and evaluate on both sets
     best_model = load_model(checkpoint_filepath,
-                            compile=True,
+                            compile=False,
                             safe_mode = False,
                             custom_objects={
                                 "tf": tf,
