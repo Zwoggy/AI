@@ -529,8 +529,8 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
     metric_names = ["loss", "masked_auc", "masked_recall", "masked_precision", "masked_f1_score"]
     results_per_fold.append({
         "fold": fold + 1,
-        "train": dict(zip(metric_names, train_metrics)),
-        "test": dict(zip(metric_names, test_metrics))
+        "train": train_metrics,
+        "test": test_metrics
     })
     return results_per_fold
 
