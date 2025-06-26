@@ -625,8 +625,8 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
             num_heads=num_heads,
             dropout=rate
         )(decoder_outputs, encoder_outputs)
-    #decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
-    #decoder_outputs = keras.layers.Dense(12, activation='relu', name='Not_the_last_Sigmoid')(decoder_outputs)
+    decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
+    decoder_outputs = keras.layers.Dense(12, activation='relu', name='Not_the_last_Sigmoid')(decoder_outputs)
     #decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
 
     #decoder_outputs = keras.layers.Dense(8, activation='relu', name='Not_the_last_Sigmoid_02')(decoder_outputs)
@@ -635,7 +635,7 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
     #decoder_outputs = keras.layers.Dense(8, activation='relu', name='Not_the_last_Sigmoid_03')(decoder_outputs)
     #decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
 
-    decoder_outputs = keras.layers.Dense(4, activation='relu', name='Not_the_last_Sigmoid_04')(decoder_outputs)
+    #decoder_outputs = keras.layers.Dense(4, activation='relu', name='Not_the_last_Sigmoid_04')(decoder_outputs)
     """"
     decoder_outputs = keras.layers.Lambda(lambda x: tf.identity(x),
     output_shape=lambda s: s )(decoder_outputs) # removes mask for timedistributed layer since it cant deal with a mask
