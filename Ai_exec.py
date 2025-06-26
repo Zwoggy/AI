@@ -626,7 +626,7 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
             dropout=rate
         )(decoder_outputs, encoder_outputs)
     decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
-    decoder_outputs = keras.layers.Dense(24, activation='relu', name='Not_the_last_Sigmoid')(decoder_outputs)
+    decoder_outputs = keras.layers.Dense(32, activation='relu', name='Not_the_last_Sigmoid')(decoder_outputs)
     #decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
 
     #decoder_outputs = keras.layers.Dense(8, activation='relu', name='Not_the_last_Sigmoid_02')(decoder_outputs)
