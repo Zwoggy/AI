@@ -578,7 +578,7 @@ def evaluate_per_fold_45_blind_and_BP3C59ID_external_test_set(checkpoint_filepat
     encoded_sequences = df["Sequenz"]
     epitope_list_BP = df["Epitop"]
     ### hier if länge >maxlen
-    sequences, epitope_list = keep_sequences_up_to_a_length_of_maxlen(encoded_sequences, epitope_list_BP)
+    sequences_BP, epitope_list_BP = keep_sequences_up_to_a_length_of_maxlen(encoded_sequences, epitope_list_BP)
 
     with open('./AI/tokenizer.pickle', 'rb') as handle:
         encoder = pickle.load(handle)
@@ -586,14 +586,15 @@ def evaluate_per_fold_45_blind_and_BP3C59ID_external_test_set(checkpoint_filepat
     sequences = [string_to_int_list(seq_str) for seq_str in sequences]
 
     # Alle Sequenzen auf Länge 235 polstern (Padding mit 0)
-    X_BP3C59ID_external_test_set = sequence.pad_sequences(sequences, maxlen=fixed_length,
+    X_BP3C59ID_external_test_set = sequence.pad_sequences(sequences_BP, maxlen=fixed_length,
                                               padding='post', value=0)
 
-    epitope_list = [[int(char) for char in epitope] for epitope in
-                    epitope_list]  # Für Padding vorbereiten, erwartet eine Liste von Integern
+    epitope_list_BP = [[int(char) for char in epitope] for epitope in
+                    epitope_list_BP]  # Für Padding vorbereiten, erwartet eine Liste von Integern
     # Alle Eitope auf die Länge maxlen polstern (Padding mit 0)
-    y_BP3C59ID_external_test_set = sequence.pad_sequences(epitope_list, maxlen=fixed_length,
+    y_BP3C59ID_external_test_set = sequence.pad_sequences(epitope_list_BP, maxlen=fixed_length,
                                                  padding='post', value=-1)
+
     results_per_fold_test_set = load_and_evaluate_folds(X_test=X_epi45_blind, X_train=X_BP3C59ID_external_test_set,
                                                         checkpoint_filepath=checkpoint_filepath,
                                                         fold=fold,
