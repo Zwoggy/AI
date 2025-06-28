@@ -548,7 +548,7 @@ def evaluate_per_fold_45_blind_and_BP3C59ID_external_test_set(checkpoint_filepat
     encoded_sequences = encoder.texts_to_sequences(sequence_list)
 
     sequences, epitope_list = keep_sequences_up_to_a_length_of_maxlen(encoded_sequences, epitope_list,
-                                                                      sequence_list, maxlen)
+                                                                      maxlen)
 
     # Debugging step to check lengths
     for idx, epitope in enumerate(epitope_list):
