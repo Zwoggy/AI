@@ -8,7 +8,7 @@ from ai_functionality_old import load_model_and_tokenizer, modify_with_context, 
 
 
 
-def validate_on_BP3C59ID_external_test_set(old_model=False, model=None):
+def validate_on_BP3C59ID_external_test_set(old_model=False, model=None, maxlen:int=None):
     import pandas as pd
     import numpy as np
     from keras_preprocessing import text, sequence
@@ -24,7 +24,7 @@ def validate_on_BP3C59ID_external_test_set(old_model=False, model=None):
     df = pd.read_csv('./data/BP3C50ID/BP3C50ID_embedded_and_epitopes.csv')
     print(df)
 
-    fixed_length = 235
+    fixed_length = maxlen
     # Feste Länge
 
     sequence_list = []
@@ -34,7 +34,7 @@ def validate_on_BP3C59ID_external_test_set(old_model=False, model=None):
     encoded_sequences = df["Sequenz"]
     epitope_list = df["Epitop"]
     ### hier if länge >235
-    sequences, epitope_list = keep_sequences_up_to_a_length_of_235(encoded_sequences, epitope_list)
+    sequences, epitope_list = keep_sequences_up_to_a_length_of_maxlen(encoded_sequences, epitope_list)
     print("original_epitope_list: ", epitope_list)
 
     with open('./AI/tokenizer.pickle', 'rb') as handle:
@@ -81,7 +81,7 @@ def validate_on_BP3C59ID_external_test_set(old_model=False, model=None):
 
 
 
-def keep_sequences_up_to_a_length_of_235(sequences, epitope_list):
+def keep_sequences_up_to_a_length_of_maxlen(sequences, epitope_list, maxlen:int=235):
     """
     Beschränkt alle Sequenzen auf eine maximale Länge von 235 Zeichen.
 
@@ -99,19 +99,19 @@ def keep_sequences_up_to_a_length_of_235(sequences, epitope_list):
     new_sequences_list: list = []
     new_epitope_list: list = []
     for i, sequence in enumerate(sequences):
-        if len(sequence) <= 235: # ist eine Sequenz kleiner oder gleich der maximal gewollten Länge, dann wird diese so beibehalten um die maximale Menge an Informationen zu behalten
+        if len(sequence) <= maxlen: # ist eine Sequenz kleiner oder gleich der maximal gewollten Länge, dann wird diese so beibehalten um die maximale Menge an Informationen zu behalten
             new_sequences_list.append(sequence)
             new_epitope_list.append(epitope_list[i])
         else: # ist eine Sequenz länger, dann wird eine Subsequenz der Länge von 235 herausgeschnitten
             print(i)
-            new_sequence, new_epitope = prepare_sequence_part_of_length_235_with_most_epitopes(sequence, epitope_list[i])
+            new_sequence, new_epitope = prepare_sequence_part_of_length_maxlen_with_most_epitopes(sequence, epitope_list[i])
             new_sequences_list.append(new_sequence)
             new_epitope_list.append(new_epitope)
 
     return new_sequences_list, new_epitope_list
 
 
-def prepare_sequence_part_of_length_235_with_most_epitopes(sequence, epitope):
+def prepare_sequence_part_of_length_maxlen_with_most_epitopes(sequence, epitope, maxlen:int=235):
     """
         Extrahiert einen Teilabschnitt der Sequenz mit einer maximalen Länge von 235 Zeichen,
         der die meisten Epitope enthält.
@@ -135,24 +135,24 @@ def prepare_sequence_part_of_length_235_with_most_epitopes(sequence, epitope):
         epitope_start = epitope.index("1")
         print("epitope_start: ", epitope_start)
 
-        if (len(epitope) - epitope_start) < 235:
+        if (len(epitope) - epitope_start) < maxlen:
             # Berechne, wie viele Zeichen vor der ersten "1" notwendig sind, damit die Subsequenz insgesamt 235 Zeichen lang ist
-            start_index = max(0, epitope_start - (235 - (len(epitope) - epitope_start)))
+            start_index = max(0, epitope_start - (maxlen - (len(epitope) - epitope_start)))
             # Extrahiere die Subsequenz so, dass sie 235 Zeichen umfasst
             print("Epitoplänge der Berechnung IF: ", len(epitope[epitope_start - start_index:]))
-            partial_sequence = sequence[start_index:start_index + 235]
-            partial_epitope = epitope[start_index:start_index + 235]
+            partial_sequence = sequence[start_index:start_index + maxlen]
+            partial_epitope = epitope[start_index:start_index + maxlen]
         else:
             # Wenn die Distanz groß genug ist, einfach die 235 Zeichen ab der ersten "1"
-            partial_sequence = sequence[epitope_start: epitope_start + 235]
-            print("Epitoplänge der Berechnung ELSE: ", len(epitope[epitope_start: epitope_start + 235]))
+            partial_sequence = sequence[epitope_start: epitope_start + maxlen]
+            print("Epitoplänge der Berechnung ELSE: ", len(epitope[epitope_start: epitope_start + maxlen]))
 
-            partial_epitope = epitope[epitope_start: epitope_start + 235]
+            partial_epitope = epitope[epitope_start: epitope_start + maxlen]
 
         return partial_sequence, partial_epitope
     except:
         print("In der folgenden Sequenz sind die Epitope nicht korrekt angegeben: ", sequence)
-        return sequence[:235], epitope[:235]
+        return sequence[:maxlen], epitope[:maxlen]
 
 
 

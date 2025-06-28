@@ -38,7 +38,8 @@ from validate_45_blind import validate_on_45_blind
 from tensorflow.keras.mixed_precision import set_global_policy
 from tensorflow.keras import mixed_precision
 
-from validate_BP3C50ID_external_test_set import validate_on_BP3C59ID_external_test_set
+from validate_BP3C50ID_external_test_set import validate_on_BP3C59ID_external_test_set, \
+    keep_sequences_up_to_a_length_of_maxlen, string_to_int_list
 
 from tensorflow.keras import mixed_precision
 
@@ -305,7 +306,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
             # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
 
             if ba_ai:
-                results_per_fold = []
+                results_per_fold_test_set: list = []
+                results_per_fold: list = []
                 kf = KFold(n_splits=5, shuffle=True, random_state=42)
                 for fold, (train_index, test_index) in enumerate(kf.split(antigen_array)):
                     X_train, X_test = antigen_array[train_index], antigen_array[test_index]
@@ -343,10 +345,25 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                     print(f"🔍 Fold {fold + 1} — History Keys:", list(history_dict.keys()))
                     print(history_dict)
 
+                    checkpoint_filepath = f"./{timestamp}_best_model_fold_{fold + 1}.keras"
+
+                    results_for_eval_per_fold = evaluate_per_fold_45_blind_and_BP3C59ID_external_test_set(
+                        checkpoint_filepath = checkpoint_filepath,
+                        fold = fold,
+                        new_weights = new_weights,
+                        results_per_fold_test_set = results_per_fold_test_set,
+                        evaluate=True,
+                        maxlen=length_of_longest_context)
+
+
+                    #validate_on_BP3C59ID_external_test_set(model=model, maxlen=length_of_longest_context)
                     plot_save_model_trianing_history(fold, history_dict, timestamp)
                     results_per_fold = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights, results_per_fold,
                                             y_test, y_train)
+
                 save_history_and_plot(results_per_fold, timestamp)
+                save_history_and_plot(results_for_eval_per_fold, str(timestamp) + "_validation_")
+
 
 
 
@@ -495,7 +512,100 @@ def save_history_and_plot(results_per_fold, timestamp):
     print("model saved in" + f"k_fold_model_metrics_{timestamp}.csv")
 
 
-def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights, results_per_fold, y_test, y_train):
+def evaluate_per_fold_45_blind_and_BP3C59ID_external_test_set(checkpoint_filepath=None, fold:int=None, new_weights=None, results_per_fold_test_set=None, evaluate=True, maxlen:int=None):
+    from keras_preprocessing import text, sequence
+    # CSV-Datei einlesen
+    df = pd.read_csv('./data/final_blind_test_set.csv')
+    print(df)
+
+    fixed_length = maxlen
+    # Feste Länge
+
+    sequence_list = []
+    epitope_list = []
+
+    # Durchlaufen der Zeilen im DataFrame und epitope_embed entsprechend befüllen
+    for idx, row in df.iterrows():
+        full_sequence = str(row['Sequence'])
+
+        # Epitope-Array mit -1 initialisieren
+
+        # Falls Epitope-Informationen 0/1-codiert sind, hier aus der Spalte entnehmen und eintragen
+        # Beispiel: 'Epitope Sequence' enthält ein String-Array aus 0ern/1ern oder ähnlichem
+        # Passen Sie dies an Ihr tatsächliches Format an.
+        raw_epitope_info = str(row['Epitope Sequence']).replace(" ", "")
+
+        # Sequenz abspeichern (wird später tokenisiert)
+        sequence_list.append(full_sequence)
+        # Liste der Epitope
+        epitope_list.append(raw_epitope_info)
+
+    # Tokenizer laden (oder neu anlegen, je nach Bedarf)
+    with open('./AI/tokenizer.pickle', 'rb') as handle:
+        encoder = pickle.load(handle)
+
+    # Die erfassten Sequenzen mithilfe des Tokenizers in Zahlen umwandeln
+    encoded_sequences = encoder.texts_to_sequences(sequence_list)
+
+    sequences, epitope_list = keep_sequences_up_to_a_length_of_maxlen(encoded_sequences, epitope_list,
+                                                                      sequence_list, maxlen)
+
+    # Debugging step to check lengths
+    for idx, epitope in enumerate(epitope_list):
+        print(f"Length of epitope at index {idx}: {len(epitope)}")
+
+    # Alle Sequenzen auf Länge 235 polstern (Padding mit 0)
+    X_epi45_blind = sequence.pad_sequences(sequences, maxlen=maxlen,
+                                              padding='post', value=0)
+
+    epitope_list = [[int(char) for char in epitope] for epitope in
+                    epitope_list]  # Für Padding vorbereiten, erwartet eine Liste von Integern
+
+    # Alle Eitope auf die Länge 235 polstern (Padding mit 0)
+    y_epi45_blind = sequence.pad_sequences(epitope_list, maxlen=maxlen,
+                                                 padding='post', value=-1)
+
+
+
+    # CSV-Datei einlesen
+    df = pd.read_csv('./data/BP3C50ID/BP3C50ID_embedded_and_epitopes.csv')
+    print(df)
+
+    fixed_length = maxlen
+    # Feste Länge
+
+    sequence_list = []
+    epitope_list = []
+
+    # Durchlaufen der Zeilen im DataFrame und epitope_embed entsprechend befüllen
+    encoded_sequences = df["Sequenz"]
+    epitope_list = df["Epitop"]
+    ### hier if länge >235
+    sequences, epitope_list = keep_sequences_up_to_a_length_of_maxlen(encoded_sequences, epitope_list)
+    print("original_epitope_list: ", epitope_list)
+
+    with open('./AI/tokenizer.pickle', 'rb') as handle:
+        encoder = pickle.load(handle)
+
+    sequences = [string_to_int_list(seq_str) for seq_str in sequences]
+
+    # Alle Sequenzen auf Länge 235 polstern (Padding mit 0)
+    X_BP3C59ID_external_test_set = sequence.pad_sequences(sequences, maxlen=fixed_length,
+                                              padding='post', value=0)
+
+    epitope_list = [[int(char) for char in epitope] for epitope in
+                    epitope_list]  # Für Padding vorbereiten, erwartet eine Liste von Integern
+    # Alle Eitope auf die Länge 235 polstern (Padding mit 0)
+    y_BP3C59ID_external_test_set = sequence.pad_sequences(epitope_list, maxlen=fixed_length,
+                                                 padding='post', value=0)
+    results_per_fold_test_set = load_and_evaluate_folds(X_epi45_blind, X_BP3C59ID_external_test_set, checkpoint_filepath, fold, new_weights, results_per_fold_test_set,
+                                            y_epi45_blind, y_BP3C59ID_external_test_set, evaluate=True)
+
+    return results_per_fold_test_set
+
+
+
+def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights, results_per_fold, y_test, y_train, evaluate=False):
     # Load best model and evaluate on both sets
     best_model = load_model(checkpoint_filepath,
                             compile=False,
@@ -527,11 +637,18 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
     print(train_metrics, test_metrics)
     # Collect the metric names
     metric_names = ["loss", "masked_auc", "masked_recall", "masked_precision", "masked_f1_score"]
-    results_per_fold.append({
-        "fold": fold + 1,
-        "train": train_metrics,
-        "test": test_metrics
-    })
+    if evaluate:
+        results_per_fold.append({
+            "fold": fold + 1,
+            "BP3C59ID_external_test_set": train_metrics,
+            "epi45_blind": test_metrics
+        })
+    else:
+        results_per_fold.append({
+            "fold": fold + 1,
+            "train": train_metrics,
+            "test": test_metrics
+        })
     return results_per_fold
 
 

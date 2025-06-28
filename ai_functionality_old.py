@@ -1265,12 +1265,6 @@ Use use_model_and_predict() to use the model for prediction.
 
 
 
-
-
-
-
-
-
 def use_model_and_predict_45_blind(sequence, model, encoder):
     """Verwendet ein Modell zur Vorhersage einer Sequenz und gibt die Wahrscheinlichkeiten zurück."""
     # Sequence in eine Liste aufsplitten
@@ -1288,18 +1282,22 @@ def use_model_and_predict_45_blind(sequence, model, encoder):
     return predictions.flatten()[:235]
 
 
-def load_model_and_tokenizer():
+def load_model_and_tokenizer(model=None):
     """Lädt das Modell und den Tokenizer."""
     # Lade das Modell
-    model = load_model('./AI/final_AI',
-                       custom_objects={'TransformerBlock': TransformerBlock,
-                                       'TokenAndPositionEmbedding': TokenAndPositionEmbedding,
-                                       'TransformerDecoder': TransformerDecoder,
-                                       "weighted_loss": get_weighted_loss},
-                       compile=False)
-    # Lade die Gewichte
-    model.load_weights('./AI/final_AI_weights')
-    model.compile()
+    if model is None:
+        model = load_model('./AI/final_AI',
+                           custom_objects={'TransformerBlock': TransformerBlock,
+                                           'TokenAndPositionEmbedding': TokenAndPositionEmbedding,
+                                           'TransformerDecoder': TransformerDecoder,
+                                           "weighted_loss": get_weighted_loss},
+                           compile=False)
+        # Lade die Gewichte
+        model.load_weights('./AI/final_AI_weights')
+        model.compile()
+    else:
+        model=model
+
     # Lade den Tokenizer
     with open('./AI/tokenizer.pickle', 'rb') as handle:
         encoder = pickle.load(handle)
