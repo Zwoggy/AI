@@ -631,7 +631,7 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
             tf.keras.metrics.MeanMetricWrapper(masked_f1_score, name="masked_f1_score")
         ]
     )
-    print(X_train, y_train)
+    print("length of data: ", len(X_train), (y_train))
     train_metrics = best_model.evaluate(X_train, y_train, batch_size=1, verbose=2, return_dict=True)
     test_metrics = best_model.evaluate(X_test, y_test, batch_size=1, verbose=2, return_dict=True)
 
