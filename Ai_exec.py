@@ -386,7 +386,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                 history = model.fit(x=[training_data, antigen_list_structures],
                                     y=epitope_list,
                                     batch_size=16,
-                                    epochs=100,
+                                    epochs=1,
                                     validation_data=([testx_list, testx_list_structures], testy_list),
                                     callbacks=[early_stopping],
                                     verbose=1)
@@ -583,7 +583,7 @@ def evaluate_per_fold_45_blind_and_BP3C59ID_external_test_set(checkpoint_filepat
     with open('./AI/tokenizer.pickle', 'rb') as handle:
         encoder = pickle.load(handle)
 
-    sequences = [string_to_int_list(seq_str) for seq_str in sequences]
+    #sequences = [string_to_int_list(seq_str) for seq_str in sequences]
 
     # Alle Sequenzen auf Länge 235 polstern (Padding mit 0)
     X_BP3C59ID_external_test_set = sequence.pad_sequences(sequences_BP, maxlen=fixed_length,
