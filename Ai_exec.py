@@ -633,9 +633,13 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
     )
     print("length of data: ", len(X_train), len(y_train))
     for i, x in enumerate(X_train):
-        print(i, x.shape)
+        print(i, x)
     for i, y in enumerate(y_train):
-        print(i, y.shape)
+        print(i, y)
+    for i, row in enumerate(y_train):
+        if np.all(row == -1):
+            print(f"Sample {i} is FULLY MASKED")
+
     print(np.array(X_train).shape)
     print(np.array(y_train).shape)
     train_metrics = best_model.evaluate(X_train, y_train, batch_size=1, verbose=2, return_dict=True)
