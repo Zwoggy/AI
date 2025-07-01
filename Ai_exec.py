@@ -583,7 +583,7 @@ def evaluate_per_fold_45_blind_and_BP3C59ID_external_test_set(checkpoint_filepat
     with open('./AI/tokenizer.pickle', 'rb') as handle:
         encoder = pickle.load(handle)
 
-    #sequences = [string_to_int_list(seq_str) for seq_str in sequences]
+    sequences_BP = [string_to_int_list(seq_str) for seq_str in sequences_BP]
 
     # Alle Sequenzen auf Länge 235 polstern (Padding mit 0)
     X_BP3C59ID_external_test_set = sequence.pad_sequences(sequences_BP, maxlen=fixed_length,
