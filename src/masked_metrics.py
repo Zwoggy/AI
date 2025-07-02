@@ -23,10 +23,10 @@ def masked_precision(y_true, y_pred):
     y_pred = tf.cast(y_pred, tf.float32)
 
     mask = tf.cast(tf.not_equal(y_true, -1), tf.float32)
-    if tf.rank(mask) + 1 == tf.rank(y_pred):
+    if tf.rank(mask) < tf.rank(y_pred):
         mask = tf.expand_dims(mask, axis=-1)
     y_pred_bin = tf.cast(y_pred > 0.5, tf.float32)
-    true_positives = tf.reduce_sum(tf.cast(y_pred_bin * y_true, tf.float32) * mask)
+    true_positives = tf.reduce_sum(y_pred_bin * y_true * mask)
     predicted_positives = tf.reduce_sum(y_pred_bin * mask)
     return true_positives / (predicted_positives + K.epsilon())
 
@@ -35,10 +35,10 @@ def masked_recall(y_true, y_pred):
     y_true = tf.cast(y_true, tf.float32)
     y_pred = tf.cast(y_pred, tf.float32)
     mask = tf.cast(tf.not_equal(y_true, -1), tf.float32)
-    if tf.rank(mask) + 1 == tf.rank(y_pred):
+    if tf.rank(mask) < tf.rank(y_pred):
         mask = tf.expand_dims(mask, axis=-1)
     y_pred_bin = tf.cast(y_pred > 0.5, tf.float32)
-    true_positives = tf.reduce_sum(tf.cast(y_pred_bin * y_true, tf.float32) * mask)
+    true_positives = tf.reduce_sum(y_pred_bin * y_true * mask)
     possible_positives = tf.reduce_sum(y_true * mask)
     return true_positives / (possible_positives + K.epsilon())
 
