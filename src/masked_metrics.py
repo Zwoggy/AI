@@ -23,7 +23,7 @@ def masked_precision(y_true, y_pred):
     y_pred = tf.cast(y_pred, tf.float32)
 
     mask = tf.cast(tf.not_equal(y_true, -1), tf.float32)
-    if tf.rank(mask) < tf.rank(y_pred):
+    if tf.rank(mask) < tf.rank(y_true):
         mask = tf.expand_dims(mask, axis=-1)
     y_pred_bin = tf.cast(y_pred > 0.5, tf.float32)
     true_positives = tf.reduce_sum(y_pred_bin * y_true * mask)
