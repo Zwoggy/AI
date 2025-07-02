@@ -594,7 +594,12 @@ def evaluate_per_fold_45_blind_and_BP3C59ID_external_test_set(checkpoint_filepat
     # Alle Eitope auf die Länge maxlen polstern (Padding mit 0)
     y_BP3C59ID_external_test_set = sequence.pad_sequences(epitope_list_BP, maxlen=fixed_length,
                                                  padding='post', value=-1)
-
+    tf.print("\n=== INPUT SHAPES CHECK ===")
+    tf.print("X_train:", tf.shape(X_BP3C59ID_external_test_set), "Rank:", tf.rank(X_BP3C59ID_external_test_set))
+    tf.print("y_train:", tf.shape(y_BP3C59ID_external_test_set), "Rank:", tf.rank(y_BP3C59ID_external_test_set))
+    tf.print("X_test:", tf.shape(X_epi45_blind), "Rank:", tf.rank(X_epi45_blind))
+    tf.print("y_test:", tf.shape(y_epi45_blind), "Rank:", tf.rank(y_epi45_blind))
+    tf.print("==========================\n")
     results_per_fold_test_set = load_and_evaluate_folds(X_test=X_epi45_blind, X_train=X_BP3C59ID_external_test_set,
                                                         checkpoint_filepath=checkpoint_filepath,
                                                         fold=fold,
