@@ -362,7 +362,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                                             y_test, y_train)
 
                 save_history_and_plot(results_per_fold, timestamp)
-                save_history_and_plot(results_for_eval_per_fold, str(timestamp) + "_validation_")
+                save_history_and_plot(results_for_eval_per_fold, str(timestamp) + "_validation_", eval=True)
 
 
 
@@ -484,7 +484,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
     amino_acid_counts_epitope_predicted, confusion_matrices = analyze_amino_acids_in_validation_data( model, validation_sequences=testx_list, validation_labels=testy_list, encoder=encoder)
 
 
-def save_history_and_plot(results_per_fold, timestamp):
+def save_history_and_plot(results_per_fold, timestamp, eval=False):
     import csv
 
     # Header mit genau den gewünschten Metriken
@@ -496,19 +496,34 @@ def save_history_and_plot(results_per_fold, timestamp):
 
         for result in results_per_fold:
             fold = result["fold"]
-            for split in ["train", "test"]:
-                metrics_dict = result[split]
+            if eval:
+                for split in ["BP3C59ID_external_test_set", "epi45_blind"]:
+                    metrics_dict = result[split]
 
-                # Hole die Metrikwerte anhand der richtigen Namen
-                row = [
-                    fold,
-                    split,
-                    float(metrics_dict.get("masked_auc", 0.0)),
-                    float(metrics_dict.get("masked_f1_score", 0.0)),
-                    float(metrics_dict.get("masked_precision", 0.0)),
-                    float(metrics_dict.get("masked_recall", 0.0)),
-                ]
-                writer.writerow(row)
+                    # Hole die Metrikwerte anhand der richtigen Namen
+                    row = [
+                        fold,
+                        split,
+                        float(metrics_dict.get("masked_auc", 0.0)),
+                        float(metrics_dict.get("masked_f1_score", 0.0)),
+                        float(metrics_dict.get("masked_precision", 0.0)),
+                        float(metrics_dict.get("masked_recall", 0.0)),
+                    ]
+                    writer.writerow(row)
+            else:
+                for split in ["train", "test"]:
+                    metrics_dict = result[split]
+
+                    # Hole die Metrikwerte anhand der richtigen Namen
+                    row = [
+                        fold,
+                        split,
+                        float(metrics_dict.get("masked_auc", 0.0)),
+                        float(metrics_dict.get("masked_f1_score", 0.0)),
+                        float(metrics_dict.get("masked_precision", 0.0)),
+                        float(metrics_dict.get("masked_recall", 0.0)),
+                    ]
+                    writer.writerow(row)
     print("model saved in" + f"k_fold_model_metrics_{timestamp}.csv")
 
 
