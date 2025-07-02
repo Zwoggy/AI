@@ -644,6 +644,13 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
 
     print(np.array(X_train).shape)
     print(np.array(y_train).shape)
+    # Safe expand dims für y_train und y_test
+    if tf.rank(y_train) == 2:
+        y_train = tf.expand_dims(y_train, axis=-1)
+
+    if tf.rank(y_test) == 2:
+        y_test = tf.expand_dims(y_test, axis=-1)
+
     train_metrics = best_model.evaluate(X_train, y_train, batch_size=8, verbose="auto", return_dict=True)
     test_metrics = best_model.evaluate(X_test, y_test, batch_size=8, verbose="auto", return_dict=True)
 
