@@ -81,6 +81,8 @@ class MaskedAUC(tf.keras.metrics.AUC):
 
 @tf.function
 def masked_f1_score(y_true, y_pred):
+    y_true = tf.cast(y_true, tf.float32)
+    y_pred = tf.cast(y_pred, tf.float32)
     mask = tf.cast(tf.not_equal(y_true, -1), tf.float32)
     if tf.rank(mask) + 1 == tf.rank(y_pred):
         mask = tf.expand_dims(mask, axis=-1)
