@@ -336,7 +336,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                         project_name="transformer_tuning"
                     )
 
-                    tuner.search(X_train, y_train, validation_data=(X_val, y_val), epochs=20)
+                    tuner.search(X_train, y_train, validation_data=(X_val, y_val), epochs=20, batch_size=8)
 
                     # Gibt die n besten Hyperparameter-Kombis zurück (default: 1)
                     best_hp = tuner.get_best_hyperparameters(num_trials=1)[0]
