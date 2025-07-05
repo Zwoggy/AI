@@ -311,6 +311,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
                     X_train, X_val = antigen_array[:-100], antigen_array[-100:]
                     y_train, y_val = epitope_array[:-100], epitope_array[-100:]
+                    y_train = tf.expand_dims(y_train, axis=-1)
+                    y_val = tf.expand_dims(y_val, axis=-1)
 
                     build_model = build_model_factory(
                         embed_dim=embed_dim,
