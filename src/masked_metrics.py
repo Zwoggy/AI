@@ -42,13 +42,21 @@ def masked_precision(y_true, y_pred):
 def masked_recall(y_true, y_pred):
     y_true = tf.cast(y_true, tf.float32)
     y_pred = tf.cast(y_pred, tf.float32)
+
     mask = tf.cast(tf.not_equal(y_true, -1), tf.float32)
-    if tf.rank(mask) < tf.rank(y_pred):
+
+
+    if y_true.shape.rank < y_pred.shape.rank:
+        y_true = tf.expand_dims(y_true, axis=-1)
         mask = tf.expand_dims(mask, axis=-1)
+
     y_pred_bin = tf.cast(y_pred > 0.5, tf.float32)
+
     true_positives = tf.reduce_sum(y_pred_bin * y_true * mask)
     possible_positives = tf.reduce_sum(y_true * mask)
-    return true_positives / (possible_positives + K.epsilon())
+
+    return true_positives / (possible_positives + tf.keras.backend.epsilon())
+
 
 @tf.function
 def masked_auc(y_true, y_pred):
@@ -91,19 +99,26 @@ class MaskedAUC(tf.keras.metrics.AUC):
 def masked_f1_score(y_true, y_pred):
     y_true = tf.cast(y_true, tf.float32)
     y_pred = tf.cast(y_pred, tf.float32)
+
+    # static mask
     mask = tf.cast(tf.not_equal(y_true, -1), tf.float32)
-    if tf.rank(mask) + 1 == tf.rank(y_pred):
+
+    # shape fix
+    if y_true.shape.rank < y_pred.shape.rank:
+        y_true = tf.expand_dims(y_true, axis=-1)
         mask = tf.expand_dims(mask, axis=-1)
+
     y_pred_bin = tf.cast(y_pred > 0.5, tf.float32)
 
     tp = tf.reduce_sum(y_pred_bin * y_true * mask)
     predicted_positives = tf.reduce_sum(y_pred_bin * mask)
     possible_positives = tf.reduce_sum(y_true * mask)
 
-    precision = tp / (predicted_positives + K.epsilon())
-    recall = tp / (possible_positives + K.epsilon())
+    precision = tp / (predicted_positives + tf.keras.backend.epsilon())
+    recall = tp / (possible_positives + tf.keras.backend.epsilon())
 
-    return 2 * (precision * recall) / (precision + recall + K.epsilon())
+    return 2 * (precision * recall) / (precision + recall + tf.keras.backend.epsilon())
+
 
 
 # use these for evaluation after loading a model. Have to be implemented for the whole pipeline to work
