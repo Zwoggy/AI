@@ -15,6 +15,7 @@ import json
 import matplotlib.pyplot as plt
 from datetime import datetime
 
+import keras_tuner as kt
 
 from sklearn.model_selection import KFold
 
@@ -102,7 +103,7 @@ def get_structure_from_accession_id(accession_ids=None, max_len=4562):
     return structures
 
 
-def create_ai(filepath, save_file, output_file, train=False, safe=False, validate_45_Blind=False, validate_BP3C=False, predict=False, old=False, gpu_split=False, big_dataset=False, use_structure=False, ba_ai=False, full_length=False, old_data_set=False):
+def create_ai(filepath, save_file, output_file, train=False, safe=False, validate_45_Blind=False, validate_BP3C=False, predict=False, old=False, gpu_split=False, big_dataset=False, use_structure=False, ba_ai=False, full_length=False, old_data_set=False, optimize=False):
     #disable_eager_execution()
     mixed_precision.set_global_policy('mixed_float16')
     if old_data_set:
@@ -306,63 +307,44 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
             # model.compile(optimizer, loss="binary_crossentropy", weighted_metrics=['accuracy', tf.keras.metrics.AUC(), keras.metrics.Precision(), keras.metrics.Recall()])
 
             if ba_ai:
-                results_per_fold_test_set: list = []
-                results_per_fold: list = []
-                kf = KFold(n_splits=5, shuffle=True, random_state=42)
-                for fold, (train_index, test_index) in enumerate(kf.split(antigen_array)):
-                    X_train, X_test = antigen_array[train_index], antigen_array[test_index]
-                    y_train, y_test = epitope_array[train_index], epitope_array[test_index]
-                    y_train = tf.expand_dims(y_train, axis=-1)
-                    y_test = tf.expand_dims(y_test, axis=-1)
-                    print(f"Fold {fold + 1}")
-                    print(f"Train size: {len(X_train)}, Test size: {len(X_test)}")
-                    # Hier kannst du dann mit dem Training starten
-                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                if optimize:
 
-                    # to save the best model
-                    checkpoint_filepath = f"./{timestamp}_best_model_fold_{fold + 1}.keras"
-                    checkpoint_callback = ModelCheckpoint(
-                        filepath=checkpoint_filepath,
-                        monitor='val_loss',  # oder 'val_accuracy', je nach Metrik
-                        save_best_only=True,
-                        save_weights_only=False,
-                        mode='min',  # 'min' für Verlust, 'max' für Accuracy
-                        verbose=1
+                    X_train, X_val = antigen_array[:-100], antigen_array[-100:]
+                    y_train, y_val = epitope_array[:-100], epitope_array[-100:]
+
+                    build_model = build_model_factory(
+                        embed_dim=embed_dim,
+                        ff_dim=ff_dim,
+                        length_of_longest_context=length_of_longest_context,
+                        maxlen=maxlen,
+                        new_weights=new_weights,
+                        num_decoder_blocks=num_decoder_blocks,
+                        num_heads=num_heads,
+                        num_transformer_blocks=num_transformer_blocks,
+                        old=old,
+                        rate=rate,
+                        voc_size=voc_size
                     )
 
-                    model = create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights,
-                                        num_decoder_blocks, num_heads, num_transformer_blocks, old, rate,
-                                        voc_size)
-                    history = model.fit(x = X_train,
-                                        y = y_train,
-                                        batch_size = 16,
-                                        epochs = 100,
-                                        validation_data = (X_test, y_test),
-                                        callbacks = [early_stopping, checkpoint_callback],
-                                        verbose=1)
+                    tuner = kt.Hyperband(
+                        build_model,
+                        objective="val_loss",
+                        max_epochs=20,
+                        directory="tuner_dir",
+                        project_name="transformer_tuning"
+                    )
 
-                    history_dict = history.history
-                    print(f"🔍 Fold {fold + 1} — History Keys:", list(history_dict.keys()))
-                    print(history_dict)
+                    tuner.search(X_train, y_train, validation_data=(X_val, y_val), epochs=20)
 
-                    checkpoint_filepath = f"./{timestamp}_best_model_fold_{fold + 1}.keras"
+                    # Gibt die n besten Hyperparameter-Kombis zurück (default: 1)
+                    best_hp = tuner.get_best_hyperparameters(num_trials=1)[0]
 
-                    results_for_eval_per_fold = evaluate_per_fold_45_blind_and_BP3C59ID_external_test_set(
-                        checkpoint_filepath = checkpoint_filepath,
-                        fold = fold,
-                        new_weights = new_weights,
-                        results_per_fold_test_set = results_per_fold_test_set,
-                        evaluate=True,
-                        maxlen=length_of_longest_context)
+                    print("Beste HP:", best_hp.values)
+                else:
 
-
-                    #validate_on_BP3C59ID_external_test_set(model=model, maxlen=length_of_longest_context)
-                    plot_save_model_trianing_history(fold, history_dict, timestamp)
-                    results_per_fold = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights, results_per_fold,
-                                            y_test, y_train)
-
-                save_history_and_plot(results_per_fold, timestamp)
-                save_history_and_plot(results_for_eval_per_fold, str(timestamp) + "_validation_", eval=True)
+                    model = train_ba_format_ai(antigen_array, early_stopping, embed_dim, epitope_array, ff_dim,
+                                           length_of_longest_context, maxlen, new_weights, num_decoder_blocks,
+                                           num_heads, num_transformer_blocks, old, rate, voc_size)
 
 
 
@@ -482,6 +464,74 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
     if validate_BP3C:
         validate_on_BP3C59ID_external_test_set(model=model)
     amino_acid_counts_epitope_predicted, confusion_matrices = analyze_amino_acids_in_validation_data( model, validation_sequences=testx_list, validation_labels=testy_list, encoder=encoder)
+
+
+def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_array=None, ff_dim=80, length_of_longest_context=235,
+                       maxlen=235, new_weights=None, num_decoder_blocks=2, num_heads=40, num_transformer_blocks=2, old=False, rate=0.3, voc_size=40, optimize=False):
+
+    if optimize:
+        model = create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights,
+                                 num_decoder_blocks, num_heads, num_transformer_blocks, old, rate,
+                                 voc_size, optimize=optimize)
+
+    else:
+        results_per_fold_test_set: list = []
+        results_per_fold: list = []
+        kf = KFold(n_splits=5, shuffle=True, random_state=42)
+        for fold, (train_index, test_index) in enumerate(kf.split(antigen_array)):
+            X_train, X_test = antigen_array[train_index], antigen_array[test_index]
+            y_train, y_test = epitope_array[train_index], epitope_array[test_index]
+            y_train = tf.expand_dims(y_train, axis=-1)
+            y_test = tf.expand_dims(y_test, axis=-1)
+            print(f"Fold {fold + 1}")
+            print(f"Train size: {len(X_train)}, Test size: {len(X_test)}")
+            # Hier kannst du dann mit dem Training starten
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+            # to save the best model
+            checkpoint_filepath = f"./{timestamp}_best_model_fold_{fold + 1}.keras"
+            checkpoint_callback = ModelCheckpoint(
+                filepath=checkpoint_filepath,
+                monitor='val_loss',  # oder 'val_accuracy', je nach Metrik
+                save_best_only=True,
+                save_weights_only=False,
+                mode='min',  # 'min' für Verlust, 'max' für Accuracy
+                verbose=1
+            )
+
+            model = create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights,
+                                     num_decoder_blocks, num_heads, num_transformer_blocks, old, rate,
+                                     voc_size, optimize=optimize)
+            history = model.fit(x=X_train,
+                                y=y_train,
+                                batch_size=16,
+                                epochs=100,
+                                validation_data=(X_test, y_test),
+                                callbacks=[early_stopping, checkpoint_callback],
+                                verbose=1)
+
+            history_dict = history.history
+            print(f"🔍 Fold {fold + 1} — History Keys:", list(history_dict.keys()))
+            print(history_dict)
+
+            checkpoint_filepath = f"./{timestamp}_best_model_fold_{fold + 1}.keras"
+
+            results_for_eval_per_fold = evaluate_per_fold_45_blind_and_BP3C59ID_external_test_set(
+                checkpoint_filepath=checkpoint_filepath,
+                fold=fold,
+                new_weights=new_weights,
+                results_per_fold_test_set=results_per_fold_test_set,
+                evaluate=True,
+                maxlen=length_of_longest_context)
+
+            # validate_on_BP3C59ID_external_test_set(model=model, maxlen=length_of_longest_context)
+            plot_save_model_trianing_history(fold, history_dict, timestamp)
+            results_per_fold = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights,
+                                                       results_per_fold,
+                                                       y_test, y_train)
+        save_history_and_plot(results_per_fold, timestamp)
+        save_history_and_plot(results_for_eval_per_fold, str(timestamp) + "_validation_", eval=True)
+        return model
 
 
 def save_history_and_plot(results_per_fold, timestamp, eval=False):
@@ -743,9 +793,63 @@ def create_fusionmodel(embed_dim, ff_dim, length_of_longest_context, maxlen, new
     return fusion_model
 
 
+def build_model_factory(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights,
+                        num_decoder_blocks, num_heads, num_transformer_blocks, old, rate, voc_size):
+    """
+
+    :param embed_dim:
+    :param ff_dim:
+    :param length_of_longest_context:
+    :param maxlen:
+    :param new_weights: weights for class imbalance
+    :param num_decoder_blocks:
+    :param num_heads:
+    :param num_transformer_blocks:
+    :param old:
+    :param rate:
+    :param voc_size:
+    :return:
+    """
+    def build_model(hp):
+        return create_model_new(
+            embed_dim=embed_dim,
+            ff_dim=ff_dim,
+            length_of_longest_context=length_of_longest_context,
+            maxlen=maxlen,
+            new_weights=new_weights,
+            num_decoder_blocks=num_decoder_blocks,
+            num_heads=num_heads,
+            num_transformer_blocks=num_transformer_blocks,
+            old=old,
+            rate=rate,
+            voc_size=voc_size,
+            optimize=True,   # <-- wichtig!
+            hp=hp
+        )
+    return build_model
+
+
 def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights, num_decoder_blocks,
-                     num_heads, num_transformer_blocks, old, rate, voc_size):
-    optimizer = tf.keras.optimizers.AdamW(learning_rate=0.001)
+                     num_heads, num_transformer_blocks, old, rate=0.3, voc_size=40, optimize=False, hp=None):
+
+    if optimize:
+        learning_rate = hp.Float("learning_rate", 1e-4, 1e-2, sampling="log")
+        rate=hp.Float("dropout_rate", 0.1, 0.3, sampling="log")
+
+        hidden_units_one = hp.Choice("hidden_units_one", values=[8,32,64,128])
+        hidden_units_two = hp.Choice("hidden_units_two", values=[8,32,64,128])
+        hidden_units_three = hp.Choice("hidden_units_three", values=[8,32,64,128])
+        hidden_units_four = hp.Choice("hidden_units_four", values=[8,32,64,128])
+    else:
+        learning_rate: float = 0.001
+
+        hidden_units_one = 12
+        hidden_units_two = 8
+        hidden_units_three = 8
+        hidden_units_four = 4
+
+
+    optimizer = tf.keras.optimizers.AdamW(learning_rate=learning_rate)
 
     encoder_inputs = keras.layers.Input(shape=(length_of_longest_context,), name='encoder_inputs')
     # Instanziiere das Layer mit den Gewichtungen
@@ -778,16 +882,17 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
             dropout=rate
         )(decoder_outputs, encoder_outputs)
     decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
-    decoder_outputs = keras.layers.Dense(128, activation='relu', name='Not_the_last_Sigmoid')(decoder_outputs)
-    #decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
 
-    #decoder_outputs = keras.layers.Dense(8, activation='relu', name='Not_the_last_Sigmoid_02')(decoder_outputs)
-    #decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
+    decoder_outputs = keras.layers.Dense(hidden_units_one, activation='relu', name='Not_the_last_Sigmoid')(decoder_outputs)
+    decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
 
-    #decoder_outputs = keras.layers.Dense(8, activation='relu', name='Not_the_last_Sigmoid_03')(decoder_outputs)
-    #decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
+    decoder_outputs = keras.layers.Dense(hidden_units_two, activation='relu', name='Not_the_last_Sigmoid_02')(decoder_outputs)
+    decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
 
-    #decoder_outputs = keras.layers.Dense(4, activation='relu', name='Not_the_last_Sigmoid_04')(decoder_outputs)
+    decoder_outputs = keras.layers.Dense(hidden_units_three, activation='relu', name='Not_the_last_Sigmoid_03')(decoder_outputs)
+    decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
+
+    decoder_outputs = keras.layers.Dense(hidden_units_four, activation='relu', name='Not_the_last_Sigmoid_04')(decoder_outputs)
     """"
     decoder_outputs = keras.layers.Lambda(lambda x: tf.identity(x),
     output_shape=lambda s: s )(decoder_outputs) # removes mask for timedistributed layer since it cant deal with a mask
