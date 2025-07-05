@@ -22,13 +22,21 @@ def masked_precision(y_true, y_pred):
     y_true = tf.cast(y_true, tf.float32)
     y_pred = tf.cast(y_pred, tf.float32)
 
-    mask = tf.cast(tf.not_equal(y_true, -1), tf.float32)
-    if tf.rank(mask) < tf.rank(y_true):
+    # Immer Mask für denselben Rank bauen
+    mask = tf.cast(tf.not_equal(y_true, -1), tf.float32)  # [batch, seq_len, 1]
+
+    # Falls y_true z.B. nur [batch, seq_len] ist, zwingen:
+    if y_true.shape.rank < y_pred.shape.rank:
+        y_true = tf.expand_dims(y_true, axis=-1)
         mask = tf.expand_dims(mask, axis=-1)
+
     y_pred_bin = tf.cast(y_pred > 0.5, tf.float32)
+
     true_positives = tf.reduce_sum(y_pred_bin * y_true * mask)
     predicted_positives = tf.reduce_sum(y_pred_bin * mask)
-    return true_positives / (predicted_positives + K.epsilon())
+
+    return true_positives / (predicted_positives + tf.keras.backend.epsilon())
+
 
 @tf.function
 def masked_recall(y_true, y_pred):
