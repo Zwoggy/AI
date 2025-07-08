@@ -333,19 +333,16 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                         objective="val_loss",
                         max_epochs=20,
                         directory="tuner_dir",
-                        project_name="transformer_tuning"
+                        project_name="transformer_tuning_including_decoder_encoder"
                     )
 
                     tuner.search(X_train, y_train, validation_data=(X_val, y_val), epochs=30, batch_size=8)
 
                     # Gibt die n besten Hyperparameter-Kombis zurück (default: 1)
                     best_hp = tuner.get_best_hyperparameters(num_trials=1)[0]
-                    best_trial = tuner.oracle.get_best_trials(num_trials=1)[0]
 
                     print("Beste HP:", best_hp.values)
-                    print("Best trial metrics:")
-                    for metric_name, metric_value in best_trial.metrics.get_last_value().items():
-                        print(f"{metric_name}: {metric_value}")
+
                 else:
 
                     model = train_ba_format_ai(antigen_array, early_stopping, embed_dim, epitope_array, ff_dim,
