@@ -336,12 +336,16 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                         project_name="transformer_tuning"
                     )
 
-                    tuner.search(X_train, y_train, validation_data=(X_val, y_val), epochs=20, batch_size=8)
+                    tuner.search(X_train, y_train, validation_data=(X_val, y_val), epochs=30, batch_size=8)
 
                     # Gibt die n besten Hyperparameter-Kombis zurück (default: 1)
                     best_hp = tuner.get_best_hyperparameters(num_trials=1)[0]
+                    best_trial = tuner.oracle.get_best_trials(num_trials=1)[0]
 
                     print("Beste HP:", best_hp.values)
+                    print("Best trial metrics:")
+                    for metric_name, metric_value in best_trial.metrics.get_last_value().items():
+                        print(f"{metric_name}: {metric_value}")
                 else:
 
                     model = train_ba_format_ai(antigen_array, early_stopping, embed_dim, epitope_array, ff_dim,
@@ -842,13 +846,20 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
         hidden_units_two = hp.Choice("hidden_units_two", values=[8,32,64,128])
         hidden_units_three = hp.Choice("hidden_units_three", values=[8,32,64,128])
         hidden_units_four = hp.Choice("hidden_units_four", values=[8,32,64,128])
-    else:
-        learning_rate: float = 0.001
+        num_transformer_blocks = hp.Choice("num_transformer_blocks", values=[1,2,3,4,5,6,7,8])
+        num_decoder_blocks = hp.Choice("num_decoder_blocks", values=[1, 2, 3, 4, 5, 6, 7, 8])
+        embed_dim = hp.Choice("embed_dim", values=[40, 60, 80, 100, 120, 256, 512, 1024, 2048])
+        num_heads = hp.Choice("num_heads", values=[4, 8, 16, 32, 40, 64, 80, 128])
 
-        hidden_units_one = 12
-        hidden_units_two = 8
-        hidden_units_three = 8
-        hidden_units_four = 4
+
+
+    else:
+        learning_rate: float = 0.0024086964341171373
+        rate: float = 0.11038709225185533
+        hidden_units_one: int = 64
+        hidden_units_two: int = 32
+        hidden_units_three: int = 128
+        hidden_units_four: int = 32
 
 
     optimizer = tf.keras.optimizers.AdamW(learning_rate=learning_rate)
@@ -884,6 +895,7 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
             dropout=rate
         )(decoder_outputs, encoder_outputs)
     decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
+
 
     decoder_outputs = keras.layers.Dense(hidden_units_one, activation='relu', name='Not_the_last_Sigmoid')(decoder_outputs)
     decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
