@@ -1,6 +1,8 @@
 import tensorflow as tf
 import tf_keras
 import keras_hub
+tf.keras.backend.set_floatx('float16') # setting the layer precision to float16 instead of float32
+
 from sklearn.utils import compute_class_weight
 from tf_keras import layers
 from tf_keras.src.callbacks import ModelCheckpoint
@@ -575,7 +577,7 @@ def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_arra
                                      voc_size, optimize=optimize)
             history = model.fit(x=X_train,
                                 y=y_train,
-                                batch_size=8,
+                                batch_size=4,
                                 epochs=100,
                                 validation_data=(X_test, y_test),
                                 callbacks=[early_stopping, checkpoint_callback],
