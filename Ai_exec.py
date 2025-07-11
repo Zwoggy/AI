@@ -1,7 +1,7 @@
 import tensorflow as tf
 import tf_keras
 import keras_hub
-tf.keras.backend.set_floatx('float16') # setting the layer precision to float16 instead of float32
+tf.keras.mixed_precision.experimental.set_policy('mixed_float16') # setting the layer precision to float16 instead of float32
 
 from sklearn.utils import compute_class_weight
 from tf_keras import layers
