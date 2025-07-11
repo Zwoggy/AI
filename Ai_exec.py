@@ -940,7 +940,7 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
     encoder_inputs = keras.layers.Input(shape=(length_of_longest_context,), name='encoder_inputs')
     # Instanziiere das Layer mit den Gewichtungen
     if old:
-        embedding_layer = keras_hub.layers.TokenAndPositionEmbedding(voc_size, maxlen, embed_dim, mask_zero=True)
+        embedding_layer = keras_hub.layers.TokenAndPositionEmbedding(voc_size, maxlen, embed_dim, mask_zero=True, dtype="float16")
         #embedding_layer = TokenAndPositionEmbedding(maxlen, voc_size, embed_dim) ## tf_keras version
         x = embedding_layer(encoder_inputs)
         mask = embedding_layer.compute_mask(encoder_inputs)
@@ -957,35 +957,41 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
             intermediate_dim=output_dimension,
             num_heads=num_heads,
             dropout=rate,
+            dtype="float16",
         )(x)
-    encoder_outputs = keras.layers.Dense(embed_dim, activation='sigmoid')(x)
+    encoder_outputs = keras.layers.Dense(embed_dim, activation='sigmoid', dtype="float16")(x)
     # Decoder
     decoder_outputs = encoder_outputs
     for i in range(num_decoder_blocks):
         decoder_outputs = keras_hub.layers.TransformerDecoder(
             intermediate_dim=output_dimension,
             num_heads=num_heads,
-            dropout=rate
+            dropout=rate,
+            dtype="float16"
         )(decoder_outputs, encoder_outputs)
     decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
 
 
-    decoder_outputs = keras.layers.Dense(hidden_units_one, activation='relu', name='Not_the_last_Sigmoid')(decoder_outputs)
+    decoder_outputs = keras.layers.Dense(hidden_units_one, activation='relu', name='Not_the_last_Sigmoid', dtype="float16")(decoder_outputs)
     decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
 
-    decoder_outputs = keras.layers.Dense(hidden_units_two, activation='relu', name='Not_the_last_Sigmoid_02')(decoder_outputs)
+    decoder_outputs = keras.layers.Dense(hidden_units_two, activation='relu', name='Not_the_last_Sigmoid_02',
+            dtype="float16")(decoder_outputs)
     decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
 
-    decoder_outputs = keras.layers.Dense(hidden_units_three, activation='relu', name='Not_the_last_Sigmoid_03')(decoder_outputs)
+    decoder_outputs = keras.layers.Dense(hidden_units_three, activation='relu', name='Not_the_last_Sigmoid_03',
+            dtype="float16")(decoder_outputs)
     decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
 
-    decoder_outputs = keras.layers.Dense(hidden_units_four, activation='relu', name='Not_the_last_Sigmoid_04')(decoder_outputs)
+    decoder_outputs = keras.layers.Dense(hidden_units_four, activation='relu', name='Not_the_last_Sigmoid_04',
+            dtype="float16")(decoder_outputs)
     """"
     decoder_outputs = keras.layers.Lambda(lambda x: tf.identity(x),
     output_shape=lambda s: s )(decoder_outputs) # removes mask for timedistributed layer since it cant deal with a mask
     """
     decoder_outputs = RemoveMask()(decoder_outputs)
-    decoder_outputs_final = keras.layers.TimeDistributed(keras.layers.Dense(1, activation='sigmoid', name='Final_Sigmoid'))(
+    decoder_outputs_final = keras.layers.TimeDistributed(keras.layers.Dense(1, activation='sigmoid', name='Final_Sigmoid',
+            dtype="float16"1))(
         decoder_outputs)
     model = keras.Model(inputs=encoder_inputs, outputs=decoder_outputs_final)
     model.compile(
