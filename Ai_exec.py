@@ -65,6 +65,73 @@ def pad_or_truncate(array, max_len=4562):
         return np.vstack((array, padding))
     return array
 
+
+
+
+def get_structures_and_residue_info_for_BP():
+    import os
+    import json
+    import numpy as np
+    from Bio.PDB import MMCIFParser
+    from scipy.spatial.distance import pdist, squareform
+
+    # === Config ===
+    FOLDS_DIR = "folds"
+
+    # === Output containers ===
+    # Each will be a dict: ID -> data
+    per_residue_data = {}
+    coords_data = {}
+    distance_maps = {}
+
+    # === Loop over all ID folders ===
+    for sample_id in os.listdir(FOLDS_DIR):
+        sample_dir = os.path.join(FOLDS_DIR, sample_id)
+        if not os.path.isdir(sample_dir):
+            continue
+
+        # Compose filenames
+        full_data_path = os.path.join(sample_dir, f"fold_{sample_id}_full_data_0.json")
+        cif_path = os.path.join(sample_dir, f"fold_{sample_id}_model_0.cif")
+
+        # === Parse full_data ===
+        if os.path.isfile(full_data_path):
+            with open(full_data_path) as f:
+                full_data = json.load(f)
+            plddt = np.array(full_data["atom_plddts"]) / 100.0
+            chain_ids = np.array(full_data["atom_chain_ids"])
+            per_residue_data[sample_id] = {
+                "plddt": plddt,
+                "chains": chain_ids
+            }
+        else:
+            print(f"[WARN] Missing: {full_data_path}")
+
+        # === Parse CIF ===
+        if os.path.isfile(cif_path):
+            parser = MMCIFParser(QUIET=True)
+            structure = parser.get_structure(sample_id, cif_path)
+
+            coords = []
+            for model in structure:
+                for chain in model:
+                    for residue in chain:
+                        if "CA" in residue:
+                            atom = residue["CA"]
+                            coords.append(atom.coord)
+            coords = np.array(coords)
+            coords_data[sample_id] = coords
+
+            dist_map = squareform(pdist(coords))
+            distance_maps[sample_id] = dist_map
+        else:
+            print(f"[WARN] Missing: {cif_path}")
+
+    print(f"Processed {len(per_residue_data)} samples with per-residue info.")
+    print(f"Processed {len(coords_data)} samples with coordinates.")
+    return coords_data, per_residue_data
+
+
 def get_structure_from_accession_id(accession_ids=None, max_len=4562):
     pickle_file = "./data/alphafold_structures_conv2d.pkl"
     structure_map = load_structure_data(pickle_file)
@@ -160,6 +227,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
         # String-Listen in echte Listen umwandeln
         antigen_list = [np.fromstring(seq_str.strip("[]"), sep=' ') for seq_str in df_bp['Sequenz']]
         epitope_list = [np.fromstring(seq_str.strip("[]"), sep=' ') for seq_str in df_bp['Epitop']]
+        id_list = [np.fromstring(seq_str.strip(">"), sep=' ') for seq_str in df_bp['ID']]
 
         # In NumPy-Arrays konvertieren
         antigen_array = np.array(antigen_list, dtype=np.float16)
@@ -851,12 +919,17 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
 
 
     else:
-        learning_rate: float = 0.0024086964341171373
-        rate: float = 0.11038709225185533
-        hidden_units_one: int = 64
-        hidden_units_two: int = 32
-        hidden_units_three: int = 128
-        hidden_units_four: int = 32
+        """These are the hyperparameters that performed best using Keras Tuner."""
+        learning_rate: float = 0.000145358952942396
+        rate: float = 0.20485699518568096
+        hidden_units_one: int = 8
+        hidden_units_two: int = 8
+        hidden_units_three: int = 32
+        hidden_units_four: int = 128
+        num_transformer_blocks: int = 6
+        num_decoder_blocks: int = 41
+        embed_dim: int = 80
+        num_heads: int = 64
 
 
     optimizer = tf.keras.optimizers.AdamW(learning_rate=learning_rate)
