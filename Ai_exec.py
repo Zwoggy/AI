@@ -575,7 +575,7 @@ def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_arra
                                      voc_size, optimize=optimize)
             history = model.fit(x=X_train,
                                 y=y_train,
-                                batch_size=16,
+                                batch_size=8,
                                 epochs=100,
                                 validation_data=(X_test, y_test),
                                 callbacks=[early_stopping, checkpoint_callback],
