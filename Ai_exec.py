@@ -991,7 +991,7 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
     """
     decoder_outputs = RemoveMask()(decoder_outputs)
     decoder_outputs_final = keras.layers.TimeDistributed(keras.layers.Dense(1, activation='sigmoid', name='Final_Sigmoid',
-            dtype="float16"1))(
+            dtype="float16"))(
         decoder_outputs)
     model = keras.Model(inputs=encoder_inputs, outputs=decoder_outputs_final)
     model.compile(
