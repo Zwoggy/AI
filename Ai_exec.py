@@ -1,7 +1,6 @@
 import tensorflow as tf
 import tf_keras
 import keras_hub
-tf.keras.mixed_precision.experimental.set_policy('mixed_float16') # setting the layer precision to float16 instead of float32
 
 from sklearn.utils import compute_class_weight
 from tf_keras import layers
@@ -9,6 +8,8 @@ from tf_keras.src.callbacks import ModelCheckpoint
 from transformers import  TFEsmForTokenClassification
 from tensorflow.keras import backend as K
 import keras
+keras.mixed_precision.set_dtype_policy('mixed_float16') # setting the layer precision to float16 instead of float32
+
 import pickle
 import pandas as pd
 import ast
