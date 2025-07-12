@@ -958,7 +958,7 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
             num_heads=num_heads,
             dropout=rate
         )(x)
-    encoder_outputs = keras.layers.Dense(embed_dim, activation='sigmoid', dtype="float16")(x)
+    encoder_outputs = keras.layers.Dense(embed_dim, activation='sigmoid')(x)
     # Decoder
     decoder_outputs = encoder_outputs
     for i in range(num_decoder_blocks):
