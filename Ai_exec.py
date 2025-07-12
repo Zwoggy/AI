@@ -925,7 +925,7 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
         """These are the hyperparameters that performed best using Keras Tuner."""
         learning_rate: float = 0.000145358952942396 # from keras tuner
         learning_rate: float = 0.001
-        rate: float = 0.20485699518568096
+        rate: float = 0.10485699518568096
         hidden_units_one: int = 24
         hidden_units_two: int = 64
         hidden_units_three: int = 32
@@ -970,9 +970,9 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
             dropout=rate,
             dtype="float16"
         )(decoder_outputs, encoder_outputs)
-    decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
+    #decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
 
-
+    """
     decoder_outputs = keras.layers.Dense(hidden_units_one, activation='relu', name='Not_the_last_Sigmoid', dtype="float16")(decoder_outputs)
     decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
 
@@ -983,7 +983,7 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
     decoder_outputs = keras.layers.Dense(hidden_units_three, activation='relu', name='Not_the_last_Sigmoid_03',
             dtype="float16")(decoder_outputs)
     decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
-
+    """
     decoder_outputs = keras.layers.Dense(hidden_units_four, activation='relu', name='Not_the_last_Sigmoid_04',
             dtype="float16")(decoder_outputs)
     """"
