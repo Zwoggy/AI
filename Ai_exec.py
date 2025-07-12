@@ -931,8 +931,8 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
         hidden_units_four: int = 128
         num_transformer_blocks: int = 6
         num_decoder_blocks: int = 4
-        embed_dim: int = 256
-        num_heads: int = 64
+        embed_dim: int = 200
+        num_heads: int = 40
 
 
     optimizer = tf.keras.optimizers.AdamW(learning_rate=learning_rate)
