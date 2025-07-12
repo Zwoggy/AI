@@ -174,7 +174,7 @@ def get_structure_from_accession_id(accession_ids=None, max_len=4562):
 
 def create_ai(filepath, save_file, output_file, train=False, safe=False, validate_45_Blind=False, validate_BP3C=False, predict=False, old=False, gpu_split=False, big_dataset=False, use_structure=False, ba_ai=False, full_length=False, old_data_set=False, optimize=False):
     #disable_eager_execution()
-    mixed_precision.set_global_policy('mixed_float16')
+    #mixed_precision.set_global_policy('mixed_float16')
     if old_data_set:
         if old==False:
             pass
@@ -981,8 +981,7 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
             dtype="float16")(decoder_outputs)
     decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
     """
-    decoder_outputs = keras.layers.Dense(hidden_units_four, activation='relu', name='Not_the_last_Sigmoid_04',
-            dtype="float16")(decoder_outputs)
+    decoder_outputs = keras.layers.Dense(hidden_units_four, activation='relu', name='Not_the_last_Sigmoid_04')(decoder_outputs)
     """"
     decoder_outputs = keras.layers.Lambda(lambda x: tf.identity(x),
     output_shape=lambda s: s )(decoder_outputs) # removes mask for timedistributed layer since it cant deal with a mask
