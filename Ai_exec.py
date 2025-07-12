@@ -8,7 +8,6 @@ from tf_keras.src.callbacks import ModelCheckpoint
 from transformers import  TFEsmForTokenClassification
 from tensorflow.keras import backend as K
 import keras
-keras.mixed_precision.set_dtype_policy('mixed_float16') # setting the layer precision to float16 instead of float32
 
 import pickle
 import pandas as pd
@@ -941,7 +940,7 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
     encoder_inputs = keras.layers.Input(shape=(length_of_longest_context,), name='encoder_inputs')
     # Instanziiere das Layer mit den Gewichtungen
     if old:
-        embedding_layer = keras_hub.layers.TokenAndPositionEmbedding(voc_size, maxlen, embed_dim, mask_zero=True, dtype="float16")
+        embedding_layer = keras_hub.layers.TokenAndPositionEmbedding(voc_size, maxlen, embed_dim, mask_zero=True)
         #embedding_layer = TokenAndPositionEmbedding(maxlen, voc_size, embed_dim) ## tf_keras version
         x = embedding_layer(encoder_inputs)
         mask = embedding_layer.compute_mask(encoder_inputs)
@@ -957,8 +956,7 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
         x = keras_hub.layers.TransformerEncoder(
             intermediate_dim=output_dimension,
             num_heads=num_heads,
-            dropout=rate,
-            dtype="float16",
+            dropout=rate
         )(x)
     encoder_outputs = keras.layers.Dense(embed_dim, activation='sigmoid', dtype="float16")(x)
     # Decoder
@@ -967,8 +965,7 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
         decoder_outputs = keras_hub.layers.TransformerDecoder(
             intermediate_dim=output_dimension,
             num_heads=num_heads,
-            dropout=rate,
-            dtype="float16"
+            dropout=rate
         )(decoder_outputs, encoder_outputs)
     #decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
 
@@ -991,8 +988,7 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
     output_shape=lambda s: s )(decoder_outputs) # removes mask for timedistributed layer since it cant deal with a mask
     """
     decoder_outputs = RemoveMask()(decoder_outputs)
-    decoder_outputs_final = keras.layers.TimeDistributed(keras.layers.Dense(1, activation='sigmoid', name='Final_Sigmoid',
-            dtype="float16"))(
+    decoder_outputs_final = keras.layers.TimeDistributed(keras.layers.Dense(1, activation='sigmoid', name='Final_Sigmoid'))(
         decoder_outputs)
     model = keras.Model(inputs=encoder_inputs, outputs=decoder_outputs_final)
     model.compile(
