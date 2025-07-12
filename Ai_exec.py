@@ -961,6 +961,7 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
     encoder_outputs = keras.layers.Dense(embed_dim, activation='sigmoid')(x)
     # Decoder
     decoder_outputs = encoder_outputs
+    """
     for i in range(num_decoder_blocks):
         decoder_outputs = keras_hub.layers.TransformerDecoder(
             intermediate_dim=output_dimension,
@@ -968,7 +969,7 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
             dropout=rate
         )(decoder_outputs, encoder_outputs)
     #decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
-
+    """
     """
     decoder_outputs = keras.layers.Dense(hidden_units_one, activation='relu', name='Not_the_last_Sigmoid', dtype="float16")(decoder_outputs)
     decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
