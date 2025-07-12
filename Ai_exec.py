@@ -923,15 +923,15 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
 
     else:
         """These are the hyperparameters that performed best using Keras Tuner."""
-        learning_rate: float = 0.000145358952942396 # from keras tuner
+        #learning_rate: float = 0.000145358952942396 # from keras tuner
         learning_rate: float = 0.001
         rate: float = 0.10485699518568096
         hidden_units_one: int = 24
         hidden_units_two: int = 64
         hidden_units_three: int = 32
         hidden_units_four: int = 24
-        num_transformer_blocks: int = 6
-        num_decoder_blocks: int = 4
+        num_transformer_blocks: int = 2
+        num_decoder_blocks: int = 2
         embed_dim: int = 80
         num_heads: int = 40
 
