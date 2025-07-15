@@ -659,7 +659,7 @@ def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_arra
                 evaluate=True,
                 maxlen=length_of_longest_context)
 
-            fold=None
+            fold="_None_"
             # validate_on_BP3C59ID_external_test_set(model=model, maxlen=length_of_longest_context)
             plot_save_model_trianing_history(fold, history_dict, timestamp)
             results_per_fold = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights,
