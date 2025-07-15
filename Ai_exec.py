@@ -613,6 +613,7 @@ def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_arra
             return model
 
         else:
+            fold = 1
             X_test, y_test = get_BP3_dataset(maxlen)
             results_per_fold_test_set: list = []
             results_per_fold: list = []
@@ -653,13 +654,13 @@ def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_arra
 
             results_for_eval_per_fold = evaluate_per_fold_45_blind_and_BP3C59ID_external_test_set(
                 checkpoint_filepath=checkpoint_filepath,
-                fold=None,
+                fold=fold,
                 new_weights=new_weights,
                 results_per_fold_test_set=results_per_fold_test_set,
                 evaluate=True,
                 maxlen=length_of_longest_context)
 
-            fold = 1
+
             # validate_on_BP3C59ID_external_test_set(model=model, maxlen=length_of_longest_context)
             plot_save_model_trianing_history(fold, history_dict, timestamp)
             results_per_fold = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights,
