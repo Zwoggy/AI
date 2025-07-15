@@ -1,6 +1,7 @@
 import tensorflow as tf
 import tf_keras
 import keras_hub
+from keras_preprocessing import sequence
 
 from sklearn.utils import compute_class_weight
 from tf_keras import layers
@@ -172,7 +173,9 @@ def get_structure_from_accession_id(accession_ids=None, max_len=4562):
     return structures
 
 
-def create_ai(filepath, save_file, output_file, train=False, safe=False, validate_45_Blind=False, validate_BP3C=False, predict=False, old=False, gpu_split=False, big_dataset=False, use_structure=False, ba_ai=False, full_length=False, old_data_set=False, optimize=False):
+def create_ai(filepath, save_file, output_file, train=False, safe=False, validate_45_Blind=False,
+              validate_BP3C=False, predict=False, old=False, gpu_split=False, big_dataset=False,
+              use_structure=False, ba_ai=False, full_length=False, old_data_set=False, optimize=False, k_fold=False):
     #disable_eager_execution()
     #mixed_precision.set_global_policy('mixed_float16')
     if old_data_set:
@@ -417,7 +420,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
                     model = train_ba_format_ai(antigen_array, early_stopping, embed_dim, epitope_array, ff_dim,
                                            length_of_longest_context, maxlen, new_weights, num_decoder_blocks,
-                                           num_heads, num_transformer_blocks, old, rate, voc_size)
+                                           num_heads, num_transformer_blocks, old, rate, voc_size, X_test=None, y_test=None)
 
 
 
@@ -540,7 +543,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
 
 def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_array=None, ff_dim=80, length_of_longest_context=235,
-                       maxlen=235, new_weights=None, num_decoder_blocks=2, num_heads=40, num_transformer_blocks=2, old=False, rate=0.3, voc_size=40, optimize=False):
+                       maxlen=235, new_weights=None, num_decoder_blocks=2, num_heads=40, num_transformer_blocks=2,
+                       old=False, rate=0.3, voc_size=40, optimize=False, k_fold=False, X_test=None, y_test=None):
 
     if optimize:
         model = create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights,
@@ -548,21 +552,80 @@ def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_arra
                                  voc_size, optimize=optimize)
 
     else:
-        results_per_fold_test_set: list = []
-        results_per_fold: list = []
-        kf = KFold(n_splits=5, shuffle=True, random_state=42)
-        for fold, (train_index, test_index) in enumerate(kf.split(antigen_array)):
-            X_train, X_test = antigen_array[train_index], antigen_array[test_index]
-            y_train, y_test = epitope_array[train_index], epitope_array[test_index]
+
+        if k_fold:
+            results_per_fold_test_set: list = []
+            results_per_fold: list = []
+            kf = KFold(n_splits=5, shuffle=True, random_state=42)
+            for fold, (train_index, test_index) in enumerate(kf.split(antigen_array)):
+                X_train, X_test = antigen_array[train_index], antigen_array[test_index]
+                y_train, y_test = epitope_array[train_index], epitope_array[test_index]
+                y_train = tf.expand_dims(y_train, axis=-1)
+                y_test = tf.expand_dims(y_test, axis=-1)
+                print(f"Fold {fold + 1}")
+                print(f"Train size: {len(X_train)}, Test size: {len(X_test)}")
+                # Hier kannst du dann mit dem Training starten
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+                # to save the best model
+                checkpoint_filepath = f"./{timestamp}_best_model_fold_{fold + 1}.keras"
+                checkpoint_callback = ModelCheckpoint(
+                    filepath=checkpoint_filepath,
+                    monitor='val_loss',  # oder 'val_accuracy', je nach Metrik
+                    save_best_only=True,
+                    save_weights_only=False,
+                    mode='min',  # 'min' für Verlust, 'max' für Accuracy
+                    verbose=1
+                )
+
+                model = create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights,
+                                         num_decoder_blocks, num_heads, num_transformer_blocks, old, rate,
+                                         voc_size, optimize=optimize)
+                history = model.fit(x=X_train,
+                                    y=y_train,
+                                    batch_size=4,
+                                    epochs=100,
+                                    validation_data=(X_test, y_test),
+                                    callbacks=[early_stopping, checkpoint_callback],
+                                    verbose=1)
+
+                history_dict = history.history
+                print(f"🔍 Fold {fold + 1} — History Keys:", list(history_dict.keys()))
+                print(history_dict)
+
+                checkpoint_filepath = f"./{timestamp}_best_model_fold_{fold + 1}.keras"
+
+                results_for_eval_per_fold = evaluate_per_fold_45_blind_and_BP3C59ID_external_test_set(
+                    checkpoint_filepath=checkpoint_filepath,
+                    fold=fold,
+                    new_weights=new_weights,
+                    results_per_fold_test_set=results_per_fold_test_set,
+                    evaluate=True,
+                    maxlen=length_of_longest_context)
+
+                # validate_on_BP3C59ID_external_test_set(model=model, maxlen=length_of_longest_context)
+                plot_save_model_trianing_history(fold, history_dict, timestamp)
+                results_per_fold = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights,
+                                                           results_per_fold,
+                                                           y_test, y_train)
+            save_history_and_plot(results_per_fold, timestamp)
+            save_history_and_plot(results_for_eval_per_fold, str(timestamp) + "_validation_", eval=True)
+            return model
+
+        else:
+            X_test, y_test = get_BP3_dataset(maxlen)
+            results_per_fold_test_set: list = []
+            results_per_fold: list = []
+            X_train = antigen_array
+            y_train = epitope_array
             y_train = tf.expand_dims(y_train, axis=-1)
             y_test = tf.expand_dims(y_test, axis=-1)
-            print(f"Fold {fold + 1}")
-            print(f"Train size: {len(X_train)}, Test size: {len(X_test)}")
+
             # Hier kannst du dann mit dem Training starten
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
             # to save the best model
-            checkpoint_filepath = f"./{timestamp}_best_model_fold_{fold + 1}.keras"
+            checkpoint_filepath = f"./{timestamp}_best_model_fold_no_k_fold.keras"
             checkpoint_callback = ModelCheckpoint(
                 filepath=checkpoint_filepath,
                 monitor='val_loss',  # oder 'val_accuracy', je nach Metrik
@@ -584,19 +647,19 @@ def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_arra
                                 verbose=1)
 
             history_dict = history.history
-            print(f"🔍 Fold {fold + 1} — History Keys:", list(history_dict.keys()))
             print(history_dict)
 
-            checkpoint_filepath = f"./{timestamp}_best_model_fold_{fold + 1}.keras"
+            checkpoint_filepath = f"./{timestamp}_best_model_fold_no_k_fold.keras"
 
             results_for_eval_per_fold = evaluate_per_fold_45_blind_and_BP3C59ID_external_test_set(
                 checkpoint_filepath=checkpoint_filepath,
-                fold=fold,
+                fold=None,
                 new_weights=new_weights,
                 results_per_fold_test_set=results_per_fold_test_set,
                 evaluate=True,
                 maxlen=length_of_longest_context)
 
+            fold=None
             # validate_on_BP3C59ID_external_test_set(model=model, maxlen=length_of_longest_context)
             plot_save_model_trianing_history(fold, history_dict, timestamp)
             results_per_fold = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights,
@@ -605,6 +668,7 @@ def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_arra
         save_history_and_plot(results_per_fold, timestamp)
         save_history_and_plot(results_for_eval_per_fold, str(timestamp) + "_validation_", eval=True)
         return model
+
 
 
 def save_history_and_plot(results_per_fold, timestamp, eval=False):
@@ -703,35 +767,7 @@ def evaluate_per_fold_45_blind_and_BP3C59ID_external_test_set(checkpoint_filepat
     y_epi45_blind = sequence.pad_sequences(epitope_list, maxlen=maxlen,
                                                  padding='post', value=-1)
 
-
-
-    # CSV-Datei einlesen
-    df = pd.read_csv('./data/BP3C50ID/BP3C50ID_embedded_and_epitopes.csv')
-
-    fixed_length = maxlen
-    # Feste Länge
-
-
-    # Durchlaufen der Zeilen im DataFrame und epitope_embed entsprechend befüllen
-    encoded_sequences = df["Sequenz"]
-    epitope_list_BP = df["Epitop"]
-    ### hier if länge >maxlen
-    sequences_BP, epitope_list_BP = keep_sequences_up_to_a_length_of_maxlen(encoded_sequences, epitope_list_BP)
-
-    with open('./AI/tokenizer.pickle', 'rb') as handle:
-        encoder = pickle.load(handle)
-
-    sequences_BP = [string_to_int_list(seq_str) for seq_str in sequences_BP]
-
-    # Alle Sequenzen auf Länge 235 polstern (Padding mit 0)
-    X_BP3C59ID_external_test_set = sequence.pad_sequences(sequences_BP, maxlen=fixed_length,
-                                              padding='post', value=0)
-
-    epitope_list_BP = [[int(char) for char in epitope] for epitope in
-                    epitope_list_BP]  # Für Padding vorbereiten, erwartet eine Liste von Integern
-    # Alle Eitope auf die Länge maxlen polstern (Padding mit 0)
-    y_BP3C59ID_external_test_set = sequence.pad_sequences(epitope_list_BP, maxlen=fixed_length,
-                                                 padding='post', value=-1)
+    X_BP3C59ID_external_test_set, y_BP3C59ID_external_test_set = get_BP3_dataset(maxlen)
     tf.print("\n=== INPUT SHAPES CHECK ===")
     tf.print("X_train:", tf.shape(X_BP3C59ID_external_test_set), "Rank:", tf.rank(X_BP3C59ID_external_test_set))
     tf.print("y_train:", tf.shape(y_BP3C59ID_external_test_set), "Rank:", tf.rank(y_BP3C59ID_external_test_set))
@@ -747,6 +783,29 @@ def evaluate_per_fold_45_blind_and_BP3C59ID_external_test_set(checkpoint_filepat
 
     return results_per_fold_test_set
 
+
+def get_BP3_dataset(maxlen):
+    # CSV-Datei einlesen
+    df = pd.read_csv('./data/BP3C50ID/BP3C50ID_embedded_and_epitopes.csv')
+    fixed_length = maxlen
+    # Feste Länge
+    # Durchlaufen der Zeilen im DataFrame und epitope_embed entsprechend befüllen
+    encoded_sequences = df["Sequenz"]
+    epitope_list_BP = df["Epitop"]
+    ### hier if länge >maxlen
+    sequences_BP, epitope_list_BP = keep_sequences_up_to_a_length_of_maxlen(encoded_sequences, epitope_list_BP)
+    with open('./AI/tokenizer.pickle', 'rb') as handle:
+        encoder = pickle.load(handle)
+    sequences_BP = [string_to_int_list(seq_str) for seq_str in sequences_BP]
+    # Alle Sequenzen auf Länge 235 polstern (Padding mit 0)
+    X_BP3C59ID_external_test_set = sequence.pad_sequences(sequences_BP, maxlen=fixed_length,
+                                                          padding='post', value=0)
+    epitope_list_BP = [[int(char) for char in epitope] for epitope in
+                       epitope_list_BP]  # Für Padding vorbereiten, erwartet eine Liste von Integern
+    # Alle Eitope auf die Länge maxlen polstern (Padding mit 0)
+    y_BP3C59ID_external_test_set = sequence.pad_sequences(epitope_list_BP, maxlen=fixed_length,
+                                                          padding='post', value=-1)
+    return X_BP3C59ID_external_test_set, y_BP3C59ID_external_test_set
 
 
 def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights, results_per_fold, y_test, y_train, evaluate=False):

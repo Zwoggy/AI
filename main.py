@@ -25,6 +25,8 @@ if __name__ == '__main__':
     parser.add_argument('--old_data_set', action='store_true',
                         help='Use the ba_ai dataset.')
     parser.add_argument('--optimize', action='store_true', help='Optimize the Hyperparameters using keras_tuner as implemented in the Code')
+    parser.add_argument('--k_fold', action='store_true', help='Use k-fold')
+
     args = parser.parse_args()
 
     # Verwende den Standardpfad, wenn --filepath nicht angegeben ist
@@ -43,5 +45,6 @@ if __name__ == '__main__':
               ba_ai=args.ba_ai,
               full_length=args.full_length,
               old_data_set=args.old_data_set,
-              optimize=args.optimize)
+              optimize=args.optimize,
+              k_fold=args.k_fold)
 
