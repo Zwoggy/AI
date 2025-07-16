@@ -1031,15 +1031,13 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
     #decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
 
 
-    decoder_outputs = keras.layers.Dense(hidden_units_one, activation='relu', name='Not_the_last_Sigmoid', dtype="float16")(decoder_outputs)
+    decoder_outputs = keras.layers.Dense(hidden_units_one, activation='relu', name='Not_the_last_Sigmoid')(decoder_outputs)
     decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
 
-    decoder_outputs = keras.layers.Dense(hidden_units_two, activation='relu', name='Not_the_last_Sigmoid_02',
-            dtype="float16")(decoder_outputs)
+    decoder_outputs = keras.layers.Dense(hidden_units_two, activation='relu', name='Not_the_last_Sigmoid_02')(decoder_outputs)
     decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
 
-    decoder_outputs = keras.layers.Dense(hidden_units_three, activation='relu', name='Not_the_last_Sigmoid_03',
-            dtype="float16")(decoder_outputs)
+    decoder_outputs = keras.layers.Dense(hidden_units_three, activation='relu', name='Not_the_last_Sigmoid_03')(decoder_outputs)
     decoder_outputs = keras.layers.Dropout(rate)(decoder_outputs)
 
     decoder_outputs = keras.layers.Dense(hidden_units_four, activation='relu', name='Not_the_last_Sigmoid_04')(decoder_outputs)
