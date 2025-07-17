@@ -120,8 +120,38 @@ def masked_f1_score(y_true, y_pred):
     return 2 * (precision * recall) / (precision + recall + tf.keras.backend.epsilon())
 
 
+@tf.function
+def masked_mcc(y_true, y_pred):
+    y_true = tf.cast(y_true, tf.float32)
+    y_pred = tf.cast(y_pred, tf.float32)
+
+    # Mask: True labels that are not -1
+    mask = tf.cast(tf.not_equal(y_true, -1), tf.float32)
+
+    # If needed, expand dims for broadcasting
+    if y_true.shape.rank < y_pred.shape.rank:
+        y_true = tf.expand_dims(y_true, axis=-1)
+        mask = tf.expand_dims(mask, axis=-1)
+
+    # Binarize predictions
+    y_pred_bin = tf.cast(y_pred > 0.5, tf.float32)
+
+    # True Positives, False Positives, True Negatives, False Negatives (masked)
+    tp = tf.reduce_sum(y_pred_bin * y_true * mask)
+    tn = tf.reduce_sum((1 - y_pred_bin) * (1 - y_true) * mask)
+    fp = tf.reduce_sum(y_pred_bin * (1 - y_true) * mask)
+    fn = tf.reduce_sum((1 - y_pred_bin) * y_true * mask)
+
+    numerator = tp * tn - fp * fn
+    denominator = tf.sqrt(
+        (tp + fp) * (tp + fn) * (tn + fp) * (tn + fn)
+    )
+
+    return numerator / (denominator + tf.keras.backend.epsilon())
+
 
 # use these for evaluation after loading a model. Have to be implemented for the whole pipeline to work
+masked_mcc_metric = tf.keras.metrics.MeanMetricWrapper(masked_mcc, name="masked_mcc")
 masked_precision_metric = tf.keras.metrics.MeanMetricWrapper(masked_precision, name="masked_precision")
 masked_recall_metric = tf.keras.metrics.MeanMetricWrapper(masked_recall, name="masked_recall")
 masked_f1_score_metric = tf.keras.metrics.MeanMetricWrapper(masked_f1_score, name="masked_f1_score")

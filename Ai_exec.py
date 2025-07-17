@@ -37,7 +37,7 @@ from src.TransformerBlock import TransformerBlock
 from src.TransformerDecoderTwo import TransformerDecoderTwo
 from src.fusion_model import create_fusion_model_function, create_fusion_model_function_02
 from src.masked_metrics import masked_accuracy, masked_recall, masked_precision, MaskedAUC, masked_f1_score, \
-    masked_precision_metric, masked_recall_metric, masked_f1_score_metric
+    masked_precision_metric, masked_recall_metric, masked_f1_score_metric, masked_mcc_metric, masked_mcc
 from validate_45_blind import validate_on_45_blind
 from tensorflow.keras.mixed_precision import set_global_policy
 from tensorflow.keras import mixed_precision
@@ -676,7 +676,7 @@ def save_history_and_plot(results_per_fold, timestamp, eval=False):
     import csv
 
     # Header mit genau den gewünschten Metriken
-    header = ["fold", "split", "auc", "f1", "precision", "recall"]
+    header = ["fold", "split", "auc", "f1", "precision", "recall", "mcc"]
 
     with open(f"k_fold_model_metrics_{timestamp}.csv", "w", newline="") as f:
         writer = csv.writer(f)
@@ -696,6 +696,7 @@ def save_history_and_plot(results_per_fold, timestamp, eval=False):
                         float(metrics_dict.get("masked_f1_score", 0.0)),
                         float(metrics_dict.get("masked_precision", 0.0)),
                         float(metrics_dict.get("masked_recall", 0.0)),
+                        float(metrics_dict.get("masked_mcc", 0.0)),
                     ]
                     writer.writerow(row)
             else:
@@ -710,6 +711,8 @@ def save_history_and_plot(results_per_fold, timestamp, eval=False):
                         float(metrics_dict.get("masked_f1_score", 0.0)),
                         float(metrics_dict.get("masked_precision", 0.0)),
                         float(metrics_dict.get("masked_recall", 0.0)),
+                        float(metrics_dict.get("masked_mcc", 0.0)),
+
                     ]
                     writer.writerow(row)
     print("model saved in" + f"k_fold_model_metrics_{timestamp}.csv")
@@ -831,7 +834,9 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
             MaskedAUC(name="masked_auc"),
             tf.keras.metrics.MeanMetricWrapper(masked_precision, name="masked_precision"),
             tf.keras.metrics.MeanMetricWrapper(masked_recall, name="masked_recall"),
-            tf.keras.metrics.MeanMetricWrapper(masked_f1_score, name="masked_f1_score")
+            tf.keras.metrics.MeanMetricWrapper(masked_f1_score, name="masked_f1_score"),
+            tf.keras.metrics.MeanMetricWrapper(masked_mcc, name="masked_mcc")
+
         ]
     )
     print("length of data: ", len(X_train), len(y_train))
@@ -1056,7 +1061,8 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
             MaskedAUC(),
             masked_precision_metric,
             masked_recall_metric,
-            masked_f1_score_metric]
+            masked_f1_score_metric,
+            masked_mcc_metric]
     )
     return model
 
