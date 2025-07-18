@@ -990,7 +990,7 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
         #learning_rate: float = 0.000145358952942396 # from keras tuner
         learning_rate: float = 0.001
         #rate: float = 0.10485699518568096
-        rate: float = 0.6
+        rate: float = 0.7
         hidden_units_one: int = 24
         hidden_units_two: int = 64
         hidden_units_three: int = 32
@@ -1051,7 +1051,7 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
     decoder_outputs = keras.layers.Lambda(lambda x: tf.identity(x),
     output_shape=lambda s: s )(decoder_outputs) # removes mask for timedistributed layer since it cant deal with a mask
     """
-    decoder_outputs = RemoveMask()(decoder_outputs)
+    decoder_outputs = RemoveMask()(x)
     decoder_outputs_final = keras.layers.TimeDistributed(keras.layers.Dense(1, activation='sigmoid', name='Final_Sigmoid'))(
         decoder_outputs)
     model = keras.Model(inputs=encoder_inputs, outputs=decoder_outputs_final)
