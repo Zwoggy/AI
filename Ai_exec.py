@@ -990,7 +990,7 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
         #learning_rate: float = 0.000145358952942396 # from keras tuner
         learning_rate: float = 0.001
         #rate: float = 0.10485699518568096
-        rate: float = 0.3
+        rate: float = 0.65
         hidden_units_one: int = 24
         hidden_units_two: int = 64
         hidden_units_three: int = 32
