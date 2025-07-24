@@ -23,6 +23,7 @@ import keras_tuner as kt
 from sklearn.model_selection import KFold
 
 from Master_Thesis_AI.FusionModel import FusionModel
+from Master_Thesis_AI.src.get_and_merge_structural_data_to_sequences import build_structural_features
 from ai_functionality_new import LayerGroup
 from ai_functionality_old import embedding, modify_with_context, calculating_class_weights, \
     get_weighted_loss_masked, save_ai, use_model_and_predict, new_embedding, \
@@ -238,6 +239,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
         antigen_array = np.array(antigen_list, dtype=np.float16)
         epitope_array = np.array(epitope_list, dtype=np.float16)
         epitope_array.reshape(epitope_array.shape[0], epitope_array.shape[1], 1)
+        if use_structure:
+            X_struct, X_comb = build_structural_features(id_list, antigen_list)
 
 
 
@@ -428,33 +431,24 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
             elif use_structure:
 
 
-                model = create_fusion_model_function(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights,
-                                                     num_decoder_blocks, num_heads, num_transformer_blocks, old, rate,
-                                                     voc_size)
-                print("training_data.shape: ", training_data.shape)
-                print("antigen_list.shape: ", antigen_list_structures.shape)
-                print("Epitope_list.shape: ", epitope_list.shape)
-                antigen_list_structures = tf.cast(antigen_list_structures, tf.float16)
-                training_data = tf.cast(training_data, tf.float16)
-                epitope_list = tf.cast(epitope_list, tf.float16)
-                testx_list = tf.cast(testx_list, tf.float16)
-                testx_list_structures = tf.cast(testx_list_structures, tf.float16)
-                testy_list = tf.cast(testy_list, tf.float16)
+                #model = create_fusion_model_function(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights,
+                 #                                    num_decoder_blocks, num_heads, num_transformer_blocks, old, rate,
+                  #                                   voc_size)
 
-                history = model.fit(x=[training_data, antigen_list_structures],
-                                    y=epitope_list,
-                                    batch_size=16,
-                                    epochs=1,
-                                    validation_data=([testx_list, testx_list_structures], testy_list),
-                                    callbacks=[early_stopping],
-                                    verbose=1)
+
+                model = train_ba_format_ai(X_comb, early_stopping, embed_dim, epitope_array, ff_dim,
+                                           length_of_longest_context, maxlen, new_weights, num_decoder_blocks,
+                                           num_heads, num_transformer_blocks, old, rate, voc_size, X_test=None,
+                                           y_test=None)
+
+
 
             else:
                 kf = KFold(n_splits=5, shuffle=True, random_state=42)
                 results_per_fold = []
 
                 for fold, (train_index, test_index) in enumerate(kf.split(antigen_array)):
-                    X_train, X_test = antigen_array[train_index], antigen_array[test_index]
+                    X_train, X_test = X_comb[train_index], X_comb[test_index]
                     y_train, y_test = epitope_array[train_index], epitope_array[test_index]
                     y_train = tf.expand_dims(y_train, axis=-1)
                     y_test = tf.expand_dims(y_test, axis=-1)
@@ -568,7 +562,7 @@ def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_arra
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
                 # to save the best model
-                checkpoint_filepath = f"./{timestamp}_best_model_fold_{fold + 1}.keras"
+                checkpoint_filepath = f"./Master_Thesis_AI/models/{timestamp}_best_model_fold_{fold + 1}_master1.keras"
                 checkpoint_callback = ModelCheckpoint(
                     filepath=checkpoint_filepath,
                     monitor='val_loss',  # oder 'val_accuracy', je nach Metrik
@@ -593,7 +587,7 @@ def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_arra
                 print(f"🔍 Fold {fold + 1} — History Keys:", list(history_dict.keys()))
                 print(history_dict)
 
-                checkpoint_filepath = f"./{timestamp}_best_model_fold_{fold + 1}.keras"
+
 
                 results_for_eval_per_fold = evaluate_per_fold_45_blind_and_BP3C59ID_external_test_set(
                     checkpoint_filepath=checkpoint_filepath,
