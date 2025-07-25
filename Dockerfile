@@ -5,8 +5,7 @@ FROM python:3.12-slim AS python-build
 RUN mkdir -p /python/usr/local && cp -r /usr/local/* /python/usr/local/
 
 # Stage 2: Verwende aktuelles CUDA Image
-#FROM nvidia/cuda:12.6.2-devel-ubuntu24.04
-FROM nvidia/cuda:12.2-devel-ubuntu22.04
+FROM nvidia/cuda:12.6.2-devel-ubuntu24.04 # old
 
 # Setze das Arbeitsverzeichnis im Container
 WORKDIR /app
@@ -14,7 +13,7 @@ WORKDIR /app
 COPY --from=python-build /python/usr/local /usr/local
 
 # Installiere notwendige Pakete und Midnight Commander (mc)
-RUN apt-get update && apt-get install -y \
+RUN apt-get update --allow-unauthenticated && apt-get install -y \
     cmake g++ git \
     mc \
     graphviz \
