@@ -23,8 +23,7 @@ RUN apt-get update --allow-unauthenticated && apt-get install -y \
 
 # DSSP aus Git bauen und Symlink setzen
 RUN git clone https://github.com/PDB-REDO/dssp.git /tmp/dssp && \
-    cd /tmp/dssp && \
-    mkdir build && cd build && \
+    mkdir /tmp/dssp/build && cd /tmp/dssp/build && \
     cmake .. && \
     make && \
     cp dssp /usr/local/bin/mkdssp && \
