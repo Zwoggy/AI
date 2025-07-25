@@ -13,7 +13,7 @@ COPY --from=python-build /python/usr/local /usr/local
 
 # Installiere notwendige Pakete und Midnight Commander (mc)
 RUN apt-get update && apt-get install -y \
-    dssp \
+    mkdssp \
     mc \
     graphviz \
     libgraphviz-dev \
