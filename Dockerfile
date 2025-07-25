@@ -14,7 +14,7 @@ COPY --from=python-build /python/usr/local /usr/local
 
 # Installiere notwendige Pakete und Midnight Commander (mc)
 RUN apt-get update --allow-unauthenticated && apt-get install -y \
-    cmake g++ git \
+    build-essential cmake git zlib1g-dev \
     mc \
     graphviz \
     libgraphviz-dev \
@@ -22,13 +22,14 @@ RUN apt-get update --allow-unauthenticated && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # DSSP aus Git bauen und Symlink setzen
-RUN git clone https://github.com/cmbi/dssp.git /tmp/dssp && \
+RUN git clone https://github.com/PDB-REDO/dssp.git /tmp/dssp && \
     cd /tmp/dssp && \
     mkdir build && cd build && \
-    cmake .. && make && make install && \
+    cmake .. && \
+    make && \
+    cp dssp /usr/local/bin/mkdssp && \
     ln -sf /usr/local/bin/mkdssp /usr/bin/dssp && \
     rm -rf /tmp/dssp
-
 
 
 # Kopiere die Anforderungen (requirements) Datei und den Quellcode in das Arbeitsverzeichnis
