@@ -34,8 +34,8 @@ def build_structural_features(id_list, antigen_array):
         ID_on_disk = ID[:-1] + ID[-1].lower()
         print(f"Processing {ID} ({idx+1}/{N_samples})")
 
-        cif_path = os.path.join(data_root, ID_on_disk, "/fold_", ID_on_disk, "_model_0.cif")
-        json_path = os.path.join(data_root, ID_on_disk, "/fold_", ID_on_disk, "_full_data_0.json")
+        cif_path = os.path.join(data_root, ID_on_disk, "fold_" + ID_on_disk + "_model_0.cif")
+        json_path = os.path.join(data_root, ID_on_disk, "fold_" + ID_on_disk + "_full_data_0.json")
         if not (os.path.exists(cif_path) and os.path.exists(json_path)):
             print(f"⚠️ Missing files for {ID}, skipping...")
             print(cif_path, json_path)
