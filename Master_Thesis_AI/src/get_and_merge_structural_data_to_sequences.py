@@ -3,22 +3,26 @@ import json
 import numpy as np
 from Bio.PDB import MMCIFParser, DSSP
 
-def build_structural_features(id_list, antigen_list):
+def build_structural_features(id_list, antigen_array):
     """
     Build structural features for each sequence ID and combine with antigen_list.
 
     Args:
         id_list (list of str): List of IDs, order must match antigen_list.
-        antigen_list (np.ndarray): Tokenized, padded sequences, shape (N, max_len, seq_embed_dim).
+        antigen_array (np.ndarray): Tokenized, padded sequences, shape (N, max_len, seq_embed_dim).
         data_root (str): Path to folder containing folders per ID with AF files.
 
     Returns:
         X_structural: np.ndarray, shape (N, max_len, NUM_STRUCT_FEATURES)
         X_combined: np.ndarray, shape (N, max_len, seq_embed_dim + NUM_STRUCT_FEATURES)
     """
+    # If your array is (N, max_len), expand it to (N, max_len, 1)
+    if len(antigen_array.shape) == 2:
+        antigen_array = np.expand_dims(antigen_array, axis=-1)
+
     data_root = "./data/BP3_Data/structures/folds/"
     NUM_STRUCT_FEATURES = 7  # SASA(1) + SS(3) + pLDDT(1) + PAE_mean(1) + Depth(1)
-    N_samples, max_len, seq_embed_dim = antigen_list.shape
+    N_samples, max_len, seq_embed_dim = antigen_array.shape
 
     assert len(id_list) == N_samples, "id_list length must match antigen_list sample count"
 
@@ -80,7 +84,7 @@ def build_structural_features(id_list, antigen_list):
         X_structural[idx] = X_struct
 
     # Combine sequence embeddings and structural features
-    X_combined = np.concatenate([antigen_list, X_structural], axis=-1)
+    X_combined = np.concatenate([antigen_array, X_structural], axis=-1)
     print(f"Combined features shape: {X_combined.shape}")
 
     return X_structural, X_combined
