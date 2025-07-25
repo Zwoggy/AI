@@ -33,8 +33,8 @@ def build_structural_features(id_list, antigen_array):
     for idx, ID in enumerate(id_list):
         print(f"Processing {ID} ({idx+1}/{N_samples})")
 
-        cif_path = os.path.join(data_root, "fold_", ID, "_model_0.cif")
-        json_path = os.path.join(data_root, "fold_", ID, "_full_data_0.json")
+        cif_path = os.path.join(data_root, ID, "/fold_", ID, "_model_0.cif")
+        json_path = os.path.join(data_root, ID, "/fold_", ID, "_full_data_0.json")
 
         if not (os.path.exists(cif_path) and os.path.exists(json_path)):
             print(f"⚠️ Missing files for {ID}, skipping...")
