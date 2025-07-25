@@ -5,7 +5,7 @@ FROM python:3.12-slim AS python-build
 RUN mkdir -p /python/usr/local && cp -r /usr/local/* /python/usr/local/
 
 # Stage 2: Verwende aktuelles CUDA Image
-FROM nvidia/cuda:12.6.2-devel-ubuntu24.04 # old
+FROM nvidia/cuda:12.6.2-devel-ubuntu24.04
 
 # Setze das Arbeitsverzeichnis im Container
 WORKDIR /app
