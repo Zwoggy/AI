@@ -240,7 +240,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
         epitope_array = np.array(epitope_list, dtype=np.float16)
         epitope_array.reshape(epitope_array.shape[0], epitope_array.shape[1], 1)
         if use_structure:
-            X_struct, X_comb = build_structural_features(id_list, antigen_list)
+            X_struct, X_comb = build_structural_features(id_list, antigen_array)
 
 
 
