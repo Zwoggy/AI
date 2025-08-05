@@ -26,9 +26,13 @@ RUN git clone https://github.com/PDB-REDO/dssp.git /tmp/dssp && \
     mkdir /tmp/dssp/build && cd /tmp/dssp/build && \
     cmake .. && \
     make && \
+    ls -l /tmp/dssp/build && \
     cp dssp /usr/local/bin/mkdssp && \
+    chmod +x /usr/local/bin/mkdssp && \
     ln -sf /usr/local/bin/mkdssp /usr/bin/dssp && \
+    which mkdssp && mkdssp --version && \
     rm -rf /tmp/dssp
+
 
 
 # Kopiere die Anforderungen (requirements) Datei und den Quellcode in das Arbeitsverzeichnis
@@ -45,3 +49,4 @@ RUN chmod +x /app/main.py
 
 # Standardbefehl zum Starten der Applikation (kann zur Laufzeit überschrieben werden)
 CMD ["python", "main.py", "--help"]
+
