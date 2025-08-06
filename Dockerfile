@@ -1,18 +1,12 @@
-# Stage 1: Verwende das Python Image, um Python zu kompilieren
 FROM python:3.12-slim AS python-build
 
-# Alle Python-Dateien und -Ordner in einen Ordner kopieren
 RUN mkdir -p /python/usr/local && cp -r /usr/local/* /python/usr/local/
 
-# Stage 2: Verwende aktuelles CUDA Image
 FROM nvidia/cuda:12.6.2-devel-ubuntu24.04
 
-# Setze das Arbeitsverzeichnis im Container
 WORKDIR /app
-# Python-Dateien aus dem python-build-Image in das CUDA-Image kopieren
 COPY --from=python-build /python/usr/local /usr/local
 
-# Installiere notwendige Pakete und Midnight Commander (mc)
 RUN apt-get update --allow-unauthenticated && apt-get install -y \
     build-essential cmake git zlib1g-dev \
     mc \
@@ -22,24 +16,17 @@ RUN apt-get update --allow-unauthenticated && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # DSSP aus Git bauen und Symlink setzen
-RUN git clone https://github.com/PDB-REDO/dssp.git /tmp/dssp && \
-    mkdir /tmp/dssp/build && cd /tmp/dssp/build && \
-    cmake .. && \
-    make && \
-    ls -l /tmp/dssp/build && \
-    cp dssp /usr/local/bin/mkdssp && \
-    chmod +x /usr/local/bin/mkdssp && \
-    ln -sf /usr/local/bin/mkdssp /usr/bin/dssp && \
-    which mkdssp && mkdssp --version && \
-    rm -rf /tmp/dssp
+RUN git clone https://github.com/PDB-REDO/dssp.git \
+  cd dssp \
+  cmake -S . -B build -DBUILD_PYTHON_MODULE=ON \
+  cmake --build build \
+  sudo cmake --install build
 
 
 
-# Kopiere die Anforderungen (requirements) Datei und den Quellcode in das Arbeitsverzeichnis
 COPY requirements.txt requirements.txt
 #COPY . .
 
-# Installiere die Abhängigkeiten
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir pydot
 
