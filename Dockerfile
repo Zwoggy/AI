@@ -18,7 +18,7 @@ RUN apt-get update --allow-unauthenticated && apt-get install -y \
 # DSSP aus Git bauen und Symlink setzen
 RUN git clone https://github.com/PDB-REDO/dssp.git && \
   cd dssp && \
-  cmake -S . -B build -DBUILD_PYTHON_MODULE=ON && \
+  cmake -S . -B build -DBUILD_PYTHON_MODULE=OFF && \
   cmake --build build && \
   cmake --install build
 
