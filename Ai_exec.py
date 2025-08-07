@@ -185,7 +185,10 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
         else:
             from src.TokenAndPositionEmbedding import TokenAndPositionEmbedding
 
-        if use_structure:
+        # to not use the following if statement set false
+        use_this = False
+
+        if use_structure and use_this:
             embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder, structure_data = embedding_incl_structure(filepath, pdb_dir="./data/alphafold_structures_02", old=old)
         else:
             embedded_docs, epitope_embed_list, voc_size, length_of_longest_sequence, encoder, accession_ids = embedding(filepath, old=old)
