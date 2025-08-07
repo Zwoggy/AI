@@ -56,7 +56,7 @@ def build_structural_features(id_list, antigen_array):
         with open(json_path) as f:
             data = json.load(f)
 
-        plddt = data["plddt"]
+        plddt = data["atom_plddts"]
         pae = np.array(data["pae"])
         pae_mean = pae.mean(axis=1)
 
