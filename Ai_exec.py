@@ -479,7 +479,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                                         validation_data=(X_test, y_test),
                                         callbacks=[early_stopping],
                                         verbose=1)
-
+                    #TODO include twenty_nine_external data
                     fold_result = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights, results_per_fold,
                                             y_test, y_train)
                     results_per_fold.append(fold_result)
@@ -601,7 +601,7 @@ def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_arra
                     maxlen=length_of_longest_context)
 
                 # validate_on_BP3C59ID_external_test_set(model=model, maxlen=length_of_longest_context)
-                plot_save_model_trianing_history(fold, history_dict, timestamp)
+                plot_save_model_training_history(fold, history_dict, timestamp)
                 results_per_fold = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights,
                                                            results_per_fold,
                                                            y_test, y_train)
@@ -659,7 +659,7 @@ def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_arra
 
 
             # validate_on_BP3C59ID_external_test_set(model=model, maxlen=length_of_longest_context)
-            plot_save_model_trianing_history(fold, history_dict, timestamp)
+            plot_save_model_training_history(fold, history_dict, timestamp)
             results_per_fold = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights,
                                                        results_per_fold,
                                                        y_test, y_train)
@@ -809,7 +809,8 @@ def get_BP3_dataset(maxlen):
     return X_BP3C59ID_external_test_set, y_BP3C59ID_external_test_set
 
 
-def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights, results_per_fold, y_test, y_train, evaluate=False):
+def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights, results_per_fold, y_test, y_train,
+                            twenty_nine_external_X = None, twenty_nine_external_y = None, evaluate=False):
     # Load best model and evaluate on both sets
     best_model = load_model(checkpoint_filepath,
                             compile=False,
@@ -854,14 +855,19 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
     train_metrics = best_model.evaluate(X_train, y_train, batch_size=8, verbose="auto", return_dict=True)
     test_metrics = best_model.evaluate(X_test, y_test, batch_size=8, verbose="auto", return_dict=True)
 
+    if twenty_nine_external_X and twenty_nine_external_y:
+        twenty_nine_external_metrics = best_model.evaluate(twenty_nine_external_X, twenty_nine_external_y, batch_size=8, verbose="auto", return_dict=True)
+    else:
+        twenty_nine_external_metrics = None
     #print(train_metrics, test_metrics)
     # Collect the metric names
-    metric_names = ["loss", "masked_auc", "masked_recall", "masked_precision", "masked_f1_score"]
+    metric_names = ["loss", "masked_auc", "masked_recall", "masked_precision", "masked_f1_score", "masked_mcc"]
     if evaluate:
         results_per_fold.append({
             "fold": fold + 1,
             "BP3C59ID_external_test_set": train_metrics,
-            "epi45_blind": test_metrics
+            "epi45_blind": test_metrics,
+            "29_external": twenty_nine_external_metrics
         })
     else:
         results_per_fold.append({
@@ -872,7 +878,7 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
     return results_per_fold
 
 
-def plot_save_model_trianing_history(fold, history_dict, timestamp):
+def plot_save_model_training_history(fold, history_dict, timestamp):
     #to save
     with open(f"./training_histories/_{timestamp}_history_fold_{fold + 1}.json", "w") as f:
         json.dump(history_dict, f)

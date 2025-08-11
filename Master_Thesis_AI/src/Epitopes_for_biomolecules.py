@@ -10,9 +10,6 @@ Author: Florian Zwicker
 """
 
 
-
-
-
 import pandas as pd
 import json
 
