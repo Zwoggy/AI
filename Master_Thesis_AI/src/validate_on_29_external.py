@@ -39,6 +39,9 @@ def validate_on_29_external(model=None, maxlen: int = None, old: bool = True):
         # Beispiel: 'Epitope Sequence' enthält ein String-Array aus 0ern/1ern oder ähnlichem
         # Passen Sie dies an Ihr tatsächliches Format an.
         raw_epitope_info = str(row['Binary Epitop']).replace(", ", "")
+        raw_epitope_info = str(row['Binary Epitop']).replace("[", "")
+        raw_epitope_info = str(row['Binary Epitop']).replace("]", "")
+
 
 
         # Sequenz abspeichern (wird später tokenisiert)
