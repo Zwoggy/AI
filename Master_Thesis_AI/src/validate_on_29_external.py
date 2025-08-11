@@ -9,7 +9,7 @@ from ai_functionality_old import load_model_and_tokenizer, modify_with_context, 
 
 
 
-def validate_on_29_external(model=None, maxlen: int = None, old: bool = False):
+def validate_on_29_external(model=None, maxlen: int = None, old: bool = True):
     import pandas as pd
     import numpy as np
     from keras_preprocessing import text, sequence
