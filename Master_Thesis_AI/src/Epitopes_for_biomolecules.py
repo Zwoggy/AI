@@ -1,13 +1,20 @@
+"""
+A utility module for processing epitope data and adding binary epitope
+information to a CSV file.
+
+This module provides functionality for reading sequence data from an input CSV
+file, computing binary epitope representations, and saving the updated data
+to an output CSV file.
+
+Author: Florian Zwicker
+"""
+
+
+
+
+
 import pandas as pd
 import json
-
-
-
-
-
-
-
-
 
 
 
