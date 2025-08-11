@@ -1324,7 +1324,7 @@ def evaluate_model(model, encoder, sequence, true_binary_epitope):
     mcc = masked_mcc(y_true=true_binary_epitope, y_pred=predicted_binary)
     print(recall, precision, f1, mcc, auc)
 
-    return recall, precision, f1 ,auc
+    return recall, precision, f1, mcc ,auc
 
 
 

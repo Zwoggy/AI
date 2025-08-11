@@ -24,6 +24,7 @@ from sklearn.model_selection import KFold
 
 from Master_Thesis_AI.FusionModel import FusionModel
 from Master_Thesis_AI.src.get_and_merge_structural_data_to_sequences import build_structural_features
+from Master_Thesis_AI.src.validate_on_29_external import validate_on_29_external
 from ai_functionality_new import LayerGroup
 from ai_functionality_old import embedding, modify_with_context, calculating_class_weights, \
     get_weighted_loss_masked, save_ai, use_model_and_predict, new_embedding, \
@@ -482,6 +483,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                     fold_result = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights, results_per_fold,
                                             y_test, y_train)
                     results_per_fold.append(fold_result)
+
                 save_history_and_plot(results_per_fold)
 
         # history = model.fit(x=antigen_list, y=epitope_list, batch_size=50, epochs=100, validation_data=(testx_list, testy_list, testy_for_weights), callbacks=[callback], sample_weight = epitope_list_for_weights)
@@ -664,6 +666,8 @@ def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_arra
             results_per_fold = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights,
                                                        results_per_fold,
                                                        y_test, y_train)
+            validate_on_29_external(model=model, maxlen = maxlen)
+
         save_history_and_plot(results_per_fold, timestamp)
         save_history_and_plot(results_for_eval_per_fold, str(timestamp) + "_validation_", eval=True)
         return model
@@ -683,7 +687,7 @@ def save_history_and_plot(results_per_fold, timestamp, eval=False):
         for result in results_per_fold:
             fold = result["fold"]
             if eval:
-                for split in ["BP3C59ID_external_test_set", "epi45_blind"]:
+                for split in ["BP3C59ID_external_test_set", "epi45_blind", ]:
                     metrics_dict = result[split]
 
                     # Hole die Metrikwerte anhand der richtigen Namen
