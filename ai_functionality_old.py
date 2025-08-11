@@ -15,6 +15,7 @@ from src.TokenAndPositionEmbedding import TokenAndPositionEmbedding
 from src.TokenAndPositionEmbedding2 import TokenAndPositionEmbedding2
 from src.TransformerBlock import TransformerBlock
 from src.TransformerDecoder import TransformerDecoder
+from src.masked_metrics import masked_mcc, masked_f1_score, masked_precision, masked_recall, masked_auc
 
 print("Tensorflow version " + tf.__version__)
 #from tensorflow.python import keras
@@ -1316,12 +1317,12 @@ def evaluate_model(model, encoder, sequence, true_binary_epitope):
     predicted_binary = np.where(predictions >= 0.5, 1, 0)
     # Berechne die Metriken
     print( "test: ", true_binary_epitope, predicted_binary)
-    auc = roc_auc_score(true_binary_epitope, predictions)
-    recall = recall_score(true_binary_epitope, predicted_binary)
-    precision = precision_score(true_binary_epitope, predicted_binary)
-    f1 = f1_score(true_binary_epitope, predicted_binary)
-    mcc = m
-    print(recall, precision, f1, auc)
+    auc = masked_auc(true_binary_epitope, predictions)
+    recall = masked_recall(true_binary_epitope, predicted_binary)
+    precision = masked_precision(true_binary_epitope, predicted_binary)
+    f1 = masked_f1_score(true_binary_epitope, predicted_binary)
+    mcc = masked_mcc(y_true=true_binary_epitope, y_pred=predicted_binary)
+    print(recall, precision, f1, mcc, auc)
 
     return recall, precision, f1 ,auc
 

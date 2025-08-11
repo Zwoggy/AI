@@ -479,7 +479,6 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                                         validation_data=(X_test, y_test),
                                         callbacks=[early_stopping],
                                         verbose=1)
-                    #TODO include twenty_nine_external data
                     fold_result = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights, results_per_fold,
                                             y_test, y_train)
                     results_per_fold.append(fold_result)
@@ -660,6 +659,8 @@ def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_arra
 
             # validate_on_BP3C59ID_external_test_set(model=model, maxlen=length_of_longest_context)
             plot_save_model_training_history(fold, history_dict, timestamp)
+
+            # TODO include twenty_nine_external data
             results_per_fold = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights,
                                                        results_per_fold,
                                                        y_test, y_train)
