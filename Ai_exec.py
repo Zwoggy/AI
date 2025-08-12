@@ -842,14 +842,11 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
 
         ]
     )
-    print("length of data: ", len(X_train), len(y_train))
 
     for i, row in enumerate(y_train):
         if np.all(row == -1):
             print(f"Sample {i} is FULLY MASKED")
 
-    print(np.array(X_train).shape)
-    print(np.array(y_train).shape)
     # Safe expand dims für y_train und y_test
     if tf.rank(y_train) == 2:
         y_train = tf.expand_dims(y_train, axis=-1)
@@ -873,8 +870,8 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
             twenty_nine_external_y = tf.expand_dims(twenty_nine_external_y, axis=-1)
             print("After expand_dims: ", twenty_nine_external_X.shape, twenty_nine_external_y.shape)
 
-        twenty_nine_external_X = tf.convert_to_tensor(twenty_nine_external_X, dtype=tf.float32)
-        twenty_nine_external_y = tf.convert_to_tensor(twenty_nine_external_y, dtype=tf.float32)
+        #twenty_nine_external_X = tf.convert_to_tensor(twenty_nine_external_X, dtype=tf.float32)
+        #twenty_nine_external_y = tf.convert_to_tensor(twenty_nine_external_y, dtype=tf.float32)
         twenty_nine_external_metrics = best_model.evaluate(twenty_nine_external_X, twenty_nine_external_y, batch_size=8, verbose="auto", return_dict=True)
 
     else:
