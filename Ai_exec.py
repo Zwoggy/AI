@@ -861,12 +861,15 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
     test_metrics = best_model.evaluate(X_test, y_test, batch_size=8, verbose="auto", return_dict=True)
 
     if twenty_nine_external_X is not None and twenty_nine_external_y is not None:
+        print(type(twenty_nine_external_X), type(twenty_nine_external_y))
+
         print(twenty_nine_external_X.shape, twenty_nine_external_y.shape)
         if tf.rank(twenty_nine_external_X) == 2:
             twenty_nine_external_X = tf.expand_dims(y_train, axis=-1)
 
         if tf.rank(twenty_nine_external_y) == 2:
             twenty_nine_external_y = tf.expand_dims(y_test, axis=-1)
+            print("After expand_dims: ", twenty_nine_external_X.shape, twenty_nine_external_y.shape)
         twenty_nine_external_metrics = best_model.evaluate(twenty_nine_external_X, twenty_nine_external_y, batch_size=8, verbose="auto", return_dict=True)
     else:
         twenty_nine_external_metrics = None
