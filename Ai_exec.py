@@ -24,7 +24,7 @@ from sklearn.model_selection import KFold
 
 from Master_Thesis_AI.FusionModel import FusionModel
 from Master_Thesis_AI.src.get_and_merge_structural_data_to_sequences import build_structural_features
-from Master_Thesis_AI.src.validate_on_29_external import validate_on_29_external
+from Master_Thesis_AI.src.validate_on_29_external import validate_on_29_external, return_29_external_dataset_X_y
 from ai_functionality_new import LayerGroup
 from ai_functionality_old import embedding, modify_with_context, calculating_class_weights, \
     get_weighted_loss_masked, save_ai, use_model_and_predict, new_embedding, \
@@ -663,10 +663,10 @@ def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_arra
             plot_save_model_training_history(fold, history_dict, timestamp)
 
             # TODO include twenty_nine_external data
+            twenty_nine_X, twenty_nine_y = return_29_external_dataset_X_y(model=model, maxlen=maxlen)
             results_per_fold = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights,
                                                        results_per_fold,
-                                                       y_test, y_train)
-            validate_on_29_external(model=model, maxlen = maxlen)
+                                                       y_test, y_train, twenty_nine_external_X = twenty_nine_X, twenty_nine_external_y = twenty_nine_y)
 
         save_history_and_plot(results_per_fold, timestamp)
         save_history_and_plot(results_for_eval_per_fold, str(timestamp) + "_validation_", eval=True)

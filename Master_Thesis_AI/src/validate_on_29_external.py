@@ -2,6 +2,8 @@ import pickle
 import pandas as pd
 from keras_preprocessing.sequence import pad_sequences
 from tf_keras.preprocessing import text
+import ast
+
 
 from ai_functionality_old import load_model_and_tokenizer, modify_with_context, evaluate_model
 """
@@ -22,33 +24,21 @@ def return_29_external_dataset_X_y(model=None, maxlen: int = None, old: bool = T
 
     # CSV-Datei einlesen
     df = pd.read_csv('./data/Caroll_et_al_data/biomolecules_incl_sequences_and_epitopes.csv')
-    print(df)
 
+    df["Binary Epitop"] = df["Binary Epitop"].apply(ast.literal_eval)
     fixed_length = maxlen
     # Feste Länge
 
     sequence_list = []
-    epitope_list = []
+    epitope_list = df["Binary Epitop"].tolist()
 
     # Durchlaufen der Zeilen im DataFrame und epitope_embed entsprechend befüllen
     for idx, row in df.iterrows():
         full_sequence = str(row['Sequence'])
 
-        # Epitope-Array mit -1 initialisieren
-
-        # Falls Epitope-Informationen 0/1-codiert sind, hier aus der Spalte entnehmen und eintragen
-        # Beispiel: 'Epitope Sequence' enthält ein String-Array aus 0ern/1ern oder ähnlichem
-        # Passen Sie dies an Ihr tatsächliches Format an.
-        raw_epitope_info = str(row['Binary Epitop']).replace(", ", "")
-        raw_epitope_info = str(raw_epitope_info).replace("[", "")
-        raw_epitope_info = str(raw_epitope_info).replace("]", "")
-
-
-
         # Sequenz abspeichern (wird später tokenisiert)
         sequence_list.append(full_sequence)
         # Liste der Epitope
-        epitope_list.append(raw_epitope_info)
 
     # Tokenizer laden (oder neu anlegen, je nach Bedarf)
     with open('./AI/tokenizer.pickle', 'rb') as handle:
@@ -57,54 +47,16 @@ def return_29_external_dataset_X_y(model=None, maxlen: int = None, old: bool = T
     # Die erfassten Sequenzen mithilfe des Tokenizers in Zahlen umwandeln
     encoded_sequences = encoder.texts_to_sequences(sequence_list)
 
-    if old:
-        ### hier if länge >235
-        sequences, epitope_list = keep_sequences_up_to_a_length_of_maxlen(encoded_sequences, epitope_list, sequence_list, maxlen)
+    padded_sequences = sequence.pad_sequences(encoded_sequences, maxlen=fixed_length,
+                                              padding='post', value=0)
 
-        # Debugging step to check lengths
-        for idx, epitope in enumerate(epitope_list):
-            print(f"Length of epitope at index {idx}: {len(epitope)}")
+    epitope_list = [[int(char) for char in epitope] for epitope in epitope_list] # Für Padding vorbereiten, erwartet eine Liste von Integern
 
+    #Alle Eitope auf die Länge 235 polstern (Padding mit 0)
+    padded_epitope_list = sequence.pad_sequences(epitope_list, maxlen=fixed_length,
+                                                 padding='post', value=-1)
 
-
-        # Alle Sequenzen auf Länge 235 polstern (Padding mit 0)
-        padded_sequences = sequence.pad_sequences(sequences, maxlen=fixed_length,
-                                                  padding='post', value=0)
-
-        epitope_list = [[int(char) for char in epitope] for epitope in epitope_list] # Für Padding vorbereiten, erwartet eine Liste von Integern
-
-        #Alle Eitope auf die Länge 235 polstern (Padding mit 0)
-        padded_epitope_list = sequence.pad_sequences(epitope_list, maxlen=fixed_length,
-                                                     padding='post', value=-1)
-
-        # Modell evaluieren – je nach Bedarf anpassen. Die Funktion evaluate_model
-        # muss ggf. so geschrieben sein, dass sie die Listen verarbeiten kann.
-        model.evaluate(epitope_list, padded_epitope_list)
-        results = []
-        for idx, (seq, epi) in enumerate(zip(padded_sequences, padded_epitope_list)):
-            print("epi", epi)
-            # Auswertung
-            # PDB-ID oder ähnliches aus df entnehmen
-            pdb_id = df['PDB ID'].iloc[idx]
-
-
-
-            recall, precision, f1, mcc, auc = evaluate_model(model, encoder, seq, epi)
-
-            results.append({
-                'PDB ID': pdb_id,
-                'Recall': recall,
-                'Precision': precision,
-                'F1-Score': f1,
-                'MCC': mcc,
-                'AUC': auc
-            })
-
-        # Ergebnisse in CSV speichern
-        results_df = pd.DataFrame(results)
-        results_df.to_csv('./data/evaluation_results_29_external.csv', index=False)
-        print("Evaluation abgeschlossen und in 'evaluation_results_29_external.csv' gespeichert.")
-    return results_df
+    return padded_sequences, padded_epitope_list
 
 
 def keep_sequences_up_to_a_length_of_maxlen(sequences, epitope_list, sequence_list, maxlen: int=None):
