@@ -656,17 +656,18 @@ def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_arra
                 new_weights=new_weights,
                 results_per_fold_test_set=results_per_fold_test_set,
                 evaluate=True,
-                maxlen=length_of_longest_context)
+                maxlen=length_of_longest_context,
+                model=model)
 
 
             # validate_on_BP3C59ID_external_test_set(model=model, maxlen=length_of_longest_context)
             plot_save_model_training_history(fold, history_dict, timestamp)
 
             # TODO include twenty_nine_external data
-            twenty_nine_X, twenty_nine_y = return_29_external_dataset_X_y(model=model, maxlen=maxlen)
-            results_per_fold = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights,
-                                                       results_per_fold,
-                                                       y_test, y_train, twenty_nine_external_X = twenty_nine_X, twenty_nine_external_y = twenty_nine_y)
+            #twenty_nine_X, twenty_nine_y = return_29_external_dataset_X_y(model=model, maxlen=maxlen)
+            #results_per_fold = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights,
+                                                       #results_per_fold,
+                                                       #y_test, y_train, twenty_nine_external_X = twenty_nine_X, twenty_nine_external_y = twenty_nine_y)
 
         save_history_and_plot(results_per_fold, timestamp)
         save_history_and_plot(results_for_eval_per_fold, str(timestamp) + "_validation_", eval=True)
@@ -721,7 +722,7 @@ def save_history_and_plot(results_per_fold, timestamp, eval=False):
 
 
 def evaluate_per_fold_45_blind_and_BP3C59ID_external_test_set(checkpoint_filepath=None, fold:int=None,
-                                                              new_weights=None, results_per_fold_test_set=None, evaluate=True, maxlen:int=None):
+                                                              new_weights=None, results_per_fold_test_set=None, evaluate=True, maxlen:int=None, model=None):
     from keras_preprocessing import text, sequence
     # CSV-Datei einlesen
     df_epi = pd.read_csv('./data/final_blind_test_set.csv')
@@ -780,12 +781,17 @@ def evaluate_per_fold_45_blind_and_BP3C59ID_external_test_set(checkpoint_filepat
     tf.print("X_test:", tf.shape(X_epi45_blind), "Rank:", tf.rank(X_epi45_blind))
     tf.print("y_test:", tf.shape(y_epi45_blind), "Rank:", tf.rank(y_epi45_blind))
     tf.print("==========================\n")
+    twenty_nine_X, twenty_nine_y = return_29_external_dataset_X_y(model=model, maxlen=maxlen)
     results_per_fold_test_set = load_and_evaluate_folds(X_test=X_epi45_blind, X_train=X_BP3C59ID_external_test_set,
                                                         checkpoint_filepath=checkpoint_filepath,
                                                         fold=fold,
                                                         new_weights=new_weights,
                                                         results_per_fold=results_per_fold_test_set,
-                                            y_test=y_epi45_blind, y_train=y_BP3C59ID_external_test_set, evaluate=True)
+                                                        y_test=y_epi45_blind,
+                                                        y_train=y_BP3C59ID_external_test_set,
+                                                        twenty_nine_external_X = twenty_nine_X,
+                                                        twenty_nine_external_y = twenty_nine_y,
+                                                        evaluate=True)
 
     return results_per_fold_test_set
 
@@ -858,10 +864,8 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
     test_metrics = best_model.evaluate(X_test, y_test, batch_size=8, verbose="auto", return_dict=True)
 
     if twenty_nine_external_X is not None and twenty_nine_external_y is not None:
-        if twenty_nine_external_X is not None:
-            twenty_nine_external_X = np.asarray(twenty_nine_external_X, dtype=np.float32)
-        if twenty_nine_external_y is not None:
-            twenty_nine_external_y = np.asarray(twenty_nine_external_y, dtype=np.float32)
+        twenty_nine_external_X = np.asarray(twenty_nine_external_X, dtype=np.float32)
+        twenty_nine_external_y = np.asarray(twenty_nine_external_y, dtype=np.float32)
         print(type(twenty_nine_external_X), type(twenty_nine_external_y))
 
         print(twenty_nine_external_X.shape, twenty_nine_external_y.shape)

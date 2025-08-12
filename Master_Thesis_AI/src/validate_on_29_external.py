@@ -16,7 +16,6 @@ def return_29_external_dataset_X_y(model=None, maxlen: int = None, old: bool = T
     import numpy as np
     from keras_preprocessing import text, sequence
 
-    #TODO rewrite so I can return X and y data here for the dataset in df line 24. to use it in the evaluate both (now 3) datasets.
     if model is None:
         old: bool = True
     # Laden des Modells und Tokenizers (eigene Funktion anpassen)
