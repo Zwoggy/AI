@@ -30,7 +30,7 @@ def return_29_external_dataset_X_y(model=None, maxlen: int = None, old: bool = T
     # Feste Länge
 
     sequence_list = []
-    epitope_list = df["Binary Epitop"].tolist()
+    epitope_list = df["Binary Epitop"] #.tolist()
 
     # Durchlaufen der Zeilen im DataFrame und epitope_embed entsprechend befüllen
     for idx, row in df.iterrows():
