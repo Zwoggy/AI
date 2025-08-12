@@ -870,6 +870,7 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
         if twenty_nine_external_y.ndim == 2:
             twenty_nine_external_y = np.expand_dims(twenty_nine_external_y, axis=-1)
         print("after np.expand_dims", twenty_nine_external_X.shape, twenty_nine_external_y.shape)
+        print(twenty_nine_external_X, twenty_nine_external_y)
 
         #twenty_nine_external_X = tf.convert_to_tensor(twenty_nine_external_X, dtype=tf.float32)
         #twenty_nine_external_y = tf.convert_to_tensor(twenty_nine_external_y, dtype=tf.float32)
