@@ -873,7 +873,7 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
 
         #twenty_nine_external_X = tf.convert_to_tensor(twenty_nine_external_X, dtype=tf.float32)
         #twenty_nine_external_y = tf.convert_to_tensor(twenty_nine_external_y, dtype=tf.float32)
-        twenty_nine_external_metrics = best_model.evaluate(twenty_nine_external_X, twenty_nine_external_y, batch_size=8, verbose="auto", return_dict=True)
+        twenty_nine_external_metrics = best_model.evaluate(twenty_nine_external_X, twenty_nine_external_y, batch_size=1, verbose="auto", return_dict=True)
 
     else:
         twenty_nine_external_metrics = None
