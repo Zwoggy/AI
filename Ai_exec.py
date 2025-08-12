@@ -24,7 +24,7 @@ from sklearn.model_selection import KFold
 
 from Master_Thesis_AI.FusionModel import FusionModel
 from Master_Thesis_AI.src.get_and_merge_structural_data_to_sequences import build_structural_features
-from Master_Thesis_AI.src.validate_on_29_external import validate_on_29_external, return_29_external_dataset_X_y
+from Master_Thesis_AI.src.validate_on_29_external import return_29_external_dataset_X_y
 from ai_functionality_new import LayerGroup
 from ai_functionality_old import embedding, modify_with_context, calculating_class_weights, \
     get_weighted_loss_masked, save_ai, use_model_and_predict, new_embedding, \
