@@ -665,9 +665,9 @@ def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_arra
 
             # TODO include twenty_nine_external data
             #twenty_nine_X, twenty_nine_y = return_29_external_dataset_X_y(model=model, maxlen=maxlen)
-            #results_per_fold = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights,
-                                                       #results_per_fold,
-                                                       #y_test, y_train, twenty_nine_external_X = twenty_nine_X, twenty_nine_external_y = twenty_nine_y)
+            results_per_fold = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights,
+                                                       results_per_fold,
+                                                       y_test, y_train)
 
         save_history_and_plot(results_per_fold, timestamp)
         save_history_and_plot(results_for_eval_per_fold, str(timestamp) + "_validation_", eval=True)
@@ -791,7 +791,7 @@ def evaluate_per_fold_45_blind_and_BP3C59ID_external_test_set(checkpoint_filepat
                                                         y_train=y_BP3C59ID_external_test_set,
                                                         twenty_nine_external_X = twenty_nine_X,
                                                         twenty_nine_external_y = twenty_nine_y,
-                                                        evaluate=True)
+                                                        evaluate=evaluate)
 
     return results_per_fold_test_set
 
@@ -879,9 +879,12 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
         #twenty_nine_external_X = tf.convert_to_tensor(twenty_nine_external_X, dtype=tf.float32)
         #twenty_nine_external_y = tf.convert_to_tensor(twenty_nine_external_y, dtype=tf.float32)
         twenty_nine_external_metrics = best_model.evaluate(twenty_nine_external_X, twenty_nine_external_y, batch_size=4, verbose="auto", return_dict=True)
+        print("---Evaluation for 29_External Done---")
 
     else:
         twenty_nine_external_metrics = None
+        print("---Evaluation for 29_External NOT Done---")
+
 
     #print(train_metrics, test_metrics)
     # Collect the metric names
