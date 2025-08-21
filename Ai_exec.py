@@ -225,6 +225,9 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
         antigen_list_full_sequence = antigen_list
         epitope_list_full_sequence = epitope_list
+        antigen_array = np.array(antigen_list, dtype=np.float16)
+        epitope_array = np.array(epitope_list, dtype=np.float16)
+        epitope_array.reshape(epitope_array.shape[0], epitope_array.shape[1], 1)
 
     else:
         voc_size=100
