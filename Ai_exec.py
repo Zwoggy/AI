@@ -579,6 +579,7 @@ def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_arra
                     verbose=1
                 )
 
+
                 model = create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights,
                                          num_decoder_blocks, num_heads, num_transformer_blocks, old, rate,
                                          voc_size, optimize=optimize)
@@ -637,9 +638,11 @@ def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_arra
                 verbose=1
             )
 
+
             model = create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights,
                                      num_decoder_blocks, num_heads, num_transformer_blocks, old, rate,
                                      voc_size, optimize=optimize)
+
             history = model.fit(x=X_train,
                                 y=y_train,
                                 batch_size=4,
