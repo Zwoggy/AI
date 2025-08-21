@@ -1021,7 +1021,8 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
     else:
         """These are the hyperparameters that performed best using Keras Tuner."""
         #learning_rate: float = 0.000145358952942396 # from keras tuner
-        learning_rate: float = 0.001
+        #learning_rate: float = 0.001 # for BP3 data
+        learning_rate: float = 0.0001 # for old_data_set
         #rate: float = 0.10485699518568096
         #rate: float = 0.11 # for new ai
         rate:float = 0.3 # for old ai
