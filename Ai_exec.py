@@ -446,7 +446,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
                 model = train_ba_format_ai(X_comb, early_stopping, embed_dim, epitope_array, ff_dim,
                                            length_of_longest_context, maxlen, new_weights, num_decoder_blocks,
                                            num_heads, num_transformer_blocks, old, rate, voc_size, X_test=None,
-                                           y_test=None)
+                                           y_test=None, use_structure=use_structure)
 
 
 
@@ -545,7 +545,7 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
 def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_array=None, ff_dim=80, length_of_longest_context=235,
                        maxlen=235, new_weights=None, num_decoder_blocks=2, num_heads=40, num_transformer_blocks=2,
-                       old=False, rate=0.3, voc_size=40, optimize=False, k_fold=False, X_test=None, y_test=None):
+                       old=False, rate=0.3, voc_size=40, optimize=False, k_fold=False, X_test=None, y_test=None, use_structure=False):
 
     if optimize:
         model = create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights,
@@ -641,7 +641,7 @@ def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_arra
 
             model = create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights,
                                      num_decoder_blocks, num_heads, num_transformer_blocks, old, rate,
-                                     voc_size, optimize=optimize)
+                                     voc_size, optimize=optimize, use_structure=use_structure)
 
             history = model.fit(x=X_train,
                                 y=y_train,
@@ -663,7 +663,8 @@ def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_arra
                 results_per_fold_test_set=results_per_fold_test_set,
                 evaluate=True,
                 maxlen=length_of_longest_context,
-                model=model)
+                model=model,
+                use_structure=use_structure)
 
 
             # validate_on_BP3C59ID_external_test_set(model=model, maxlen=length_of_longest_context)
@@ -728,7 +729,7 @@ def save_history_and_plot(results_per_fold, timestamp, eval=False):
 
 
 def evaluate_per_fold_45_blind_and_BP3C59ID_external_test_set(checkpoint_filepath=None, fold:int=None,
-                                                              new_weights=None, results_per_fold_test_set=None, evaluate=True, maxlen:int=None, model=None):
+                                                              new_weights=None, results_per_fold_test_set=None, evaluate=True, maxlen:int=None, model=None, use_structure=False):
     from keras_preprocessing import text, sequence
     # CSV-Datei einlesen
     df_epi = pd.read_csv('./data/final_blind_test_set.csv')
@@ -787,7 +788,7 @@ def evaluate_per_fold_45_blind_and_BP3C59ID_external_test_set(checkpoint_filepat
     tf.print("X_test:", tf.shape(X_epi45_blind), "Rank:", tf.rank(X_epi45_blind))
     tf.print("y_test:", tf.shape(y_epi45_blind), "Rank:", tf.rank(y_epi45_blind))
     tf.print("==========================\n")
-    twenty_nine_X, twenty_nine_y = return_29_external_dataset_X_y(model=model, maxlen=maxlen)
+    twenty_nine_X, twenty_nine_y = return_29_external_dataset_X_y(model=model, maxlen=maxlen, use_structure=use_structure)
     results_per_fold_test_set = load_and_evaluate_folds(X_test=X_epi45_blind, X_train=X_BP3C59ID_external_test_set,
                                                         checkpoint_filepath=checkpoint_filepath,
                                                         fold=fold,
@@ -1004,7 +1005,7 @@ def build_model_factory(embed_dim, ff_dim, length_of_longest_context, maxlen, ne
 
 
 def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_weights, num_decoder_blocks,
-                     num_heads, num_transformer_blocks, old, rate=0.3, voc_size=40, optimize=False, hp=None):
+                     num_heads, num_transformer_blocks, old, rate=0.3, voc_size=40, optimize=False, hp=None, use_structure=False):
 
     if optimize:
         learning_rate = hp.Float("learning_rate", 1e-4, 1e-2, sampling="log")
@@ -1042,7 +1043,11 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
 
     optimizer = tf.keras.optimizers.AdamW(learning_rate=learning_rate)
 
-    encoder_inputs = keras.layers.Input(shape=(length_of_longest_context,), name='encoder_inputs')
+    if use_structure:
+        encoder_inputs = keras.layers.Input(shape=(length_of_longest_context, 8,), name='encoder_inputs_incl_structures')
+    else:
+        encoder_inputs = keras.layers.Input(shape=(length_of_longest_context,), name='encoder_inputs')
+
     # Instanziiere das Layer mit den Gewichtungen
     if old:
         embedding_layer = keras_hub.layers.TokenAndPositionEmbedding(voc_size, maxlen, embed_dim, mask_zero=True)

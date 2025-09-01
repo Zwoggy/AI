@@ -3,7 +3,7 @@ import json
 import numpy as np
 from Bio.PDB import MMCIFParser, DSSP
 
-def build_structural_features(id_list, antigen_array):
+def build_structural_features(id_list, antigen_array, use_structure=False, data_root="./data/BP3_Data/structures/folds/"):
     """
     Build structural features for each sequence ID and combine with antigen_list.
 
@@ -20,7 +20,7 @@ def build_structural_features(id_list, antigen_array):
     if len(antigen_array.shape) == 2:
         antigen_array = np.expand_dims(antigen_array, axis=-1)
 
-    data_root = "./data/BP3_Data/structures/folds/"
+    data_root = data_root
     NUM_STRUCT_FEATURES = 7  # SASA(1) + SS(3) + pLDDT(1) + PAE_mean(1) + Depth(1)
     N_samples, max_len, seq_embed_dim = antigen_array.shape
 

@@ -4,14 +4,15 @@ from keras_preprocessing.sequence import pad_sequences
 from tf_keras.preprocessing import text
 import ast
 
-
+from Master_Thesis_AI.src.get_and_merge_structural_data_to_sequences import build_structural_features
 from ai_functionality_old import load_model_and_tokenizer, modify_with_context, evaluate_model
 """
 """
 
 
 
-def return_29_external_dataset_X_y(model=None, maxlen: int = None, old: bool = True):
+
+def return_29_external_dataset_X_y(model=None, maxlen: int = None, old: bool = True, use_structure=False):
     import pandas as pd
     import numpy as np
     from keras_preprocessing import text, sequence
@@ -54,6 +55,11 @@ def return_29_external_dataset_X_y(model=None, maxlen: int = None, old: bool = T
     #Alle Eitope auf die Länge 235 polstern (Padding mit 0)
     padded_epitope_list = sequence.pad_sequences(epitope_list, maxlen=fixed_length,
                                                  padding='post', value=-1)
+
+    if use_structure:
+        id_list = df["PDB ID"]
+        X_struct, X_comb = build_structural_features(id_list, padded_sequences)
+        padded_sequences =X_comb #combined features
 
     return padded_sequences, padded_epitope_list
 
