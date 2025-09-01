@@ -803,7 +803,7 @@ def evaluate_per_fold_45_blind_and_BP3C59ID_external_test_set(checkpoint_filepat
     return results_per_fold_test_set
 
 
-def get_BP3_dataset(maxlen):
+def get_BP3_dataset(maxlen, use_structure=False):
     # CSV-Datei einlesen
     df = pd.read_csv('./data/BP3C50ID/BP3C50ID_embedded_and_epitopes.csv')
     fixed_length = maxlen
