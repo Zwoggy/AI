@@ -1050,11 +1050,30 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
 
     # Instanziiere das Layer mit den Gewichtungen
     if old:
-        embedding_layer = keras_hub.layers.TokenAndPositionEmbedding(voc_size, maxlen, embed_dim, mask_zero=True)
-        #embedding_layer = TokenAndPositionEmbedding(maxlen, voc_size, embed_dim) ## tf_keras version
-        x = embedding_layer(encoder_inputs)
-        #mask = embedding_layer.compute_mask(encoder_inputs)
-        output_dimension = x.shape[2]
+        if use_structure:
+            token_input = encoder_inputs[:, :, 0]  # shape: (batch, 933)
+
+            # Apply Token + Position embedding only on tokens
+            token_embeddings = keras_hub.layers.TokenAndPositionEmbedding(
+                voc_size, maxlen, embed_dim, mask_zero=True
+            )(token_input)  # → (batch, 933, embed_dim)
+
+            # Use the remaining 7 structural features
+            struct_inputs = encoder_inputs[:, :, 1:]  # shape: (batch, 933, 7)
+
+            # Project structural features into the same embed_dim
+            struct_embeddings = keras.layers.Dense(embed_dim)(struct_inputs)  # → (batch, 933, embed_dim)
+
+            # Fuse both (sum, concat, or gated fusion)
+            x = keras.layers.Add()([token_embeddings, struct_embeddings])
+            output_dimension = x.shape[2]
+
+        else:
+            embedding_layer = keras_hub.layers.TokenAndPositionEmbedding(voc_size, maxlen, embed_dim, mask_zero=True)
+            #embedding_layer = TokenAndPositionEmbedding(maxlen, voc_size, embed_dim) ## tf_keras version
+            x = embedding_layer(encoder_inputs)
+            #mask = embedding_layer.compute_mask(encoder_inputs)
+            output_dimension = x.shape[2]
     else:
         esm_model = TFEsmForTokenClassification.from_pretrained("facebook/esm2_t36_3B_UR50D")
         outputs = esm_model(encoder_inputs, output_hidden_states=True)
