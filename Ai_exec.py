@@ -781,7 +781,7 @@ def evaluate_per_fold_45_blind_and_BP3C59ID_external_test_set(checkpoint_filepat
     y_epi45_blind = sequence.pad_sequences(epitope_list, maxlen=maxlen,
                                                  padding='post', value=-1)
 
-    X_BP3C59ID_external_test_set, y_BP3C59ID_external_test_set = get_BP3_dataset(maxlen)
+    X_BP3C59ID_external_test_set, y_BP3C59ID_external_test_set = get_BP3_dataset(maxlen, use_structure=use_structure)
     tf.print("\n=== INPUT SHAPES CHECK ===")
     tf.print("X_train:", tf.shape(X_BP3C59ID_external_test_set), "Rank:", tf.rank(X_BP3C59ID_external_test_set))
     tf.print("y_train:", tf.shape(y_BP3C59ID_external_test_set), "Rank:", tf.rank(y_BP3C59ID_external_test_set))
@@ -824,6 +824,18 @@ def get_BP3_dataset(maxlen, use_structure=False):
     # Alle Eitope auf die Länge maxlen polstern (Padding mit 0)
     y_BP3C59ID_external_test_set = sequence.pad_sequences(epitope_list_BP, maxlen=fixed_length,
                                                           padding='post', value=-1)
+    if use_structure:
+        #pdb_id = df["PDB_ID"]
+        id_list = [seq_str.strip(">") for seq_str in df['PDB_ID']]
+
+        # In NumPy-Arrays konvertieren
+        antigen_array = np.array(encoded_sequences, dtype=np.float16)
+        epitope_array = np.array(epitope_list_BP, dtype=np.float16)
+        epitope_array.reshape(epitope_array.shape[0], epitope_array.shape[1], 1)
+
+        X_struct, X_comb = build_structural_features(id_list, antigen_array)
+        return X_comb, y_BP3C59ID_external_test_set
+
     return X_BP3C59ID_external_test_set, y_BP3C59ID_external_test_set
 
 
