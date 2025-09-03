@@ -834,7 +834,7 @@ def get_BP3_dataset(maxlen, use_structure=False):
         #epitope_array.reshape(epitope_array.shape[0], epitope_array.shape[1], 1)
 
         X_struct, X_comb = build_structural_features(id_list, antigen_array, data_root="./data/BP3C50ID/structures/")
-        return X_struct, y_BP3C59ID_external_test_set
+        #return X_struct, y_BP3C59ID_external_test_set
         return X_comb, y_BP3C59ID_external_test_set
 
     return X_BP3C59ID_external_test_set, y_BP3C59ID_external_test_set
