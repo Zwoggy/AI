@@ -829,7 +829,7 @@ def get_BP3_dataset(maxlen, use_structure=False):
         id_list = [seq_str.strip(">") for seq_str in df['ID']]
 
         # In NumPy-Arrays konvertieren
-        antigen_array = np.array(sequences_BP, dtype=np.float16)
+        antigen_array = np.array(X_BP3C59ID_external_test_set, dtype=np.float16)
         #epitope_array = np.array(epitope_list_BP, dtype=np.float16)
         #epitope_array.reshape(epitope_array.shape[0], epitope_array.shape[1], 1)
 
