@@ -616,7 +616,7 @@ def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_arra
 
         else:
             fold = 1
-            X_test, y_test = get_BP3_dataset(maxlen)
+            X_test, y_test = get_BP3_dataset(maxlen, use_structure=use_structure)
             results_per_fold_test_set: list = []
             results_per_fold: list = []
             X_train = antigen_array
