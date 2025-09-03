@@ -826,7 +826,7 @@ def get_BP3_dataset(maxlen, use_structure=False):
                                                           padding='post', value=-1)
     if use_structure:
         #pdb_id = df["PDB_ID"]
-        id_list = [seq_str.strip(">") for seq_str in df['PDB_ID']]
+        id_list = [seq_str.strip(">") for seq_str in df['ID']]
 
         # In NumPy-Arrays konvertieren
         antigen_array = np.array(encoded_sequences, dtype=np.float16)
