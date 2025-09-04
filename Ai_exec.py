@@ -881,7 +881,10 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
         y_test = tf.expand_dims(y_test, axis=-1)
 
     train_metrics = best_model.evaluate(X_train, y_train, batch_size=8, verbose="auto", return_dict=True)
-    test_metrics = best_model.evaluate(X_test, y_test, batch_size=8, verbose="auto", return_dict=True)
+    try:
+        test_metrics = best_model.evaluate(X_test, y_test, batch_size=8, verbose="auto", return_dict=True)
+    except:
+        test_metrics = None
 
     if twenty_nine_external_X is not None and twenty_nine_external_y is not None:
         twenty_nine_external_X = np.asarray(twenty_nine_external_X, dtype=np.float32)
