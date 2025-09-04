@@ -670,7 +670,6 @@ def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_arra
             # validate_on_BP3C59ID_external_test_set(model=model, maxlen=length_of_longest_context)
             plot_save_model_training_history(fold, history_dict, timestamp)
 
-            # TODO include twenty_nine_external data
             twenty_nine_X, twenty_nine_y = return_29_external_dataset_X_y(model=model, maxlen=maxlen,
                                                                           use_structure=use_structure)
             results_per_fold = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights,
@@ -890,8 +889,6 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
         # as the structures do not exist yet
         test_metrics = None
 
-    print("twenty_nine_external_X----------------------", twenty_nine_external_X)
-    print("twenty_nine_external_y----------------------", twenty_nine_external_y)
     if twenty_nine_external_X is not None and twenty_nine_external_y is not None:
         twenty_nine_external_X = np.asarray(twenty_nine_external_X, dtype=np.float32)
         twenty_nine_external_y = np.asarray(twenty_nine_external_y, dtype=np.float32)
