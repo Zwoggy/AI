@@ -887,8 +887,8 @@ def load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weig
         # as the structures do not exist yet
         test_metrics = None
 
-    print("twenty_nine_external_X", twenty_nine_external_X)
-    print("twenty_nine_external_y", twenty_nine_external_y)
+    print("twenty_nine_external_X----------------------", twenty_nine_external_X)
+    print("twenty_nine_external_y----------------------", twenty_nine_external_y)
     if twenty_nine_external_X is not None and twenty_nine_external_y is not None:
         twenty_nine_external_X = np.asarray(twenty_nine_external_X, dtype=np.float32)
         twenty_nine_external_y = np.asarray(twenty_nine_external_y, dtype=np.float32)
