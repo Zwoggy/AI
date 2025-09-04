@@ -652,7 +652,6 @@ def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_arra
                                 verbose=1)
 
             history_dict = history.history
-            print(history_dict)
 
             checkpoint_filepath = f"./{timestamp}_best_model_fold_no_k_fold.keras"
 
