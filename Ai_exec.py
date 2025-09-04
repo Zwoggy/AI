@@ -671,10 +671,11 @@ def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_arra
             plot_save_model_training_history(fold, history_dict, timestamp)
 
             # TODO include twenty_nine_external data
-            #twenty_nine_X, twenty_nine_y = return_29_external_dataset_X_y(model=model, maxlen=maxlen)
+            twenty_nine_X, twenty_nine_y = return_29_external_dataset_X_y(model=model, maxlen=maxlen,
+                                                                          use_structure=use_structure)
             results_per_fold = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights,
                                                        results_per_fold,
-                                                       y_test, y_train)
+                                                       y_test, y_train, twenty_nine_external_X = None, twenty_nine_external_y = None)
 
         save_history_and_plot(results_per_fold, timestamp)
         save_history_and_plot(results_for_eval_per_fold, str(timestamp) + "_validation_", eval=True)
