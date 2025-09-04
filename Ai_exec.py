@@ -696,7 +696,9 @@ def save_history_and_plot(results_per_fold, timestamp, eval=False):
         for result in results_per_fold:
             fold = result["fold"]
             if eval:
-                for split in ["BP3C59ID_external_test_set", "epi45_blind", "29_external" ]:
+                for split in ["BP3C59ID_external_test_set",
+                              #"epi45_blind", #TODO reinclude once done
+                              "29_external" ]:
                     metrics_dict = result[split]
 
                     # Hole die Metrikwerte anhand der richtigen Namen
