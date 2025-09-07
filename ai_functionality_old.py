@@ -681,7 +681,7 @@ def calculating_class_weights(y_true):
 
 
     for i in range(len(weights)):
-        weights[i][1] = weights[i][1] / 0.1  # optional Scaling; used to be 2.2; 0.75, 0.85 #//// 1.0 for BP3 training-set #/// 0.25 for old_data_set # for structure 0.5, 0.25 worked
+        weights[i][1] = weights[i][1] / 0.05  # optional Scaling; used to be 2.2; 0.75, 0.85 #//// 1.0 for BP3 training-set #/// 0.25 for old_data_set # for structure 0.5, 0.25 worked
 
     return weights
 """
