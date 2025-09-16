@@ -14,6 +14,9 @@ RUN apt-get update --allow-unauthenticated && apt-get install -y \
     mc \
     graphviz \
     libgraphviz-dev \
+    openssl \
+    libssl-dev \
+    ca-certificates \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
