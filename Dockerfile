@@ -8,8 +8,9 @@ WORKDIR /app
 COPY --from=python-build /python/usr/local /usr/local
 
 RUN apt-get update --allow-unauthenticated && apt-get install -y \
-    build-essential cmake git zlib1g-dev \ libboost-all-dev \
+    build-essential cmake git zlib1g-dev \
     pkg-config \
+    libpcre2-dev \
     mc \
     graphviz \
     libgraphviz-dev \
