@@ -9,9 +9,14 @@ COPY --from=python-build /python/usr/local /usr/local
 
 RUN apt-get update --allow-unauthenticated && apt-get install -y \
     build-essential cmake git zlib1g-dev \
+    pkg-config \
+    libpcre2-dev \
     mc \
     graphviz \
     libgraphviz-dev \
+    openssl \
+    libssl-dev \
+    ca-certificates \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
