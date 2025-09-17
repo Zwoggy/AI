@@ -12,6 +12,7 @@ import seaborn as sb
 import tensorflow as tf
 
 from Master_Thesis_AI.src.validate_on_29_external import return_29_external_dataset_X_y
+from src import RemoveMask
 
 
 def use_model_and_predict_ma():
@@ -22,7 +23,8 @@ def use_model_and_predict_ma():
     model = keras.saving.load_model('./Master_Thesis_AI/models/20250917_110325_best_model_fold_no_k_fold.keras',
                        custom_objects = {'TransformerBlock': TransformerEncoder,
                                          'TokenAndPositionEmbedding': TokenAndPositionEmbedding,
-                                         'TransformerDecoder': TransformerDecoder, "weighted_loss": get_weighted_loss},
+                                         'TransformerDecoder': TransformerDecoder, "weighted_loss": get_weighted_loss,
+                                         'RemoveMask': RemoveMask},
                        compile = False
                        )
 

@@ -1030,6 +1030,7 @@ def use_model_and_predict():
     create_better_heatmap(pred_list, sequence, sequence_list_for_further_stuff)
 
 
+
 def create_better_heatmap(data, sequence, sequence_list):
     """Input: predictions from the model
     Output: Heatmaps according to the predictions for the whole sequence entered"""

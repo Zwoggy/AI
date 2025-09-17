@@ -12,6 +12,7 @@ import tensorflow as tf
 import tensorflow
 from tf_keras.src.utils import pad_sequences
 
+from ai_functionality_old import get_weighted_loss
 
 print("Tensorflow version " + tf.__version__)
 #from tensorflow.python import keras
