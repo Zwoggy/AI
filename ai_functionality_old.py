@@ -831,10 +831,11 @@ def get_weighted_loss_masked(weights):
     return weighted_loss_masked
 
 
-def save_ai(model, path="./AI/EMS2_AI/AI", old=False):
-    if old:
+def save_ai(model, path="./AI/EMS2_AI/AI", old=False, use_structure=False):
+    if old and not use_structure:
         model.save_weights(path + '_weights')
         model.save(path + '_model')
+
     else:
         model.save(path + "_model_keras_3")
 
