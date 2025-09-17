@@ -837,7 +837,8 @@ def save_ai(model, path="./AI/EMS2_AI/AI", old=False, use_structure=False):
         model.save(path + '_model')
 
     else:
-        model.save(path + "_model_keras_3")
+        #for MA AI
+        model.save(path + "_model_keras_3.keras")
 
 
 
