@@ -629,7 +629,7 @@ def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_arra
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
             # to save the best model
-            checkpoint_filepath = f"./{timestamp}_best_model_fold_no_k_fold.keras"
+            checkpoint_filepath = f"./Master_Thesis_AI/models/{timestamp}_best_model_fold_no_k_fold.keras"
             checkpoint_callback = ModelCheckpoint(
                 filepath=checkpoint_filepath,
                 monitor='val_loss',  # oder 'val_accuracy', je nach Metrik
