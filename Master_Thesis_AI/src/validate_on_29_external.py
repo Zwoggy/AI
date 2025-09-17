@@ -12,9 +12,8 @@ from ai_functionality_old import load_model_and_tokenizer, modify_with_context, 
 
 
 
-def return_29_external_dataset_X_y(model=None, maxlen: int = None, old: bool = True, use_structure=False):
+def return_29_external_dataset_X_y(model=None, maxlen: int = None, use_structure=False):
     import pandas as pd
-    import numpy as np
     from keras_preprocessing import text, sequence
 
     if model is None:

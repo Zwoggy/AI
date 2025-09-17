@@ -24,6 +24,7 @@ from sklearn.model_selection import KFold
 
 from Master_Thesis_AI.FusionModel import FusionModel
 from Master_Thesis_AI.src.get_and_merge_structural_data_to_sequences import build_structural_features
+from Master_Thesis_AI.src.prediction_creator import use_model_and_predict_ma
 from Master_Thesis_AI.src.validate_on_29_external import return_29_external_dataset_X_y
 from ai_functionality_new import LayerGroup
 from ai_functionality_old import embedding, modify_with_context, calculating_class_weights, \
@@ -535,12 +536,15 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
         # load_model_and_do_stuff([trainx2[0], trainy2[0]], trainy, maxlen, voc_size, embed_dim, transformer, length_of_longest_context)
 
-    if predict:
-        use_model_and_predict()
-    if validate_45_Blind:
-        validate_on_45_blind()
-    if validate_BP3C:
-        validate_on_BP3C59ID_external_test_set(model=model)
+    if predict and use_structure:
+        use_model_and_predict_ma()
+    else:
+        if predict:
+            use_model_and_predict()
+        if validate_45_Blind:
+            validate_on_45_blind()
+        if validate_BP3C:
+            validate_on_BP3C59ID_external_test_set(model=model)
     amino_acid_counts_epitope_predicted, confusion_matrices = analyze_amino_acids_in_validation_data( model, validation_sequences=testx_list, validation_labels=testy_list, encoder=encoder)
 
 
