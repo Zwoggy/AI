@@ -654,7 +654,6 @@ def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_arra
 
             history_dict = history.history
 
-            checkpoint_filepath = f"./{timestamp}_best_model_fold_no_k_fold.keras"
 
             results_for_eval_per_fold = evaluate_per_fold_45_blind_and_BP3C59ID_external_test_set(
                 checkpoint_filepath=checkpoint_filepath,
