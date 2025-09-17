@@ -20,7 +20,7 @@ def use_model_and_predict_ma():
     All path need to be changed to wherever the files are stored on your computer."""
     tf.keras.backend.clear_session()
     """change the following path to the final_AI folder path"""
-    model = keras.saving.load_model('./Master_Thesis_AI/models/20250917_110325_best_model_fold_no_k_fold.keras',
+    model = keras.saving.load_model('C:/Users/nweise/PycharmProjects/AI/Master_Thesis_AI/models/20250917_110325_best_model_fold_no_k_fold.keras',
                        custom_objects = {'TransformerBlock': TransformerEncoder,
                                          'TokenAndPositionEmbedding': TokenAndPositionEmbedding,
                                          'TransformerDecoder': TransformerDecoder, "weighted_loss": get_weighted_loss,
@@ -35,18 +35,24 @@ def use_model_and_predict_ma():
                               to_file = './testpicture.png', show_layer_activations = True)
     print(model.summary(expand_nested = True))
 
+    # ------------- NEW STUFF -------------
+
     x_comb, padded_epitope_list = return_29_external_dataset_X_y(model, use_structure = True)
     # x_comb: array consisting of:
     # 29 proteins
     # 933 sequence (length of 933)
     # 8 infos (relevant: hier nur index 0)
 
+    # hier stehen zahlen drin von 0-1
     predictions = model.predict(x_comb)
 
     # für jedes protein (29x) das hier machen
+    # sequence aus x_comb erstellen
+    sequence = "abcdefg" #TODO testmüll
     decoded_sequence = sequence_to_text(sequence)
     pred_list, sequence_list_for_further_stuff = blub(predictions, decoded_sequence)
-    create_better_heatmap(pred_list, decoded_sequence, sequence_list_for_further_stuff)
+    index = 666 #TODO testmüll
+    create_better_heatmap(pred_list, decoded_sequence, sequence_list_for_further_stuff, index)
 
 
 def sequence_to_text(sequence):
@@ -64,7 +70,7 @@ def get_weighted_loss(weights):
 
     return weighted_loss
 
-def create_better_heatmap(data, sequence, sequence_list):
+def create_better_heatmap(data, sequence, sequence_list, index):
     """Input: predictions from the model
     Output: Heatmaps according to the predictions for the whole sequence entered"""
 
@@ -79,7 +85,7 @@ def create_better_heatmap(data, sequence, sequence_list):
     print(data_list.shape)
 
     """change the path to a folder to save the pictuers in"""
-    filename = "./AI/pictures/" + "new" + ".png"
+    filename = "./AI/pictures/" + "new" + index + ".png"
 
     plt.figure(dpi = 1000)
     sb.heatmap(data_list, xticklabels = False, yticklabels = False, vmin = 0.2, vmax = 0.8, cmap = "rocket_r", annot=sequence_list, fmt="")
@@ -115,3 +121,9 @@ def blub(predictions, sequence):
             print(str(x) + ": " + str(j) + " - " + str(sequence[x - 1]))
             x += 1
     return pred_list, sequence_list_for_further_stuff
+
+# TODO funktion um jeden einzelnen wert in einem array zu setzen abhängig von größer gleich als angegebener wert
+
+
+if __name__=="__main__":
+    use_model_and_predict_ma()
