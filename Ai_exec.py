@@ -1050,8 +1050,7 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
         learning_rate: float = 0.001 # for BP3 data
         #learning_rate: float = 0.0001 # for old_data_set
         #rate: float = 0.10485699518568096
-        rate: float = 0.7
-        #rate: float = 0.11 # for new ai
+        rate: float = 0.11 # for new ai
         #rate:float = 0.3 # for old ai
         hidden_units_one: int = 24
         hidden_units_two: int = 64
@@ -1059,7 +1058,7 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
         hidden_units_four: int = 24
         num_transformer_blocks: int = 2
         num_decoder_blocks: int = 2
-        embed_dim: int = 80
+        embed_dim: int = 1040
         num_heads: int = 40
         #maxlen=235 # for old_data_set
 
