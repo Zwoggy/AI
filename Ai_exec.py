@@ -1056,8 +1056,8 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
         hidden_units_two: int = 64
         hidden_units_three: int = 32
         hidden_units_four: int = 24
-        num_transformer_blocks: int = 2
-        num_decoder_blocks: int = 2
+        num_transformer_blocks: int = 3 # used to be 2
+        num_decoder_blocks: int = 3 # used to be 2
         embed_dim: int = 80
         num_heads: int = 40
         #maxlen=235 # for old_data_set
