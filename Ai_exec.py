@@ -1046,9 +1046,9 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
 
     else:
         """These are the hyperparameters that performed best using Keras Tuner."""
-        learning_rate: float = 0.00001
+        #learning_rate: float = 0.00001
         #learning_rate: float = 0.001 # for BP3 data
-        #learning_rate: float = 0.0001 # for old_data_set
+        learning_rate: float = 0.0001 # for old_data_set
         #rate: float = 0.00001
         rate: float = 0.11 # for new ai
         #rate:float = 0.3 # for old ai
@@ -1063,7 +1063,7 @@ def create_model_new(embed_dim, ff_dim, length_of_longest_context, maxlen, new_w
         #maxlen=235 # for old_data_set
 
 
-    optimizer = tf.keras.optimizers.AdamW(learning_rate=learning_rate)
+    optimizer = tf.keras.optimizers.AdamW(learning_rate=learning_rate) #TODO learning rate sheduler implementation
 
     if use_structure:
         encoder_inputs = keras.layers.Input(shape=(length_of_longest_context, 8,), name='encoder_inputs_incl_structures')
