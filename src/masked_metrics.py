@@ -60,7 +60,7 @@ def masked_recall(y_true, y_pred):
 
 @tf.function
 def masked_auc(y_true, y_pred):
-    if tf.rank(y_true) == 2:
+    if tf.rank(y_true) > 2:
         y_true = tf.squeeze(y_true, axis=-1)
         y_pred = tf.squeeze(y_pred, axis=-1)
 
