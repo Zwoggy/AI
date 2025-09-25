@@ -1,3 +1,4 @@
+import logging
 import pickle
 
 import keras
@@ -38,24 +39,33 @@ def use_model_and_predict_ma():
     # 933 sequence (length of 933)
     # 8 infos (relevant: hier nur index 0)
 
-    # hier stehen zahlen drin von 0-1
+    # contains floats between 0 and 1
     predictions = model.predict(x_comb)
 
     # für jedes protein (29x) das hier machen
     # sequence aus x_comb erstellen
-    sequence = "abcdefg" #TODO testmüll
-    decoded_sequence = sequence_to_text(sequence)
-    pred_list, sequence_list_for_further_stuff = blub(predictions, decoded_sequence)
-    index = 666 #TODO testmüll
-    #create_better_heatmap(pred_list, decoded_sequence, sequence_list_for_further_stuff, index)
+    for i in range(len(x_comb)):
+        sequence = convert_to_simple_list(x_comb[i])
+        pred_list = convert_to_simple_list(predictions[i])
+
+        decoded_sequence = map_number_to_letter(sequence)
+        create_better_heatmap(pred_list, decoded_sequence, i)
 
 
-def sequence_to_text(sequence):
+def convert_to_simple_list(complex_list):
+    new_list = []
+    for val in complex_list:
+        new_list.append(val[0])
+    return new_list
+
+
+#TODO rename function when we know what 'number' and 'letter' means
+def map_number_to_letter(sequence):
     with open('./AI/tokenizer.pickle', 'rb') as handle:
         encoder = pickle.load(handle)
 
     reverse_word_map = dict(map(reversed, encoder.word_index.items()))
-    return "".join([reverse_word_map.get(i, "") for i in sequence])
+    return [reverse_word_map.get(i, "") for i in sequence]
 
 
 def get_weighted_loss(weights):
@@ -67,14 +77,14 @@ def get_weighted_loss(weights):
     return weighted_loss
 
 
-def create_better_heatmap(data, sequence, sequence_list, index):
+def create_better_heatmap(data, sequence, index):
     """Input: predictions from the model
     Output: Heatmaps according to the predictions for the whole sequence entered"""
+    print("creating heatmap for index " + str(index))
 
     data = np.array(data[:len(sequence)], dtype = np.float32)
-    sequence_list = np.array(sequence_list[:len(sequence)], dtype = str) ## used to be np.str
 
-    data_list, sequence_list = create_blocks(data, sequence_list)
+    data_list, sequence_list = create_blocks(data, sequence)
     print(data_list, sequence_list)
     data_list = np.reshape(data_list, (data_list.shape[1], data_list.shape[0]))
     sequence_list = np.reshape(sequence_list, (sequence_list.shape[1], sequence_list.shape[0]))
@@ -82,19 +92,17 @@ def create_better_heatmap(data, sequence, sequence_list, index):
     print(data_list.shape)
 
     """change the path to a folder to save the pictuers in"""
-    filename = "./AI/pictures/" + "new" + index + ".png"
+    filename = "./AI/pictures/heatmaps/" + str(index) + ".png"
 
     plt.figure(dpi = 1000)
     sb.heatmap(data_list, xticklabels = False, yticklabels = False, vmin = 0.2, vmax = 0.8, cmap = "rocket_r", annot=sequence_list, fmt="")
     plt.savefig(filename, dpi = 1000, bbox_inches = "tight")
-    plt.show()
 
 
 def create_blocks(list1, list2):
     """creates blocks of max size 20 so that every heatmap has a max length of 20"""
     block_size = 20
     num_blocks1 = len(list1) // block_size
-    num_blocks2 = len(list2) // block_size
     blocks1 = []
     blocks2 = []
 
@@ -108,18 +116,6 @@ def create_blocks(list1, list2):
 
     return np.array(blocks1), np.array(blocks2)
 
-
-def blub(predictions, sequence):
-    x = 1
-    pred_list = []
-    sequence_list_for_further_stuff = []
-    for i, (pred, seq) in enumerate(zip(predictions, sequence)):
-        for (j, seq2) in zip(pred, sequence):
-            pred_list.append(j)
-            sequence_list_for_further_stuff.append(seq2)
-            print(str(x) + ": " + str(j) + " - " + str(sequence[x - 1]))
-            x += 1
-    return pred_list, sequence_list_for_further_stuff
 
 # TODO funktion um jeden einzelnen wert in einem array zu setzen abhängig von größer gleich als angegebener wert
 
