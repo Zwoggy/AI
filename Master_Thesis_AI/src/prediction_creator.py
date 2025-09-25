@@ -117,7 +117,7 @@ def create_blocks(list1, list2):
 
 
 # def blubby():
-#     recall, precision, f1, mcc, auc = evaluate_model(model, encoder, seq, mcc, epi)
+#     recall, precision, f1, mcc, auc = evaluate_model(pred, true)
 #
 #     results = []
 #     results.append({
@@ -134,7 +134,7 @@ def create_blocks(list1, list2):
 #     print("Evaluation abgeschlossen und in 'evaluation_results_2.csv' gespeichert.")
 
 
-def evaluate_model(predictions, model, encoder, sequence, true_binary_epitope):
+def evaluate_model(predictions, true_binary_epitope):
     # Da das Modell Wahrscheinlichkeiten ausgibt, runde auf 0 oder 1
     predicted_binary = np.where(predictions >= 0.5, 1, 0)
     # Berechne die Metriken
