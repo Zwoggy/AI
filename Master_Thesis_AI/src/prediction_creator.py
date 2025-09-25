@@ -1,15 +1,12 @@
-from transformers import AutoTokenizer, TFEsmForTokenClassification, TFEsmModel
-
-from keras_hub.layers import TransformerEncoder, TokenAndPositionEmbedding, TransformerDecoder
-
-from tensorflow.keras import backend as K
+import pickle
 
 import keras
-from matplotlib import pyplot as plt
 import numpy as np
-import pickle
 import seaborn as sb
 import tensorflow as tf
+from keras_hub.layers import TransformerEncoder, TokenAndPositionEmbedding, TransformerDecoder
+from matplotlib import pyplot as plt
+from tensorflow.keras import backend as K
 
 from Master_Thesis_AI.src.validate_on_29_external import return_29_external_dataset_X_y
 from src import RemoveMask
@@ -19,8 +16,8 @@ def use_model_and_predict_ma():
     """Enter a sequence to use for prediction and generate the heatmap output.
     All path need to be changed to wherever the files are stored on your computer."""
     tf.keras.backend.clear_session()
-    """change the following path to the final_AI folder path"""
-    model = keras.saving.load_model('C:/Users/nweise/PycharmProjects/AI/Master_Thesis_AI/models/20250917_110325_best_model_fold_no_k_fold.keras',
+    #TODO change the following path to the final_AI folder path
+    model = keras.saving.load_model('./Master_Thesis_AI/models/20250921_121619_best_model_fold_no_k_fold.keras',
                        custom_objects = {'TransformerBlock': TransformerEncoder,
                                          'TokenAndPositionEmbedding': TokenAndPositionEmbedding,
                                          'TransformerDecoder': TransformerDecoder, "weighted_loss": get_weighted_loss,
@@ -28,11 +25,11 @@ def use_model_and_predict_ma():
                        compile = False
                        )
 
-    """change the following path to path/final_AI_weights """
+    #TODO change the following path to path/final_AI_weights
     #model.load_weights('./AI/EMS2_AI/AI_weights')
     model.compile()
     tf.keras.utils.plot_model(model, expand_nested = True, show_shapes = True,
-                              to_file = './testpicture.png', show_layer_activations = True)
+                              to_file = './AI/pictures/testpicture.png', show_layer_activations = True)
     print(model.summary(expand_nested = True))
 
     x_comb, padded_epitope_list = return_29_external_dataset_X_y(model, maxlen=933, use_structure = True)
@@ -50,7 +47,7 @@ def use_model_and_predict_ma():
     decoded_sequence = sequence_to_text(sequence)
     pred_list, sequence_list_for_further_stuff = blub(predictions, decoded_sequence)
     index = 666 #TODO testmüll
-    create_better_heatmap(pred_list, decoded_sequence, sequence_list_for_further_stuff, index)
+    #create_better_heatmap(pred_list, decoded_sequence, sequence_list_for_further_stuff, index)
 
 
 def sequence_to_text(sequence):
@@ -60,6 +57,7 @@ def sequence_to_text(sequence):
     reverse_word_map = dict(map(reversed, encoder.word_index.items()))
     return "".join([reverse_word_map.get(i, "") for i in sequence])
 
+
 def get_weighted_loss(weights):
     def weighted_loss(y_true, y_pred):
         return K.mean(
@@ -67,6 +65,7 @@ def get_weighted_loss(weights):
             axis = -1)
 
     return weighted_loss
+
 
 def create_better_heatmap(data, sequence, sequence_list, index):
     """Input: predictions from the model
@@ -90,6 +89,7 @@ def create_better_heatmap(data, sequence, sequence_list, index):
     plt.savefig(filename, dpi = 1000, bbox_inches = "tight")
     plt.show()
 
+
 def create_blocks(list1, list2):
     """creates blocks of max size 20 so that every heatmap has a max length of 20"""
     block_size = 20
@@ -107,6 +107,7 @@ def create_blocks(list1, list2):
         blocks2.append(block2)
 
     return np.array(blocks1), np.array(blocks2)
+
 
 def blub(predictions, sequence):
     x = 1
