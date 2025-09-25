@@ -19,7 +19,7 @@ def use_model_and_predict_ma():
     All path need to be changed to wherever the files are stored on your computer."""
     tf.keras.backend.clear_session()
     #TODO change the following path to the final_AI folder path
-    model = keras.saving.load_model('./Master_Thesis_AI/models/20250921_121619_best_model_fold_no_k_fold.keras',
+    model = keras.saving.load_model('./Master_Thesis_AI/models/20250925_155149_best_model_fold_no_k_fold.keras',
                        custom_objects = {'TransformerBlock': TransformerEncoder,
                                          'TokenAndPositionEmbedding': TokenAndPositionEmbedding,
                                          'TransformerDecoder': TransformerDecoder, "weighted_loss": get_weighted_loss,
@@ -42,6 +42,7 @@ def use_model_and_predict_ma():
 
     # contains floats between 0 and 1
     predictions = model.predict(x_comb)
+    results = []
 
     # save results for every sequence
     for i in range(len(x_comb)):
@@ -49,15 +50,15 @@ def use_model_and_predict_ma():
         sequence = convert_to_simple_list(x_comb[i])
         pred_list = convert_to_simple_list(predictions[i])
 
-        # create csv file
-        save_evaluation_result(np.array(pred_list), padded_epitope_list[i], id_list[i])
+        # collect data for csv file
+        results.append(collect_evaluation_data(np.array(pred_list), padded_epitope_list[i], id_list[i]))
 
         # create heatmaps
         decoded_sequence = detokenize(sequence)
         create_better_heatmap(pred_list, decoded_sequence, i)
 
-        if i == 0:
-            break
+    # save csv file
+    save_evaluation_result(results)
 
 
 def convert_to_simple_list(complex_list):
@@ -126,18 +127,19 @@ def create_blocks(list1, list2):
     return np.array(blocks1), np.array(blocks2)
 
 
-def save_evaluation_result(predictions, true_epitope, pdb_id):
+def collect_evaluation_data(predictions, true_epitope, pdb_id):
     recall, precision, f1, mcc = evaluate_model(predictions, true_epitope)
 
-    results = []
-    results.append({
-            'PDB ID': pdb_id,
-            'Recall': recall,
-            'Precision': precision,
-            'F1-Score': f1,
-            'MCC': mcc
-        })
+    return {
+        'PDB ID': pdb_id,
+        'Recall': tf.keras.backend.get_value(recall),
+        'Precision': tf.keras.backend.get_value(precision),
+        'F1-Score': tf.keras.backend.get_value(f1),
+        'MCC': tf.keras.backend.get_value(mcc)
+    }
 
+
+def save_evaluation_result(results):
     # Ergebnisse in CSV speichern
     results_df = pd.DataFrame(results)
     results_df.to_csv('./Master_Thesis_AI/output/evaluation_results.csv', index=False)
