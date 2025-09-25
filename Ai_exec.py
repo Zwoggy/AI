@@ -673,7 +673,7 @@ def train_ba_format_ai(antigen_array, early_stopping, embed_dim=40, epitope_arra
             # validate_on_BP3C59ID_external_test_set(model=model, maxlen=length_of_longest_context)
             plot_save_model_training_history(fold, history_dict, timestamp)
 
-            twenty_nine_X, twenty_nine_y = return_29_external_dataset_X_y(model=model, maxlen=maxlen,
+            twenty_nine_X, twenty_nine_y, id_list = return_29_external_dataset_X_y(model=model, maxlen=maxlen,
                                                                           use_structure=use_structure)
             results_per_fold = load_and_evaluate_folds(X_test, X_train, checkpoint_filepath, fold, new_weights,
                                                        results_per_fold,
@@ -793,7 +793,7 @@ def evaluate_per_fold_45_blind_and_BP3C59ID_external_test_set(checkpoint_filepat
     tf.print("X_test:", tf.shape(X_epi45_blind), "Rank:", tf.rank(X_epi45_blind))
     tf.print("y_test:", tf.shape(y_epi45_blind), "Rank:", tf.rank(y_epi45_blind))
     tf.print("==========================\n")
-    twenty_nine_X, twenty_nine_y = return_29_external_dataset_X_y(model=model, maxlen=maxlen, use_structure=use_structure)
+    twenty_nine_X, twenty_nine_y, id_list = return_29_external_dataset_X_y(model=model, maxlen=maxlen, use_structure=use_structure)
     results_per_fold_test_set = load_and_evaluate_folds(X_test=X_epi45_blind, X_train=X_BP3C59ID_external_test_set,
                                                         checkpoint_filepath=checkpoint_filepath,
                                                         fold=fold,
