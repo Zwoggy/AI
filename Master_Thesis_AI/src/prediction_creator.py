@@ -1,4 +1,3 @@
-import logging
 import pickle
 
 import keras
@@ -11,6 +10,7 @@ from tensorflow.keras import backend as K
 
 from Master_Thesis_AI.src.validate_on_29_external import return_29_external_dataset_X_y
 from src import RemoveMask
+from src.masked_metrics import masked_mcc, masked_f1_score, masked_precision, masked_recall, masked_auc
 
 
 def use_model_and_predict_ma():
@@ -37,18 +37,16 @@ def use_model_and_predict_ma():
     # x_comb: array consisting of:
     # 29 proteins
     # 933 sequence (length of 933)
-    # 8 infos (relevant: hier nur index 0)
+    # 8 infos (relevant: here only index 0)
 
     # contains floats between 0 and 1
     predictions = model.predict(x_comb)
 
-    # für jedes protein (29x) das hier machen
-    # sequence aus x_comb erstellen
     for i in range(len(x_comb)):
         sequence = convert_to_simple_list(x_comb[i])
         pred_list = convert_to_simple_list(predictions[i])
 
-        decoded_sequence = map_number_to_letter(sequence)
+        decoded_sequence = detokenize(sequence)
         create_better_heatmap(pred_list, decoded_sequence, i)
 
 
@@ -59,13 +57,14 @@ def convert_to_simple_list(complex_list):
     return new_list
 
 
-#TODO rename function when we know what 'number' and 'letter' means
-def map_number_to_letter(sequence):
+def detokenize(sequence):
     with open('./AI/tokenizer.pickle', 'rb') as handle:
         encoder = pickle.load(handle)
 
     reverse_word_map = dict(map(reversed, encoder.word_index.items()))
-    return [reverse_word_map.get(i, "") for i in sequence]
+    new_seq = [reverse_word_map.get(i, "") for i in sequence]
+    # crop after the first empty string
+    return new_seq[:new_seq.index("")]
 
 
 def get_weighted_loss(weights):
@@ -91,7 +90,7 @@ def create_better_heatmap(data, sequence, index):
     print("------------------------------------------------")
     print(data_list.shape)
 
-    """change the path to a folder to save the pictuers in"""
+    """change the path to a folder to save the pictures in"""
     filename = "./AI/pictures/heatmaps/" + str(index) + ".png"
 
     plt.figure(dpi = 1000)
@@ -117,10 +116,37 @@ def create_blocks(list1, list2):
     return np.array(blocks1), np.array(blocks2)
 
 
-def replace_values_by_threshold(sequence, threshold, default_value):
-    for index, value in enumerate(sequence):
-        if value >= threshold:
-            sequence[index] = default_value
+# def blubby():
+#     recall, precision, f1, mcc, auc = evaluate_model(model, encoder, seq, mcc, epi)
+#
+#     results = []
+#     results.append({
+#             'PDB ID': pdb_id,
+#             'Recall': recall,
+#             'Precision': precision,
+#             'F1-Score': f1,
+#             'AUC': auc
+#         })
+#
+#     # Ergebnisse in CSV speichern
+#     results_df = pd.DataFrame(results)
+#     results_df.to_csv('./data/evaluation_results_2.csv', index=False)
+#     print("Evaluation abgeschlossen und in 'evaluation_results_2.csv' gespeichert.")
+
+
+def evaluate_model(predictions, model, encoder, sequence, true_binary_epitope):
+    # Da das Modell Wahrscheinlichkeiten ausgibt, runde auf 0 oder 1
+    predicted_binary = np.where(predictions >= 0.5, 1, 0)
+    # Berechne die Metriken
+    print( "test: ", true_binary_epitope, predicted_binary)
+    auc = masked_auc(true_binary_epitope, predictions)
+    recall = masked_recall(true_binary_epitope, predicted_binary)
+    precision = masked_precision(true_binary_epitope, predicted_binary)
+    f1 = masked_f1_score(true_binary_epitope, predicted_binary)
+    mcc = masked_mcc(y_true=true_binary_epitope, y_pred=predicted_binary)
+    print(recall, precision, f1, mcc, auc)
+
+    return recall, precision, f1, mcc ,auc
 
 
 if __name__=="__main__":
