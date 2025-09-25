@@ -117,7 +117,10 @@ def create_blocks(list1, list2):
     return np.array(blocks1), np.array(blocks2)
 
 
-# TODO funktion um jeden einzelnen wert in einem array zu setzen abhängig von größer gleich als angegebener wert
+def replace_values_by_threshold(sequence, threshold, default_value):
+    for index, value in enumerate(sequence):
+        if value >= threshold:
+            sequence[index] = default_value
 
 
 if __name__=="__main__":
