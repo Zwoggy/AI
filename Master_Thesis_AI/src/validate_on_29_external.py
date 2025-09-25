@@ -59,7 +59,7 @@ def return_29_external_dataset_X_y(model=None, maxlen: int = None, use_structure
         # add structural data
         id_list = df["PDB ID"]
         X_struct, X_comb = build_structural_features(id_list, padded_sequences, data_root='./data/Caroll_et_al_data/structures/folds/')
-        return X_comb, padded_epitope_list
+        return X_comb, padded_epitope_list, id_list
 
     return padded_sequences, padded_epitope_list
 

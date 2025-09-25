@@ -33,7 +33,7 @@ def use_model_and_predict_ma():
                               to_file = './AI/pictures/testpicture.png', show_layer_activations = True)
     print(model.summary(expand_nested = True))
 
-    x_comb, padded_epitope_list = return_29_external_dataset_X_y(model, maxlen=933, use_structure = True)
+    x_comb, padded_epitope_list, id_list = return_29_external_dataset_X_y(model, maxlen=933, use_structure = True)
     # x_comb: array consisting of:
     # 29 proteins
     # 933 sequence (length of 933)
