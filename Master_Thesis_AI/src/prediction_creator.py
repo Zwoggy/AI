@@ -49,13 +49,17 @@ def use_model_and_predict_ma():
         # create lists of [933] elements
         sequence = convert_to_simple_list(x_comb[i])
         pred_list = convert_to_simple_list(predictions[i])
+        pdb_id = id_list[i]
 
         # collect data for csv file
-        results.append(collect_evaluation_data(np.array(pred_list), padded_epitope_list[i], id_list[i]))
+        results.append(collect_evaluation_data(np.array(pred_list), padded_epitope_list[i], pdb_id))
 
         # create heatmaps
         decoded_sequence = detokenize(sequence)
-        create_better_heatmap(pred_list, decoded_sequence, id_list[i])
+        create_better_heatmap(pred_list, decoded_sequence, pdb_id)
+
+        # create csv file containing heatmap values for PyMOL
+        create_pymol_heatmap_csv(pred_list, pdb_id)
 
     # save csv file
     save_evaluation_result(results)
@@ -160,6 +164,29 @@ def evaluate_model(predictions, true_binary_epitope):
 
     return recall, precision, f1, mcc
 
+
+def create_pymol_heatmap_csv(data, pdb_id):
+    start_index = get_startingindex_by_pdbid(pdb_id)
+
+    csv_data = []
+    for i, item in enumerate(data):
+        csv_data.append({
+            'index': i + start_index,
+            'prediction': item
+        })
+
+    filename = str(pdb_id) + ".csv"
+    results_df = pd.DataFrame(csv_data)
+    results_df.to_csv('./Master_Thesis_AI/output/pymol/' + filename, index=False)
+    print("saved " + filename)
+
+
+def get_startingindex_by_pdbid(pdb_id):
+    df = pd.read_csv('./data/Caroll_et_al_data/biomolecules_incl_sequences_and_epitopes.csv')
+    try:
+        return df.loc[df['PDB ID'] == pdb_id, 'Starting_Index'].iloc[0]
+    except IndexError:
+        return 0
 
 if __name__=="__main__":
     use_model_and_predict_ma()
