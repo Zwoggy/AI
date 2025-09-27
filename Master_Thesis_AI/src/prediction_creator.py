@@ -55,7 +55,7 @@ def use_model_and_predict_ma():
 
         # create heatmaps
         decoded_sequence = detokenize(sequence)
-        create_better_heatmap(pred_list, decoded_sequence, i)
+        create_better_heatmap(pred_list, decoded_sequence, id_list[i])
 
     # save csv file
     save_evaluation_result(results)
@@ -87,10 +87,10 @@ def get_weighted_loss(weights):
     return weighted_loss
 
 
-def create_better_heatmap(data, sequence, index):
+def create_better_heatmap(data, sequence, pdb_id):
     """Input: predictions from the model
     Output: Heatmaps according to the predictions for the whole sequence entered"""
-    print("creating heatmap for index " + str(index))
+    print("creating heatmap for index " + str(pdb_id))
 
     data = np.array(data[:len(sequence)], dtype = np.float32)
 
@@ -102,7 +102,7 @@ def create_better_heatmap(data, sequence, index):
     print(data_list.shape)
 
     """change the path to a folder to save the pictures in"""
-    filename = "./Master_Thesis_AI/output/heatmaps/" + str(index) + ".png"
+    filename = "./Master_Thesis_AI/output/heatmaps/" + str(pdb_id) + ".png"
 
     plt.figure(dpi = 1000)
     sb.heatmap(data_list, xticklabels = False, yticklabels = False, vmin = 0.2, vmax = 0.8, cmap = "rocket_r", annot=sequence_list, fmt="")
