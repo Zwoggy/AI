@@ -1,4 +1,5 @@
 import pickle
+import sys
 
 import keras
 import numpy as np
@@ -14,7 +15,7 @@ from src import RemoveMask
 from src.masked_metrics import masked_mcc, masked_f1_score, masked_precision, masked_recall
 
 
-def use_model_and_predict_ma():
+def use_model_and_predict_ma(test_run = False):
     """Enter a sequence to use for prediction and generate the heatmap output.
     All path need to be changed to wherever the files are stored on your computer."""
     tf.keras.backend.clear_session()
@@ -54,12 +55,18 @@ def use_model_and_predict_ma():
         # collect data for csv file
         results.append(collect_evaluation_data(np.array(pred_list), padded_epitope_list[i], pdb_id))
 
-        # create heatmaps
+        # create heatmap
         decoded_sequence = detokenize(sequence)
         create_better_heatmap(pred_list, decoded_sequence, pdb_id)
 
+        # create line plot
+        create_line_plot(pred_list, pdb_id)
+
         # create csv file containing heatmap values for PyMOL
         create_pymol_heatmap_csv(pred_list, pdb_id)
+
+        if test_run and i == 0:
+            break
 
     # save csv file
     save_evaluation_result(results)
@@ -94,23 +101,21 @@ def get_weighted_loss(weights):
 def create_better_heatmap(data, sequence, pdb_id):
     """Input: predictions from the model
     Output: Heatmaps according to the predictions for the whole sequence entered"""
-    print("creating heatmap for index " + str(pdb_id))
+    print("creating heatmap for pdb_id " + str(pdb_id))
 
     data = np.array(data[:len(sequence)], dtype = np.float32)
 
     data_list, sequence_list = create_blocks(data, sequence)
-    print(data_list, sequence_list)
+    # print(data_list, sequence_list)
     data_list = np.reshape(data_list, (data_list.shape[1], data_list.shape[0]))
     sequence_list = np.reshape(sequence_list, (sequence_list.shape[1], sequence_list.shape[0]))
-    print("------------------------------------------------")
-    print(data_list.shape)
+    # print(data_list.shape)
 
-    """change the path to a folder to save the pictures in"""
     filename = "./Master_Thesis_AI/output/heatmaps/" + str(pdb_id) + ".png"
-
     plt.figure(dpi = 1000)
     sb.heatmap(data_list, xticklabels = False, yticklabels = False, vmin = 0.2, vmax = 0.8, cmap = "rocket_r", annot=sequence_list, fmt="")
     plt.savefig(filename, dpi = 1000, bbox_inches = "tight")
+    print("saved heatmap: " + filename)
 
 
 def create_blocks(list1, list2):
@@ -129,6 +134,22 @@ def create_blocks(list1, list2):
         blocks2.append(block2)
 
     return np.array(blocks1), np.array(blocks2)
+
+
+def create_line_plot(data, pdb_id):
+    filename = "./Master_Thesis_AI/output/plots/" + str(pdb_id) + ".png"
+
+    plt.figure(dpi=1000)
+    plt.style.use('_mpl-gallery')
+
+    fig, ax = plt.subplots(figsize=(12, 4))
+    ax.plot(range(len(data)), data, linewidth=0.8)
+    ax.set_ylim(0, 1)
+    ax.set_xlabel("Index")
+    ax.set_ylabel("Prediction")
+
+    plt.savefig(filename, dpi=1000, bbox_inches="tight")
+    print("saved plot: " + filename)
 
 
 def collect_evaluation_data(predictions, true_epitope, pdb_id):
@@ -189,4 +210,9 @@ def get_startingindex_by_pdbid(pdb_id):
         return 0
 
 if __name__=="__main__":
-    use_model_and_predict_ma()
+    test_run = False
+    if len(sys.argv) > 1:
+        test_run = sys.argv[1]
+        print("!!! TEST RUN !!!")
+
+    use_model_and_predict_ma(test_run)
