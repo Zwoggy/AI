@@ -20,8 +20,11 @@ def use_model_and_predict_ma(threshold, test_run = False):
     """Enter a sequence to use for prediction and generate the heatmap output.
     All path need to be changed to wherever the files are stored on your computer."""
     tf.keras.backend.clear_session()
+    #filepath = './Master_Thesis_AI/models/20250928_121001_best_model_fold_no_k_fold.keras' # for BP3_train dataset
+    filepath = './Master_Thesis_AI/models/20250928_191139_best_model_fold_no_k_fold.keras' # for BP3C50ID_train dataset
+
     #TODO change the following path to the final_AI folder path
-    model = keras.saving.load_model('./Master_Thesis_AI/models/20250928_121001_best_model_fold_no_k_fold.keras',
+    model = keras.saving.load_model(filepath,
                        custom_objects = {'TransformerBlock': TransformerEncoder,
                                          'TokenAndPositionEmbedding': TokenAndPositionEmbedding,
                                          'TransformerDecoder': TransformerDecoder, "weighted_loss": get_weighted_loss,
