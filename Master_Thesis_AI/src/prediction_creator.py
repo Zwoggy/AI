@@ -173,7 +173,7 @@ def save_evaluation_result(results):
 
 def evaluate_model(predictions, true_binary_epitope):
     # Da das Modell Wahrscheinlichkeiten ausgibt, runde auf 0 oder 1
-    predicted_binary = np.where(predictions >= 0.6, 1, 0) # test mit threshold auf 0.6
+    predicted_binary = np.where(predictions >= 0.7, 1, 0) # test mit threshold auf 0.7
     # Berechne die Metriken
     print( "test: ", true_binary_epitope, predicted_binary)
     #auc = masked_auc(true_binary_epitope, predictions) # TODO wenn Zeit, dann komische squeeze errors beheben
