@@ -167,13 +167,13 @@ def collect_evaluation_data(predictions, true_epitope, pdb_id):
 def save_evaluation_result(results):
     # Ergebnisse in CSV speichern
     results_df = pd.DataFrame(results)
-    results_df.to_csv('./Master_Thesis_AI/output/evaluation_results_0.7.csv', index=False)
+    results_df.to_csv('./Master_Thesis_AI/output/evaluation_results_0_5.csv', index=False)
     print("Evaluation abgeschlossen und in 'evaluation_results.csv' gespeichert.")
 
 
 def evaluate_model(predictions, true_binary_epitope):
     # Da das Modell Wahrscheinlichkeiten ausgibt, runde auf 0 oder 1
-    predicted_binary = np.where(predictions >= 0.7, 1, 0) # test mit threshold auf 0.7
+    predicted_binary = np.where(predictions >= 0.5, 1, 0) # test mit threshold auf 0.7
     # Berechne die Metriken
     print( "test: ", true_binary_epitope, predicted_binary)
     #auc = masked_auc(true_binary_epitope, predictions) # TODO wenn Zeit, dann komische squeeze errors beheben
