@@ -57,6 +57,7 @@ def use_model_and_predict_ma(test_run = False):
 
         # create heatmap
         decoded_sequence = detokenize(sequence)
+        pred_list = np.array(pred_list[:len(decoded_sequence)], dtype=np.float32)
         create_better_heatmap(pred_list, decoded_sequence, pdb_id)
 
         # create line plot
@@ -102,8 +103,6 @@ def create_better_heatmap(data, sequence, pdb_id):
     """Input: predictions from the model
     Output: Heatmaps according to the predictions for the whole sequence entered"""
     print("creating heatmap for pdb_id " + str(pdb_id))
-
-    data = np.array(data[:len(sequence)], dtype = np.float32)
 
     data_list, sequence_list = create_blocks(data, sequence)
     # print(data_list, sequence_list)
