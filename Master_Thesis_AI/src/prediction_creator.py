@@ -167,7 +167,7 @@ def collect_evaluation_data(predictions, true_epitope, pdb_id):
 def save_evaluation_result(results):
     # Ergebnisse in CSV speichern
     results_df = pd.DataFrame(results)
-    results_df.to_csv('./Master_Thesis_AI/output/evaluation_results_0.6.csv', index=False)
+    results_df.to_csv('./Master_Thesis_AI/output/evaluation_results_0.7.csv', index=False)
     print("Evaluation abgeschlossen und in 'evaluation_results.csv' gespeichert.")
 
 
