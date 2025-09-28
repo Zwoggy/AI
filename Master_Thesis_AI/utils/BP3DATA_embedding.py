@@ -23,8 +23,8 @@ sys.modules["keras.preprocessing.text"] = keras.preprocessing.text
 def read_file():
     """reads the file and
     :returns df of ID, Sequences """
-    filepath = 'C:/Users/fkori/PycharmProjects/AI/data/BP3_Data/BP3_training_set.fasta'
-
+    #filepath = 'C:/Users/fkori/PycharmProjects/AI/data/BP3_Data/BP3_training_set.fasta'
+    filepath = 'C:/Users/fkori/PycharmProjects/AI/data/BP3C50ID/BP3C50ID_training_set_original.fasta'
 
     with open(filepath, 'r') as f:
         lines = f.readlines()
@@ -104,4 +104,5 @@ if __name__=="__main__":
     df = read_file()
     df = create_epitope_sequence(df)
     df = embed_sequence(df)
-    df.to_csv('C:/Users/fkori/PycharmProjects/AI/data/BP3_Data/BP3_training_set_transformed.csv', index=False)
+    df.to_csv('C:/Users/fkori/PycharmProjects/AI/data/BP3C50ID/BP3C50ID_training_transformed.csv', index=False)
+    #df.to_csv('C:/Users/fkori/PycharmProjects/AI/data/BP3_Data/BP3_training_set_transformed.csv', index=False)

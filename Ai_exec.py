@@ -232,7 +232,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
 
     else:
         voc_size=100
-        filepath = "./data/BP3_Data/BP3_training_set_transformed.csv"
+        #filepath = "./data/BP3_Data/BP3_training_set_transformed.csv"
+        filepath = "./data/BP3C50ID/BP3C50ID_training_transformed.csv"
         df_bp = pd.read_csv(filepath)
 
         #antigen_list = df_bp['Sequenz'].tolist()
