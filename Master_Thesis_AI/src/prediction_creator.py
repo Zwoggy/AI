@@ -1,6 +1,5 @@
 import argparse
 import pickle
-import sys
 
 import keras
 import numpy as np
@@ -54,7 +53,8 @@ def use_model_and_predict_ma(threshold, test_run = False):
         pdb_id = id_list[i]
 
         # collect data for csv file
-        results.append(collect_evaluation_data(np.array(pred_list), padded_epitope_list[i], pdb_id, threshold))
+        result = collect_evaluation_data(np.array(pred_list), padded_epitope_list[i], pdb_id, threshold)
+        results.append(result)
 
         # create heatmap
         decoded_sequence = detokenize(sequence)
@@ -62,7 +62,7 @@ def use_model_and_predict_ma(threshold, test_run = False):
         create_better_heatmap(pred_list, decoded_sequence, pdb_id)
 
         # create line plot
-        create_line_plot(pred_list, pdb_id)
+        create_line_plot(pred_list, padded_epitope_list[i], pdb_id)
 
         # create csv file containing heatmap values for PyMOL
         create_pymol_heatmap_csv(pred_list, pdb_id)
@@ -136,14 +136,18 @@ def create_blocks(list1, list2):
     return np.array(blocks1), np.array(blocks2)
 
 
-def create_line_plot(data, pdb_id):
+def create_line_plot(data, true_epitope, pdb_id):
     filename = "./Master_Thesis_AI/output/plots/" + str(pdb_id) + ".png"
 
     plt.figure(dpi=1000)
     plt.style.use('_mpl-gallery')
 
+    true_epitope = true_epitope[:len(data)]
+    colors = ["red" if val > 0.5 else "blue" for val in true_epitope]
+
     fig, ax = plt.subplots(figsize=(12, 4))
-    ax.plot(range(len(data)), data, linewidth=0.8)
+    #ax.plot(range(len(data)), data, linewidth=0.8) # Linie
+    ax.scatter(range(len(data)), data, c=colors, s=20)  # Punkte, s = point size
     ax.set_ylim(0, 1)
     ax.set_xlabel("Index")
     ax.set_ylabel("Prediction")
