@@ -14,6 +14,7 @@ from Master_Thesis_AI.src.validate_on_29_external import return_29_external_data
 from src import RemoveMask
 from src.masked_metrics import masked_mcc, masked_f1_score, masked_precision, masked_recall
 
+OUTPUT_DIR = "./Master_Thesis_AI/output/"
 
 def use_model_and_predict_ma(threshold, test_run = False):
     """Enter a sequence to use for prediction and generate the heatmap output.
@@ -32,7 +33,7 @@ def use_model_and_predict_ma(threshold, test_run = False):
     #model.load_weights('./AI/EMS2_AI/AI_weights')
     model.compile()
     tf.keras.utils.plot_model(model, expand_nested = True, show_shapes = True,
-                              to_file = './Master_Thesis_AI/output/model_architecture.png', show_layer_activations = True)
+                              to_file = OUTPUT_DIR + "model_architecture.png", show_layer_activations = True)
     print(model.summary(expand_nested = True))
 
     x_comb, padded_epitope_list, id_list = return_29_external_dataset_X_y(model, maxlen=933, use_structure = True)
@@ -111,7 +112,7 @@ def create_better_heatmap(data, sequence, pdb_id):
     sequence_list = np.reshape(sequence_list, (sequence_list.shape[1], sequence_list.shape[0]))
     # print(data_list.shape)
 
-    filename = "./Master_Thesis_AI/output/heatmaps/" + str(pdb_id) + ".png"
+    filename = OUTPUT_DIR + "heatmaps/" + str(pdb_id) + ".png"
     plt.figure(dpi = 1000)
     sb.heatmap(data_list, xticklabels = False, yticklabels = False, vmin = 0.2, vmax = 0.8, cmap = "rocket_r", annot=sequence_list, fmt="")
     plt.savefig(filename, dpi = 1000, bbox_inches = "tight")
@@ -150,7 +151,7 @@ def create_line_plot(predictions, true_epitope, pdb_id):
     ax.set_xlabel("Index")
     ax.set_ylabel("Prediction")
 
-    filename = "./Master_Thesis_AI/output/plots/" + str(pdb_id) + ".png"
+    filename = OUTPUT_DIR + "plots/" + str(pdb_id) + ".png"
     plt.savefig(filename, dpi=1000, bbox_inches="tight")
     print("saved plot: " + filename)
 
@@ -171,7 +172,7 @@ def save_evaluation_result(results, threshold):
     # Ergebnisse in CSV speichern
     results_df = pd.DataFrame(results)
     threshold_str = str(threshold).replace(".", "_")
-    results_df.to_csv('./Master_Thesis_AI/output/evaluation_results_' + threshold_str + '.csv', index=False)
+    results_df.to_csv(OUTPUT_DIR + "evaluation_results_" + threshold_str + ".csv", index=False)
     print("Evaluation abgeschlossen und in 'evaluation_results.csv' gespeichert.")
 
 
@@ -202,7 +203,7 @@ def create_pymol_heatmap_csv(data, pdb_id):
 
     filename = str(pdb_id) + ".csv"
     results_df = pd.DataFrame(csv_data)
-    results_df.to_csv('./Master_Thesis_AI/output/pymol/' + filename, index=False)
+    results_df.to_csv(OUTPUT_DIR + "pymol/" + filename, index=False)
     print("saved " + filename)
 
 
