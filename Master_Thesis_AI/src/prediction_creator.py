@@ -21,7 +21,7 @@ def use_model_and_predict_ma(threshold, test_run = False):
     All path need to be changed to wherever the files are stored on your computer."""
     tf.keras.backend.clear_session()
     #TODO change the following path to the final_AI folder path
-    model = keras.saving.load_model('./Master_Thesis_AI/models/20250925_155149_best_model_fold_no_k_fold.keras',
+    model = keras.saving.load_model('./Master_Thesis_AI/models/20250928_121001_best_model_fold_no_k_fold.keras',
                        custom_objects = {'TransformerBlock': TransformerEncoder,
                                          'TokenAndPositionEmbedding': TokenAndPositionEmbedding,
                                          'TransformerDecoder': TransformerDecoder, "weighted_loss": get_weighted_loss,
