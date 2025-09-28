@@ -1,3 +1,4 @@
+import argparse
 import pickle
 import sys
 
@@ -15,7 +16,7 @@ from src import RemoveMask
 from src.masked_metrics import masked_mcc, masked_f1_score, masked_precision, masked_recall
 
 
-def use_model_and_predict_ma(test_run = False):
+def use_model_and_predict_ma(threshold, test_run = False):
     """Enter a sequence to use for prediction and generate the heatmap output.
     All path need to be changed to wherever the files are stored on your computer."""
     tf.keras.backend.clear_session()
@@ -53,7 +54,7 @@ def use_model_and_predict_ma(test_run = False):
         pdb_id = id_list[i]
 
         # collect data for csv file
-        results.append(collect_evaluation_data(np.array(pred_list), padded_epitope_list[i], pdb_id))
+        results.append(collect_evaluation_data(np.array(pred_list), padded_epitope_list[i], pdb_id, threshold))
 
         # create heatmap
         decoded_sequence = detokenize(sequence)
@@ -70,7 +71,7 @@ def use_model_and_predict_ma(test_run = False):
             break
 
     # save csv file
-    save_evaluation_result(results)
+    save_evaluation_result(results, threshold)
 
 
 def convert_to_simple_list(complex_list):
@@ -151,8 +152,8 @@ def create_line_plot(data, pdb_id):
     print("saved plot: " + filename)
 
 
-def collect_evaluation_data(predictions, true_epitope, pdb_id):
-    recall, precision, f1, mcc = evaluate_model(predictions, true_epitope)
+def collect_evaluation_data(predictions, true_epitope, pdb_id, threshold):
+    recall, precision, f1, mcc = evaluate_model(predictions, true_epitope, threshold)
 
     return {
         'PDB ID': pdb_id,
@@ -163,16 +164,17 @@ def collect_evaluation_data(predictions, true_epitope, pdb_id):
     }
 
 
-def save_evaluation_result(results):
+def save_evaluation_result(results, threshold):
     # Ergebnisse in CSV speichern
     results_df = pd.DataFrame(results)
-    results_df.to_csv('./Master_Thesis_AI/output/evaluation_results_0_5.csv', index=False)
+    threshold_str = str(threshold).replace(".", "_")
+    results_df.to_csv('./Master_Thesis_AI/output/evaluation_results_' + threshold_str + '.csv', index=False)
     print("Evaluation abgeschlossen und in 'evaluation_results.csv' gespeichert.")
 
 
-def evaluate_model(predictions, true_binary_epitope):
+def evaluate_model(predictions, true_binary_epitope, threshold):
     # Da das Modell Wahrscheinlichkeiten ausgibt, runde auf 0 oder 1
-    predicted_binary = np.where(predictions >= 0.5, 1, 0) # test mit threshold auf 0.7
+    predicted_binary = np.where(predictions >= threshold, 1, 0)
     # Berechne die Metriken
     print( "test: ", true_binary_epitope, predicted_binary)
     #auc = masked_auc(true_binary_epitope, predictions) # TODO wenn Zeit, dann komische squeeze errors beheben
@@ -208,10 +210,13 @@ def get_startingindex_by_pdbid(pdb_id):
     except IndexError:
         return 0
 
-if __name__=="__main__":
-    test_run = False
-    if len(sys.argv) > 1:
-        test_run = sys.argv[1]
-        print("!!! TEST RUN !!!")
 
-    use_model_and_predict_ma(test_run)
+if __name__=="__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--threshold', type=float, required=False, default=0.5, help='Prediction Threshold (Default: 0.5)')
+    parser.add_argument('--test', type=bool, required=False, default=False, help='Runs this script for the first sequence only.')
+    args = parser.parse_args()
+
+    print("run use_model_and_predict_ma with threshold=" + str(args.threshold) + ", test=" + str(args.test))
+
+    use_model_and_predict_ma(args.threshold, args.test)
