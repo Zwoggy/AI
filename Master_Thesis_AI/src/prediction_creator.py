@@ -136,22 +136,21 @@ def create_blocks(list1, list2):
     return np.array(blocks1), np.array(blocks2)
 
 
-def create_line_plot(data, true_epitope, pdb_id):
-    filename = "./Master_Thesis_AI/output/plots/" + str(pdb_id) + ".png"
+def create_line_plot(predictions, true_epitope, pdb_id):
+    true_epitope = true_epitope[:len(predictions)]
+    colors = ["red" if val > 0.5 else "blue" for val in true_epitope]
 
     plt.figure(dpi=1000)
     plt.style.use('_mpl-gallery')
 
-    true_epitope = true_epitope[:len(data)]
-    colors = ["red" if val > 0.5 else "blue" for val in true_epitope]
-
     fig, ax = plt.subplots(figsize=(12, 4))
     #ax.plot(range(len(data)), data, linewidth=0.8) # Linie
-    ax.scatter(range(len(data)), data, c=colors, s=20)  # Punkte, s = point size
+    ax.scatter(range(len(predictions)), predictions, c=colors, s=20)  # Punkte, s = point size
     ax.set_ylim(0, 1)
     ax.set_xlabel("Index")
     ax.set_ylabel("Prediction")
 
+    filename = "./Master_Thesis_AI/output/plots/" + str(pdb_id) + ".png"
     plt.savefig(filename, dpi=1000, bbox_inches="tight")
     print("saved plot: " + filename)
 
