@@ -1,5 +1,6 @@
 import argparse
 import pickle
+from pathlib import Path
 
 import keras
 import numpy as np
@@ -15,6 +16,28 @@ from src import RemoveMask
 from src.masked_metrics import masked_mcc, masked_f1_score, masked_precision, masked_recall
 
 OUTPUT_DIR = "./Master_Thesis_AI/output/"
+
+class Output:
+    def __init__(self, func, threshold, output_dir, test_run):
+        self.func = func
+        self.threshold = threshold
+        if not output_dir.endswith("/"):
+            output_dir += "/"
+        self.output_dir = OUTPUT_DIR + output_dir
+        self.test_run = test_run
+
+        # create a few directories to save our results in
+        self.__create_directory()
+        self.__create_directory("heatmaps")
+        self.__create_directory("plots")
+        self.__create_directory("pymol")
+
+    def run(self, *args, **kwargs):
+        return self.func(*args, **kwargs)
+
+    def __create_directory(self, subfolder = ""):
+        Path(self.output_dir + subfolder).mkdir(parents=True, exist_ok=True)
+
 
 def use_model_and_predict_ma(threshold, test_run = False):
     """Enter a sequence to use for prediction and generate the heatmap output.
@@ -39,12 +62,20 @@ def use_model_and_predict_ma(threshold, test_run = False):
                               to_file = OUTPUT_DIR + "model_architecture.png", show_layer_activations = True)
     print(model.summary(expand_nested = True))
 
-    x_comb, padded_epitope_list, id_list = return_29_external_dataset_X_y(model, maxlen=933, use_structure = True)
     # x_comb: array consisting of:
     # 29 proteins
     # 933 sequence (length of 933)
     # 8 infos (relevant: here only index 0)
+    output = Output(return_29_external_dataset_X_y, threshold, "29_external_dataset", test_run)
+    x_comb, padded_epitope_list, id_list = output.run(model, maxlen=933, use_structure=True)
+    create_output_for_predictions(model, x_comb, padded_epitope_list, id_list, output)
 
+    # output = Output(return_BP3C50ID_embedded_and_epitopes, threshold, "BP3C50ID_embedded_and_epitopes", test_run) # TODO BP3C50ID_embedded_and_epitopes (uncomment all 3 lines)
+    # x_comb, padded_epitope_list, id_list = output.run(model, maxlen=933, use_structure=True)
+    # create_output_for_predictions(model, x_comb, padded_epitope_list, id_list, output)
+
+
+def create_output_for_predictions(model, x_comb, padded_epitope_list, id_list, output: Output):
     # contains floats between 0 and 1
     predictions = model.predict(x_comb)
 
@@ -59,25 +90,25 @@ def use_model_and_predict_ma(threshold, test_run = False):
         pdb_id = id_list[i]
 
         # collect data for csv file
-        result = collect_evaluation_data(np.array(pred_list), padded_epitope_list[i], pdb_id, threshold)
+        result = collect_evaluation_data(np.array(pred_list), padded_epitope_list[i], pdb_id, output)
         results.append(result)
 
         # create heatmap
         decoded_sequence = detokenize(sequence)
         pred_list = np.array(pred_list[:len(decoded_sequence)], dtype=np.float32)
-        create_better_heatmap(pred_list, decoded_sequence, pdb_id)
+        create_better_heatmap(pred_list, decoded_sequence, pdb_id, output)
 
         # create line plot
-        create_line_plot(pred_list, padded_epitope_list[i], pdb_id)
+        create_line_plot(pred_list, padded_epitope_list[i], pdb_id, output)
 
         # create csv file containing heatmap values for PyMOL
-        create_pymol_heatmap_csv(pred_list, pdb_id)
+        create_pymol_heatmap_csv(pred_list, pdb_id, output)
 
-        if test_run and i == 0:
+        if output.test_run and i == 0:
             break
 
     # save csv file
-    save_evaluation_result(results, threshold)
+    save_evaluation_result(results, output)
 
 
 def convert_to_simple_list(complex_list):
@@ -106,7 +137,7 @@ def get_weighted_loss(weights):
     return weighted_loss
 
 
-def create_better_heatmap(predictions, sequence, pdb_id):
+def create_better_heatmap(predictions, sequence, pdb_id, output: Output):
     """Input: predictions from the model
     Output: Heatmaps according to the predictions for the whole sequence entered"""
     print("creating heatmap for pdb_id " + str(pdb_id))
@@ -117,7 +148,7 @@ def create_better_heatmap(predictions, sequence, pdb_id):
     sequence_list = np.reshape(sequence_list, (sequence_list.shape[1], sequence_list.shape[0]))
     # print(data_list.shape)
 
-    filename = OUTPUT_DIR + "heatmaps/" + str(pdb_id) + ".png"
+    filename = output.output_dir + "heatmaps/" + str(pdb_id) + ".png"
     plt.figure(dpi = 1000)
     sb.heatmap(pred_list, xticklabels = False, yticklabels = False, vmin = 0.2, vmax = 0.8, cmap = "rocket_r", annot=sequence_list, fmt="")
     plt.savefig(filename, dpi = 1000, bbox_inches = "tight")
@@ -142,7 +173,7 @@ def create_blocks(list1, list2):
     return np.array(blocks1), np.array(blocks2)
 
 
-def create_line_plot(predictions, true_epitope, pdb_id):
+def create_line_plot(predictions, true_epitope, pdb_id, output: Output):
     true_epitope = true_epitope[:len(predictions)]
     colors = ["red" if val > 0.5 else "blue" for val in true_epitope]
 
@@ -156,13 +187,13 @@ def create_line_plot(predictions, true_epitope, pdb_id):
     ax.set_xlabel("Index")
     ax.set_ylabel("Prediction")
 
-    filename = OUTPUT_DIR + "plots/" + str(pdb_id) + ".png"
+    filename = output.output_dir + "plots/" + str(pdb_id) + ".png"
     plt.savefig(filename, dpi=1000, bbox_inches="tight")
     print("saved plot: " + filename)
 
 
-def collect_evaluation_data(predictions, true_epitope, pdb_id, threshold):
-    recall, precision, f1, mcc = evaluate_model(predictions, true_epitope, threshold)
+def collect_evaluation_data(predictions, true_epitope, pdb_id, output: Output):
+    recall, precision, f1, mcc = evaluate_model(predictions, true_epitope, output.threshold)
 
     return {
         'PDB ID': pdb_id,
@@ -173,11 +204,11 @@ def collect_evaluation_data(predictions, true_epitope, pdb_id, threshold):
     }
 
 
-def save_evaluation_result(results, threshold):
+def save_evaluation_result(results, output: Output):
     # Ergebnisse in CSV speichern
     results_df = pd.DataFrame(results)
-    threshold_str = str(threshold).replace(".", "_")
-    results_df.to_csv(OUTPUT_DIR + "evaluation_results_" + threshold_str + ".csv", index=False)
+    threshold_str = str(output.threshold).replace(".", "_")
+    results_df.to_csv(output.output_dir + "evaluation_results_" + threshold_str + ".csv", index=False)
     print("Evaluation abgeschlossen und in 'evaluation_results.csv' gespeichert.")
 
 
@@ -196,7 +227,7 @@ def evaluate_model(predictions, true_binary_epitope, threshold):
     return recall, precision, f1, mcc
 
 
-def create_pymol_heatmap_csv(predictions, pdb_id):
+def create_pymol_heatmap_csv(predictions, pdb_id, output: Output):
     start_index = get_startingindex_by_pdbid(pdb_id)
 
     csv_data = []
@@ -208,7 +239,7 @@ def create_pymol_heatmap_csv(predictions, pdb_id):
 
     filename = str(pdb_id) + ".csv"
     results_df = pd.DataFrame(csv_data)
-    results_df.to_csv(OUTPUT_DIR + "pymol/" + filename, index=False)
+    results_df.to_csv(output.output_dir + "pymol/" + filename, index=False)
     print("saved " + filename)
 
 
