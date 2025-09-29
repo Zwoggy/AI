@@ -121,7 +121,7 @@ def return_29_external_dataset_X_y(model=None, maxlen: int = None, use_structure
     return padded_sequences, padded_epitope_list
 
 
-def keep_sequences_up_to_a_length_of_maxlen(sequences, epitope_list, sequence_list, maxlen: int=None):
+def keep_sequences_up_to_a_length_of_maxlen(sequences, epitope_list, maxlen: int=None):
     """
     Beschränkt alle Sequenzen auf eine maximale Länge von 235 Zeichen.
 
@@ -143,14 +143,14 @@ def keep_sequences_up_to_a_length_of_maxlen(sequences, epitope_list, sequence_li
             new_sequences_list.append(sequence)
             new_epitope_list.append(epitope_list[i])
         else: # ist eine Sequenz länger, dann wird eine Subsequenz der Länge von 235 herausgeschnitten
-            new_sequence, new_epitope = prepare_sequence_part_of_length_maxlen_with_most_epitopes(sequence, epitope_list[i], sequence_list[i])
+            new_sequence, new_epitope = prepare_sequence_part_of_length_maxlen_with_most_epitopes(sequence, epitope_list[i])
             new_sequences_list.append(new_sequence)
             new_epitope_list.append(new_epitope)
 
     return new_sequences_list, new_epitope_list
 
 
-def prepare_sequence_part_of_length_maxlen_with_most_epitopes(sequence, epitope, sequence_list, maxlen:int=None):
+def prepare_sequence_part_of_length_maxlen_with_most_epitopes(sequence, epitope, maxlen:int=None):
     """
         Extrahiert einen Teilabschnitt der Sequenz mit einer maximalen Länge von 235 Zeichen,
         der die meisten Epitope enthält.
@@ -188,7 +188,7 @@ def prepare_sequence_part_of_length_maxlen_with_most_epitopes(sequence, epitope,
 
         return partial_sequence, partial_epitope
     except:
-        print("In der folgenden Sequenz sind die Epitope nicht korrekt angegeben: ", sequence, sequence_list)
+        print("In der folgenden Sequenz sind die Epitope nicht korrekt angegeben: ", sequence)
         return sequence[:maxlen], epitope[:maxlen]
 
 
