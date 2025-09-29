@@ -1310,7 +1310,7 @@ def evaluate_model(model, encoder, sequence, true_binary_epitope):
     # Da das Modell Wahrscheinlichkeiten ausgibt, runde auf 0 oder 1
     # print(true_binary_epitope)
     # print(predictions)
-    predicted_binary = np.where(predictions >= 0.5, 1, 0)
+    predicted_binary = np.where(predictions >= 0.6, 1, 0) #TODO back to 0.5 for training evaluation
     # Berechne die Metriken
     print( "test: ", true_binary_epitope, predicted_binary)
     auc = masked_auc(true_binary_epitope, predictions)
