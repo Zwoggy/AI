@@ -140,7 +140,7 @@ def return_29_external_dataset_X_y(model=None, maxlen: int = None, use_structure
     encoded_sequences = encoder.texts_to_sequences(sequence_list)
 
     padded_sequences = sequence.pad_sequences(encoded_sequences, maxlen=fixed_length,
-                                              padding='post', value=0)
+                                              padding='post', value=-1)
 
     epitope_list = [[int(char) for char in epitope] for epitope in epitope_list] # Für Padding vorbereiten, erwartet eine Liste von Integern
 
