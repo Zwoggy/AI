@@ -11,7 +11,8 @@ from keras_hub.layers import TransformerEncoder, TokenAndPositionEmbedding, Tran
 from matplotlib import pyplot as plt
 from tensorflow.keras import backend as K
 
-from Master_Thesis_AI.src.validate_on_29_external import return_29_external_dataset_X_y
+from Master_Thesis_AI.src.validate_on_29_external import return_29_external_dataset_X_y, \
+    return_BP3C50ID_embedded_and_epitopes
 from src import RemoveMask
 from src.masked_metrics import masked_mcc, masked_f1_score, masked_precision, masked_recall
 
@@ -70,9 +71,9 @@ def use_model_and_predict_ma(threshold, test_run = False):
     x_comb, padded_epitope_list, id_list = output.run(model, maxlen=933, use_structure=True)
     create_output_for_predictions(model, x_comb, padded_epitope_list, id_list, output)
 
-    # output = Output(return_BP3C50ID_embedded_and_epitopes, threshold, "BP3C50ID_embedded_and_epitopes", test_run) # TODO BP3C50ID_embedded_and_epitopes (uncomment all 3 lines)
-    # x_comb, padded_epitope_list, id_list = output.run(model, maxlen=933, use_structure=True)
-    # create_output_for_predictions(model, x_comb, padded_epitope_list, id_list, output)
+    output = Output(return_BP3C50ID_embedded_and_epitopes, threshold, "BP3C50ID_embedded_and_epitopes", test_run) # TODO BP3C50ID_embedded_and_epitopes (uncomment all 3 lines)
+    x_comb, padded_epitope_list, id_list = output.run(model, maxlen=933, use_structure=True)
+    create_output_for_predictions(model, x_comb, padded_epitope_list, id_list, output)
 
 
 def create_output_for_predictions(model, x_comb, padded_epitope_list, id_list, output: Output):
