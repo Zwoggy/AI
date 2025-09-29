@@ -1,10 +1,10 @@
 import pickle
 import pandas as pd
+from keras_preprocessing import text, sequence
 from keras_preprocessing.sequence import pad_sequences
 from tf_keras.preprocessing import text
 import ast
-
-from Ai_exec import get_BP3_dataset
+import numpy as np
 from Master_Thesis_AI.src.get_and_merge_structural_data_to_sequences import build_structural_features
 from ai_functionality_old import load_model_and_tokenizer, modify_with_context, evaluate_model
 from validate_BP3C50ID_external_test_set import string_to_int_list
@@ -12,7 +12,41 @@ from validate_BP3C50ID_external_test_set import string_to_int_list
 """
 """
 
+def get_BP3_dataset_MA(maxlen, use_structure=False):
+    # CSV-Datei einlesen
+    df = pd.read_csv('./data/BP3C50ID/BP3C50ID_embedded_and_epitopes.csv')
+    fixed_length = maxlen
+    # Feste Länge
+    # Durchlaufen der Zeilen im DataFrame und epitope_embed entsprechend befüllen
+    encoded_sequences = df["Sequenz"]
+    epitope_list_BP = df["Epitop"]
+    ### hier if länge >maxlen
+    sequences_BP, epitope_list_BP = keep_sequences_up_to_a_length_of_maxlen(encoded_sequences, epitope_list_BP)
+    with open('./AI/tokenizer.pickle', 'rb') as handle:
+        encoder = pickle.load(handle)
+    sequences_BP = [string_to_int_list(seq_str) for seq_str in sequences_BP]
+    # Alle Sequenzen auf Länge 235 polstern (Padding mit 0)
+    X_BP3C59ID_external_test_set = sequence.pad_sequences(sequences_BP, maxlen=fixed_length,
+                                                          padding='post', value=0)
+    epitope_list_BP = [[int(char) for char in epitope] for epitope in
+                       epitope_list_BP]  # Für Padding vorbereiten, erwartet eine Liste von Integern
+    # Alle Eitope auf die Länge maxlen polstern (Padding mit 0)
+    y_BP3C59ID_external_test_set = sequence.pad_sequences(epitope_list_BP, maxlen=fixed_length,
+                                                          padding='post', value=-1)
+    if use_structure:
+        #pdb_id = df["PDB_ID"]
+        id_list = [seq_str.strip(">") for seq_str in df['ID']]
 
+        # In NumPy-Arrays konvertieren
+        antigen_array = np.array(X_BP3C59ID_external_test_set, dtype=np.float16)
+        #epitope_array = np.array(epitope_list_BP, dtype=np.float16)
+        #epitope_array.reshape(epitope_array.shape[0], epitope_array.shape[1], 1)
+
+        X_struct, X_comb = build_structural_features(id_list, antigen_array, data_root="./data/BP3C50ID/structures/")
+        #return X_struct, y_BP3C59ID_external_test_set
+        return X_comb, y_BP3C59ID_external_test_set
+
+    return X_BP3C59ID_external_test_set, y_BP3C59ID_external_test_set
 
 
 def return_BP3C50ID_embedded_and_epitopes(model=None, maxlen: int = None, use_structure=False):
@@ -65,7 +99,7 @@ def return_BP3C50ID_embedded_and_epitopes(model=None, maxlen: int = None, use_st
         # add structural data
         id_list = df["ID"].str.lstrip(">")
         X_struct, X_comb = build_structural_features(id_list, padded_sequences, data_root='./data/BP3C50ID/structures/')
-        X_comb, padded_epitope_list = get_BP3_dataset(maxlen, use_structure=use_structure)
+        X_comb, padded_epitope_list = get_BP3_dataset_MA(maxlen, use_structure=use_structure)
         return X_comb, padded_epitope_list, id_list
 
     return padded_sequences, padded_epitope_list
