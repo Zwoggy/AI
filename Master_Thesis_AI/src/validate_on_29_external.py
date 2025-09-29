@@ -37,7 +37,7 @@ def return_BP3C50ID_embedded_and_epitopes(model=None, maxlen: int = None, use_st
     encoded_sequences = df["Sequenz"]
     epitope_list = df["Epitop"]
     ### hier if länge >235
-    sequences, epitope_list = keep_sequences_up_to_a_length_of_maxlen(encoded_sequences, epitope_list)
+    sequences, epitope_list = keep_sequences_up_to_a_length_of_maxlen(encoded_sequences, epitope_list, maxlen=933)
     print("original_epitope_list: ", epitope_list)
 
     with open('./AI/tokenizer.pickle', 'rb') as handle:
