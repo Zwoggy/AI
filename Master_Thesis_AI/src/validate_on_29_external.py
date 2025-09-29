@@ -82,14 +82,14 @@ def return_BP3C50ID_embedded_and_epitopes(model=None, maxlen: int = None, use_st
 
     # Alle Sequenzen auf Länge 235 polstern (Padding mit 0)
     padded_sequences = sequence.pad_sequences(sequences, maxlen=fixed_length,
-                                              padding='post', value=0)
+                                              padding='post', value=-1)
 
     epitope_list = [[int(char) for char in epitope] for epitope in
                     epitope_list]  # Für Padding vorbereiten, erwartet eine Liste von Integern
     print("epitope_list: ", epitope_list)
     # Alle Eitope auf die Länge 235 polstern (Padding mit 0)
     padded_epitope_list = sequence.pad_sequences(epitope_list, maxlen=fixed_length,
-                                                 padding='post', value=0)
+                                                 padding='post', value=-1)
     print("padded_epitopes: ", padded_epitope_list)
 
 
@@ -99,7 +99,7 @@ def return_BP3C50ID_embedded_and_epitopes(model=None, maxlen: int = None, use_st
         # add structural data
         id_list = df["ID"].str.lstrip(">")
         X_struct, X_comb = build_structural_features(id_list, padded_sequences, data_root='./data/BP3C50ID/structures/')
-        X_comb, padded_epitope_list = get_BP3_dataset_MA(maxlen, use_structure=use_structure)
+        #X_comb, padded_epitope_list = get_BP3_dataset_MA(maxlen, use_structure=use_structure)
         return X_comb, padded_epitope_list, id_list
 
     return padded_sequences, padded_epitope_list
