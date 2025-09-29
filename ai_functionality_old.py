@@ -237,7 +237,7 @@ def embedding(filepath, old=False):
     #print(encoder.word_index)
 
     embedded_docs = pad_sequences(pre_embedded_docs, maxlen = length_of_longest_sequence,
-                                                            padding = 'post', value = 0)
+                                                            padding = 'post', value = -1) #TODO value was 0
 
 
 
