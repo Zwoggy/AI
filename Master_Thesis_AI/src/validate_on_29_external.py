@@ -4,6 +4,7 @@ from keras_preprocessing.sequence import pad_sequences
 from tf_keras.preprocessing import text
 import ast
 
+from Ai_exec import get_BP3_dataset
 from Master_Thesis_AI.src.get_and_merge_structural_data_to_sequences import build_structural_features
 from ai_functionality_old import load_model_and_tokenizer, modify_with_context, evaluate_model
 from validate_BP3C50ID_external_test_set import string_to_int_list
@@ -64,6 +65,7 @@ def return_BP3C50ID_embedded_and_epitopes(model=None, maxlen: int = None, use_st
         # add structural data
         id_list = df["ID"].str.lstrip(">")
         X_struct, X_comb = build_structural_features(id_list, padded_sequences, data_root='./data/BP3C50ID/structures/')
+        X_comb, padded_epitope_list = get_BP3_dataset(maxlen, use_structure=use_structure)
         return X_comb, padded_epitope_list, id_list
 
     return padded_sequences, padded_epitope_list

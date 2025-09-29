@@ -544,8 +544,8 @@ def create_ai(filepath, save_file, output_file, train=False, safe=False, validat
             use_model_and_predict()
         if validate_45_Blind:
             validate_on_45_blind()
-    if validate_BP3C:
-        validate_on_BP3C59ID_external_test_set(model=model)
+        if validate_BP3C:
+            validate_on_BP3C59ID_external_test_set(model=model)
     amino_acid_counts_epitope_predicted, confusion_matrices = analyze_amino_acids_in_validation_data( model, validation_sequences=testx_list, validation_labels=testy_list, encoder=encoder)
 
 
